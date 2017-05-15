@@ -8,7 +8,7 @@ module.exports = {
     googleAnalyticsTrackingID: process.env.GOOGLE_ANALYTICS_TRACKING_ID || '',
     reCaptchaSecret: process.env.RECAPTCHA_SECRET || '1234'
   },
-  port: process.env.PORT || 77,
+  port: process.env.PORT || 80,
   templateEngine: 'swig',
   // Session Cookie settings
   sessionCookie: {
