@@ -11,7 +11,7 @@ module.exports = function(sequelize, DataTypes) {
             autoIncrement: true
         },
         username: {
-            type: DataTypes.STRING(20),
+            type: DataTypes.STRING(32),
             allowNull: false,
             unique: true
         },
@@ -27,7 +27,7 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.INTEGER(11),
             allowNull: false
         },
-        channel_stream_source_id: {
+        channel_stream_source: {
             type: DataTypes.INTEGER(11),
             allowNull: false
         },
@@ -36,11 +36,12 @@ module.exports = function(sequelize, DataTypes) {
             allowNull: false
         },
         pin: {
-            type: DataTypes.STRING(4),
+            type: DataTypes.STRING(6),
             allowNull: false
         },
         show_adult: {
             type: DataTypes.BOOLEAN,
+            default: true,
             allowNull: true
         },
         auto_timezone: {
@@ -57,7 +58,7 @@ module.exports = function(sequelize, DataTypes) {
             allowNull: false,
             defaultValue: 'default'
         },
-		activity_timeout: {
+        activity_timeout: {
             type: DataTypes.INTEGER(11),
             allowNull: false
         },
@@ -67,37 +68,39 @@ module.exports = function(sequelize, DataTypes) {
         },
         resetPasswordToken: {
             type: DataTypes.STRING(128),
+            default: ' ',
             allowNull: true
         },
         resetPasswordExpires: {
             type: DataTypes.STRING(45),
+            default: ' ',
             allowNull: true
         },
+
         vodlastchange: {
             type: DataTypes.BIGINT(13),
+            default: Date.now(),
             allowNull: true
         },
         livetvlastchange: {
             type: DataTypes.BIGINT(13),
+            default: Date.now(),
             allowNull: true
         },
+
         account_lock: {
             type: DataTypes.BOOLEAN,
             allowNull: false
         },
         beta_user: {
-            type: DataTypes.BOOLEAN
+            type: DataTypes.BOOLEAN,
+            default: false
         }
 
     }, {
         tableName: 'login_data',
         associate: function(models) {
-            if (models.channel_stream_source){
-                loginData.belongsTo(models.channel_stream_source, {foreignKey: 'channel_stream_source_id'});
-            }
-            if (models.customer_data){
-                loginData.belongsTo(models.customer_data, {foreignKey: 'customer_id'});
-            }
+            loginData.belongsTo(models.customer_data, {foreignKey: 'customer_id'});
             if (models.subscription){
                 loginData.hasMany(models.subscription, {foreignKey: 'login_id'});
             }

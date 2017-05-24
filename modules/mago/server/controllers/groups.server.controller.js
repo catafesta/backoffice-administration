@@ -56,7 +56,6 @@ exports.delete = function(req, res) {
 
     DBModel.findById(deleteData.id).then(function(result) {
         if (result) {
-
             result.destroy().then(function() {
                 return res.json(result);
             }).catch(function(err) {

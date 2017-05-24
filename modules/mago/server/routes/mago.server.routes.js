@@ -5,9 +5,6 @@
 var path = require('path'),
     db = require(path.resolve('./config/lib/sequelize')).models,
     policy = require('../policies/mago.server.policy'),
-
-    //customerData = require(path.resolve('./modules/mago/server/controllers/customer_data.server.controller')),
-
     commonCtrl = require(path.resolve('./modules/mago/server/controllers/common.controller')),
     dashboardController = require(path.resolve('./modules/mago/server/controllers/dashboard.server.controller')),
     reportsController = require(path.resolve('./modules/mago/server/controllers/reports.controller'));

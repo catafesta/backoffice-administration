@@ -65,7 +65,7 @@ var getGlobbedPaths = function(globPatterns, excludes) {
  */
 var validateEnvironmentVariable = function() {
   var environmentFiles = glob.sync('./config/env/' + process.env.NODE_ENV + '.js');
-  console.log('\n');
+
   if (!environmentFiles.length) {
     if (process.env.NODE_ENV) {
       winston.error(chalk.red('Error: No configuration file found for "' + process.env.NODE_ENV + '" environment using development instead \n'));
@@ -75,7 +75,6 @@ var validateEnvironmentVariable = function() {
     process.env.NODE_ENV = 'development';
   }
   // Reset console color
-  winston.log(chalk.white(''));
 };
 
 /**
@@ -105,9 +104,11 @@ var initGlobalConfigFolders = function(config, assets) {
   // Appending files
   config.folders = {
     server: {},
+    //client: {}
   };
 
   // Setting globbed client paths
+  //config.folders.client = getGlobbedPaths(path.join(process.cwd(), 'modules/*/client/'), process.cwd().replace(new RegExp(/\\/g), '/'));
 };
 
 /**
@@ -135,6 +136,14 @@ var initGlobalConfigFiles = function(config, assets) {
   // Setting Globbed policies files
   config.files.server.policies = getGlobbedPaths(assets.server.policies);
 
+  // Setting Globbed js files
+  //config.files.client.js = getGlobbedPaths(assets.client.lib.js, 'public/').concat(getGlobbedPaths(assets.client.js, ['public/']));
+
+  // Setting Globbed css files
+  //config.files.client.css = getGlobbedPaths(assets.client.lib.css, 'public/').concat(getGlobbedPaths(assets.client.css, ['public/']));
+
+  // Setting Globbed test files
+  //config.files.client.tests = getGlobbedPaths(assets.client.tests);
 };
 
 /**

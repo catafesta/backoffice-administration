@@ -9,9 +9,9 @@ then
 fi
 
 echo "Generating self-signed certificates..."
-mkdir -p ./config/sslcerts
-openssl genrsa -out ./config/sslcerts/key.pem 4096
-openssl req -new -key ./config/sslcerts/key.pem -out ./config/sslcerts/csr.pem
-openssl x509 -req -days 365 -in ./config/sslcerts/csr.pem -signkey ./config/sslcerts/key.pem -out ./config/sslcerts/cert.pem
-rm ./config/sslcerts/csr.pem
-chmod 600 ./config/sslcerts/key.pem ./config/sslcerts/cert.pem
+mkdir -p ./config/sslcertificate
+openssl genrsa -out ./config/sslcertificate/key.txt 4096
+openssl req -new -key ./config/sslcertificate/key.txt -out ./config/sslcertificate/csr.pem
+openssl x509 -req -days 365 -in ./config/sslcertificate/csr.pem -signkey ./config/sslcertificate/key.txt -out ./config/sslcertificate/certificate.txt
+rm ./config/sslcertificate/csr.pem
+chmod 600 ./config/sslcertificate/key.txt ./config/sslcertificate/certificate.txt

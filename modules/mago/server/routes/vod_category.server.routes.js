@@ -1,7 +1,6 @@
 'use strict';
 
 var path = require('path'),
-    //db = require(path.resolve('./config/lib/sequelize')).models,
     policy = require('../policies/mago.server.policy'),
     vodCategories = require(path.resolve('./modules/mago/server/controllers/vod_category.server.controller'));
 

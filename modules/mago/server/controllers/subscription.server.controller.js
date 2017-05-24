@@ -61,7 +61,6 @@ exports.create = function(req, res) {
             login_id: loginData.id,
             package_id: item.package_id,
             customer_username: loginData.username,
-            //user_username: 'tempuser' //temp
             user_username: req.token.sub //live
           };
 
@@ -75,9 +74,8 @@ exports.create = function(req, res) {
               if (!savedSub) return res.status(400).send({message: 'fail create data'});
             })
           }else{
-            console.log("User Already have this Subscription ");
             if(runningSub.end_date > startDate){
-                runningSub.end_date = addDays(runningSub.end_date,combo.duration);
+              runningSub.end_date = addDays(runningSub.end_date,combo.duration);
             }else{
               runningSub.start_date = startDate;
               runningSub.end_date = addDays(startDate,combo.duration);
@@ -100,7 +98,6 @@ exports.create = function(req, res) {
         // Insert Into SalesData
         var sData = {
           user_id: req.token.uid,
-          //user_id: 4,
           user_username: loginData.username,
           login_data_id: loginData.id,
           distributorname: req.token.sub,
@@ -111,6 +108,8 @@ exports.create = function(req, res) {
             .then(function(salesData){
               if (!salesData) return res.status(400).send({message: 'fail create sales data'});
             });
+
+
       });
       return res.jsonp({state:"ok",login_id:newSub.login_id});
     }
@@ -197,8 +196,6 @@ exports.list = function(req, res) {
     qwhere.$or.login_id = {};
     qwhere.$or.login_id.$like = '%'+query.q+'%';
   }
-
-  //console.log(qwhere);
 
   DBModel.findAndCountAll({
     where: qwhere,

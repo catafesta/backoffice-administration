@@ -25,7 +25,6 @@ exports.user_settings = function(req, res) {
         clear_response.response_object[0] = result;
         res.send(clear_response);
     }).catch(function(error) {
-        console.log(error);
         res.send(response.DATABASE_ERROR); //request not executed
     });
 
@@ -45,17 +44,15 @@ exports.user_data = function(req, res) {
             clear_response.response_object[0] = result;
             res.send(clear_response);
         }).catch(function(error) {
-            console.log(error);
             res.send(response.DATABASE_ERROR); //request not executed
         });
         return null;
     }).catch(function(error) {
-        console.log(error);
         res.send(response.DATABASE_ERROR); //request not executed
     });
 };
 
- //API UPDATES DATA FOR THIS USER, RETURNS STATUS
+//API UPDATES DATA FOR THIS USER, RETURNS STATUS
 exports.update_user_data = function(req, res) {
 
     var clear_response = new response.OK();
@@ -99,17 +96,14 @@ exports.update_user_data = function(req, res) {
                 };
                 smtpTransport.sendMail(mailOptions, function(error, info){
                     if(error) console.log(error);
-                    else console.log('Message sent: ' + info.response);
                 });
             }
             res.send(clear_response);
         }).catch(function(error) {
-            console.log(error);
             res.send(response.DATABASE_ERROR); //request not executed
         });
         return null;
     }).catch(function(error) {
-        console.log(error);
         res.send(response.DATABASE_ERROR); //request not executed
     });
 
@@ -137,17 +131,17 @@ exports.update_user_settings = function(req, res) {
     ).then(function (result) {
         res.send(clear_response);
     }).catch(function(error) {
-        console.log(error);
         res.send(response.DATABASE_ERROR); //request not executed
     });
 
 };
 
 exports.change_password = function(req, res) {
-//TODO: only if auth data match proceed
     var clear_response = new response.OK();
+    var key = req.app.locals.settings.new_encryption_key;
+    var plaintext_password = (req.auth_obj.appid === '3') ? authentication.decryptPassword(decodeURIComponent(req.body.password), key) : decodeURIComponent(req.body.password);
     var salt = authentication.makesalt();
-    var encrypted_password = authentication.encryptPassword(decodeURIComponent(req.body.password), salt);
+    var encrypted_password = authentication.encryptPassword(plaintext_password, salt);
 
     models.login_data.update(
         {
@@ -158,14 +152,12 @@ exports.change_password = function(req, res) {
     ).then(function (result) {
         res.send(clear_response); //ok response, channel edited
     }).catch(function(error) {
-        console.log(error);
         res.send(response.DATABASE_ERROR); //request not executed
     });
 
 };
 
 exports.reset_pin = function(req, res) {
-//TODO: only if auth data match proceed
     var clear_response = new response.OK();
     clear_response.extra_data = "Your pin will be emailed in the address attached to this account!";
 
@@ -193,11 +185,9 @@ exports.reset_pin = function(req, res) {
         };
         smtpTransport.sendMail(mailOptions, function(error, info){
             if(error) console.log(error);
-            else console.log('Message sent: ' + info.response);
         });
         res.send(clear_response);
     }).catch(function(error) {
-        console.log(error);
         res.send(response.DATABASE_ERROR); //error in reading the user info
     });
 };
@@ -233,13 +223,12 @@ exports.subscription = function(req, res) {
         }
 
     }).catch(function(error) {
-        console.log(error);
         res.send(response.DATABASE_ERROR); //request not executed
     });
 
- };
+};
 
- 
+
 //API GETS SALEREPORT DATA
 exports.salereport = function(req, res) {
 
@@ -266,17 +255,16 @@ exports.salereport = function(req, res) {
         clear_response.response_object = salereport;
         res.send(clear_response);
     }).catch(function(error) {
-        console.log(error);
         res.send(response.DATABASE_ERROR); //request not executed
     });
 
- };
- 
+};
+
 
 
 /*******************************************************************
-  		Listing, adding, editing and deleting user channels
-  *******************************************************************/
+ Listing, adding, editing and deleting user channels
+ *******************************************************************/
 exports.add_channel = function(req, res) {
 
     var clear_response = new response.OK();
@@ -285,7 +273,14 @@ exports.add_channel = function(req, res) {
         where: {username: req.auth_obj.username}
     }).then(function (result) {
         models.my_channels.create({
-            channel_number: 66666, login_id: result.id, title: req.body.title , description: req.body.description, icon_url: '/images/do_not_delete/mago_logo.png', stream_url: req.body.stream , isavailable: 1
+            channel_number: 66666,
+            login_id: result.id,
+            title: req.body.title,
+            genre_id: (req.body.genre_id) ? req.body.genre_id : 1,
+            description: req.body.description,
+            icon_url: '/images/do_not_delete/mago_logo.png',  //TODO: delete
+            stream_url: req.body.stream ,
+            isavailable: 1
         }).then(function (result) {
             var new_channel_number = result.id + 999; //smallest channel number will be 1000 (for id 0). This way conflicts are avoided with normal channel numbers, which are <= 999
             models.my_channels.update(
@@ -298,17 +293,14 @@ exports.add_channel = function(req, res) {
             ).then(function (result) {
                 res.send(clear_response);
             }).catch(function(error) {
-                console.log(error);
                 res.send(response.DATABASE_ERROR); //request not executed
             });
             return null;
         }).catch(function(error) {
-            console.log(error);
             res.send(response.DATABASE_ERROR); //request not executed
         });
         return null;
     }).catch(function(error) {
-        console.log(error);
         res.send(response.DATABASE_ERROR); //request not executed
     });
 };
@@ -323,18 +315,22 @@ exports.channel_list = function(req, res) {
         where: {username: req.auth_obj.username}
     }).then(function (result) {
         models.my_channels.findAll({
-            attributes: ['channel_number', 'title', 'description', [db.sequelize.fn("concat", req.app.locals.settings.assets_url, db.sequelize.col('icon_url')), 'icon_url'], 'stream_url', 'isavailable'],
-            where: {login_id: result.id}
+            attributes: ['channel_number', 'title', 'genre_id', 'description', 'stream_url', 'isavailable'],
+            where: {login_id: result.id},
+            include: [{ model: models.genre, required: true, attributes: ['icon_url'] }],
+            raw: true
         }).then(function (result) {
+            for (var i = 0; i < result.length; i++) {
+                result[i].icon_url = req.app.locals.settings.assets_url + result[i]["genre.icon_url"];
+                delete result[i]["genre.icon_url"];
+            }
             clear_response.response_object = result;
             res.send(clear_response);
         }).catch(function(error) {
-            console.log(error);
             res.send(response.DATABASE_ERROR); //request not executed
         });
         return null;
     }).catch(function(error) {
-        console.log(error);
         res.send(response.DATABASE_ERROR); //request not executed
     });
 
@@ -345,32 +341,31 @@ exports.delete_channel = function(req, res) {
 
     var clear_response = new response.OK();
     models.my_channels.destroy({
-		where: {channel_number: req.body.channel_number}
-	}).then(function (result) {
+        where: {channel_number: req.body.channel_number}
+    }).then(function (result) {
         res.send(clear_response); //ok response, channel deleted
-	}).catch(function(error) {
-		console.log(error);
+    }).catch(function(error) {
         res.send(response.DATABASE_ERROR); //request not executed
-	});
+    });
 
 };
 
 exports.edit_channel = function(req, res) {
 
     var clear_response = new response.OK();
-	models.my_channels.update(
-	{
-		title: req.body.title,
-		description: req.body.description,
-		stream_url: req.body.stream_url
-	},
-		{where: {channel_number: req.body.channel_number}}
-	).then(function (result) {
-		res.send(clear_response); //ok response, channel edited
-	}).catch(function(error) {
-		console.log(error);
+    models.my_channels.update(
+        {
+            title: req.body.title,
+            description: req.body.description,
+            stream_url: req.body.stream_url,
+            genre_id: (req.body.genre_id) ? req.body.genre_id : 1
+        },
+        {where: {channel_number: req.body.channel_number}}
+    ).then(function (result) {
+        res.send(clear_response); //ok response, channel edited
+    }).catch(function(error) {
         res.send(response.DATABASE_ERROR); //request not executed
-	});
+    });
 
 };
 

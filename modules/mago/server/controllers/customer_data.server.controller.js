@@ -9,11 +9,22 @@ var path = require('path'),
     db = require(path.resolve('./config/lib/sequelize')).models,
     DBModel = db.customer_data;
 
+
 /**
- * Create
+ * @api {post} /api/customerdata /api/customerdata
+ * @apiVersion 0.2.0
+ * @apiName Create Customer Data
+ * @apiGroup Backoffice
+ * @apiHeader {String} authorization Token string acquired from login api.
+ * @apiParam {String} firstname  Mandatory field firstname.
+ * @apiParam {String} lastname  Mandatory field lastname.
+ * @apiParam {String} email  Mandatory field email.
+ * @apiSuccess (200) {String} message Record created successfuly
+ * @apiError (40x) {String} message Error message on creating customer data.
+ *
+
  */
 exports.create = function(req, res) {
-
     logHandler.add_log(req.token.uid, req.ip.replace('::ffff:', ''), 'created', JSON.stringify(req.body));
     DBModel.create(req.body).then(function(result) {
         if (!result) {
@@ -60,7 +71,6 @@ exports.delete = function(req, res) {
 
   DBModel.findById(deleteData.id).then(function(result) {
     if (result) {
-
       result.destroy().then(function() {
         return res.json(result);
       }).catch(function(err) {

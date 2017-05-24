@@ -9,7 +9,7 @@ module.exports = function(sequelize, DataTypes) {
             autoIncrement: true
         },
         description: {
-            type: DataTypes.STRING(45),
+            type: DataTypes.STRING(128),
             allowNull: false
         }
     }, {

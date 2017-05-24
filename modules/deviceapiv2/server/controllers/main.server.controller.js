@@ -2,8 +2,7 @@
 var path = require('path'),
     db = require(path.resolve('./config/lib/sequelize')),
     response = require(path.resolve("./config/responses.js")),
-    models = db.models,
-    winston = require(path.resolve('./config/lib/winston'));
+    models = db.models;
 
 /**
  * @api {post} /apiv2/main/device_menu /apiv2/main/device_menu
@@ -28,7 +27,6 @@ exports.device_menu = function(req, res) {
         clear_response.response_object = result;
         res.send(clear_response);
     }).catch(function(error) {
-        console.log(error);
         res.send(response.DATABASE_ERROR);
     });
 };

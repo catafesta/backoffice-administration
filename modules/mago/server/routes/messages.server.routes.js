@@ -14,12 +14,10 @@ module.exports = function(app) {
 
     /* ===== messages ===== */
     app.route('/api/messages')
-        //.all(policy.isAllowed)
         .get(msg.list)
         .post(msg.create);
 
     app.route('/api/messages/:messageId')
-        // .all(policy.isAllowed)
         .get(msg.read)
         .put(msg.update)
         .delete(msg.delete);

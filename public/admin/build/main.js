@@ -89,13 +89,8 @@
 
 	                    closeModal();
 	                    Restangular.one('auth/forgot').customPOST($scope.forgot).then(function successCallback(response) {
-
-	                        console.log(response);
 	                        notification.log(response.message, { addnCls: 'humane-flatty-success' });
-	                    }, function errorCallback(response) {
-
-	                        console.log("Error");
-	                    });
+	                    }, function errorCallback(response) {});
 	                };
 
 	                $scope.cancel = function () {
@@ -134,7 +129,6 @@
 
 	    ngAdminJWTAuthConfigurator.setCustomAuthHeader({
 	        name: 'Authorization',
-	        //template: 'Bearer {{token}}'
 	        template: '{{token}}'
 	    });
 	}]);
@@ -208,7 +202,7 @@
 	    admin.addEntity(nga.entity('VodStreamSources'));
 	    admin.addEntity(nga.entity('vodsubtitles'));
 
-	    // (config)
+	    //Config
 
 	    __webpack_require__(123)(nga, admin);
 	    __webpack_require__(125)(nga, admin);
@@ -15326,9 +15320,7 @@
 
 				Restangular.one('dashboard/chart/salesreport').get().then(function successCallback(response) {
 					$scope.saleslast30daysdata = response.data.mydata;
-				}, function errorCallback(response) {
-					console.log("no response");
-				});
+				}, function errorCallback(response) {});
 
 				$scope.salespiechartoptions = {
 					chart: {
@@ -15356,11 +15348,8 @@
 				};
 
 				Restangular.one('dashboard/chart/salespiechart').get().then(function successCallback(response) {
-					console.log(response.data.mydata);
 					$scope.salespiechartdata = response.data.mydata;
-				}, function errorCallback(response) {
-					console.log("no response");
-				});
+				}, function errorCallback(response) {});
 
 				//**************************************************** static grahp **************************
 
@@ -15517,8 +15506,6 @@
 	                    });
 	                });
 	            };
-
-	            //console.log($uibModal);
 	        },
 	        template: '<span ng-click="modal()"><span class="glyphicon {{ icon }}" aria-hidden="true"></span>&nbsp;{{ label }}</span>'
 	    };
@@ -15554,30 +15541,18 @@
 	        controller: ['Restangular', '$scope', 'notification', function (Restangular, $scope, notification) {
 
 	            Restangular.one('personal-details').get().then(function successCallback(response) {
-
 	                $scope.user = {
 	                    username: response.username,
 	                    email: response.email,
 	                    telephone: response.telephone,
 	                    role: localStorage.userRole
 	                };
-	            }, function errorCallback(response) {
-
-	                console.log("Error");
-	            });
+	            }, function errorCallback(response) {});
 
 	            // Start Update Details
 
 	            $scope.updateDetails = function () {
-	                Restangular.one('personal-details').put($scope.user).then(function successCallback(response) {
-
-	                    console.log("Success");
-	                }, function errorCallback(response) {
-
-	                    console.log("Error");
-	                });
-	                //.then(()  => notification.log('Successfully Updated', { addnCls: 'humane-flatty-success' }))
-	                //.catch(notification.log('A problem occurred, please try again', { addnCls: 'humane-flatty-error' }) && console.error())
+	                Restangular.one('personal-details').put($scope.user).then(function successCallback(response) {}, function errorCallback(response) {});
 	            };
 	        }],
 	        template: _userDetailsHtml2['default']
@@ -15627,10 +15602,8 @@
 
 	            $scope.createPost = function () {
 	                Restangular.one('user/change-password').customPOST($scope.pwdata).then(function successCallback(response) {
-
 	                    notification.log(response.message, { addnCls: 'humane-flatty-success' });
 	                }, function errorCallback(response) {
-
 	                    notification.log(response.data.message, { addnCls: 'humane-flatty-error' });
 	                });
 	            };
@@ -15668,7 +15641,7 @@
 	exports['default'] = function (nga, admin) {
 	    var channels = admin.getEntity('Channels');
 
-	    channels.listView().title('<h4>Channels <i class="fa fa-angle-right" aria-hidden="true"></i> List </h4>').batchActions([]).fields([nga.field('channel_number', 'string').label('Number'), nga.field('icon_url', 'file').template('<img src="{{ entry.values.icon_url }}" height="35" width="35" />').cssClasses('hidden-xs').label('Icon'), nga.field('title', 'string').isDetailLink(true).label('Title'), nga.field('genre_id', 'reference').targetEntity(admin.getEntity('Genres')).targetField(nga.field('description')).label('Genres'), nga.field('packages_channels').cssClasses('hidden').map(function getpckgid(value, entry) {
+	    channels.listView().title('<h4>Channels <i class="fa fa-angle-right" aria-hidden="true"></i> List </h4>').batchActions([]).fields([nga.field('title', 'string').isDetailLink(true).label('Title'), nga.field('channel_number', 'string').label('Number'), nga.field('genre_id', 'reference').targetEntity(admin.getEntity('Genres')).targetField(nga.field('description')).label('Genres'), nga.field('channel_mode', 'choice').attributes({ placeholder: 'Stream Format' }).choices([{ value: 'live', label: 'Live TV channel' }, { value: 'catchup', label: 'Catchup channel' }]).validation({ required: true }).cssClasses('hidden-xs').label('Channel mode'), nga.field('icon_url', 'file').template('<img src="{{ entry.values.icon_url }}" height="35" width="35" />').cssClasses('hidden-xs').label('Icon'), nga.field('packages_channels').cssClasses('hidden').map(function getpckgid(value, entry) {
 	        var return_object = [];
 	        for (var i = 0; i < value.length; i++) {
 	            return_object[i] = value[i].package_id;
@@ -15676,7 +15649,7 @@
 	        return return_object;
 	    }).label('Packages Channels'), nga.field('packages_channels', 'reference_many').targetEntity(admin.getEntity('Packages')).targetField(nga.field('package_name')).singleApiCall(function (package_id) {
 	        return { 'package_id[]': package_id };
-	    }).label('Packages'), nga.field('channel_mode', 'choice').attributes({ placeholder: 'Stream Format' }).choices([{ value: 'live', label: 'Live TV channel' }, { value: 'catchup', label: 'Catchup channel' }]).validation({ required: true }).cssClasses('hidden-xs').label('Channel mode'), nga.field('description', 'text').cssClasses('hidden-xs').label('Description'), nga.field('isavailable', 'boolean').label('Available'), nga.field('pin_protected', 'boolean').label('Pin Protected')]).sortDir("ASC").sortField("channel_number").filters([nga.field('q').label('').template('<div class="input-group"><input type="text" ng-model="value" placeholder="Search" class="form-control"></input><span class="input-group-addon"><i class="glyphicon glyphicon-search"></i></span></div>').pinned(true)]).listActions(['edit']).exportFields([channels.listView().fields()]);
+	    }).label('Packages'), nga.field('description', 'text').cssClasses('hidden-xs').label('Description'), nga.field('isavailable', 'boolean').label('Available'), nga.field('pin_protected', 'boolean').label('Pin Protected')]).sortDir("ASC").sortField("channel_number").filters([nga.field('q').label('').template('<div class="input-group"><input type="text" ng-model="value" placeholder="Search" class="form-control"></input><span class="input-group-addon"><i class="glyphicon glyphicon-search"></i></span></div>').pinned(true)]).listActions(['edit']).exportFields([channels.listView().fields()]);
 
 	    channels.deletionView().title('<h4>Channels <i class="fa fa-angle-right" aria-hidden="true"></i> Remove <span style ="color:red;"> {{ entry.values.title }}').actions(['<ma-back-button entry="entry" entity="entity"></ma-back-button>']);
 
@@ -15684,9 +15657,6 @@
 	        // stop the progress bar
 	        progression.done();
 	        // add a notification
-	        //notification.log(`Element #${entry._identifierValue} successfully edited.`, { addnCls: 'humane-flatty-success' });
-	        // redirect to the list view
-	        //$state.go($state.get('edit'), { entity: entity.name() });
 	        $state.go($state.get('edit'), { entity: entity.name(), id: entry._identifierValue });
 
 	        // cancel the default action (redirect to the edition view)
@@ -15698,7 +15668,7 @@
 	        notification.log('This channel number exists', { addnCls: 'humane-flatty-error' });
 	        // cancel the default action (default error messages)
 	        return false;
-	    }]).fields([nga.field('genre_id', 'reference').targetEntity(admin.getEntity('Genres')).targetField(nga.field('description')).validation({ required: true }).attributes({ placeholder: 'Select Genre' }).label('Genres'), nga.field('title', 'string').attributes({ placeholder: 'Title' }).validation({ required: true }).label('Title'), nga.field('channel_number', 'string').attributes({ placeholder: 'Channel Number' }).validation({ required: true }).label('Channel Number'), nga.field('description', 'text').attributes({ placeholder: 'Description' }).validation({ required: true }).label('Description'), nga.field('channel_mode', 'choice').attributes({ placeholder: 'Stream Format' }).choices([{ value: 'live', label: 'Live TV channel' }, { value: 'catchup', label: 'Catchup  channel' }]).validation({ required: true }).attributes({ placeholder: 'Description' }).validation({ required: true }).label('Channel mode'), nga.field('isavailable', 'boolean').attributes({ placeholder: 'Is Available' }).validation({ required: true }).label('Is Available'), nga.field('pin_protected', 'boolean').validation({ required: true }).label('Pin Protected'), nga.field('icon_url', 'file').uploadInformation({ 'url': '/file-upload/single-file/channels/icon_url', 'apifilename': 'result' }).template('<div class="row">' + '<div class="col-xs-12 col-sm-1"><img src="{{ entry.values.icon_url }}" height="40" width="40" /></div>' + '<div class="col-xs-12 col-sm-8"><ma-file-field field="field" value="entry.values.icon_url"></ma-file-field></div>' + '</div>').validation({
+	    }]).fields([nga.field('title', 'string').attributes({ placeholder: 'Title' }).validation({ required: true }).label('Title'), nga.field('channel_number', 'string').attributes({ placeholder: 'Channel Number' }).validation({ required: true }).label('Channel Number'), nga.field('genre_id', 'reference').targetEntity(admin.getEntity('Genres')).targetField(nga.field('description')).validation({ required: true }).attributes({ placeholder: 'Select Genre' }).label('Genre'), nga.field('channel_mode', 'choice').attributes({ placeholder: 'Stream Format' }).choices([{ value: 'live', label: 'Live TV channel' }, { value: 'catchup', label: 'Catchup  channel' }]).validation({ required: true }).attributes({ placeholder: 'Description' }).validation({ required: true }).label('Channel mode'), nga.field('description', 'text').attributes({ placeholder: 'Description' }).validation({ required: true }).label('Description'), nga.field('isavailable', 'boolean').attributes({ placeholder: 'Is Available' }).validation({ required: true }).label('Is Available'), nga.field('pin_protected', 'boolean').validation({ required: true }).label('Pin Protected'), nga.field('icon_url', 'file').uploadInformation({ 'url': '/file-upload/single-file/channels/icon_url', 'apifilename': 'result' }).template('<div class="row">' + '<div class="col-xs-12 col-sm-1"><img src="{{ entry.values.icon_url }}" height="40" width="40" /></div>' + '<div class="col-xs-12 col-sm-8"><ma-file-field field="field" value="entry.values.icon_url"></ma-file-field></div>' + '</div>').validation({
 	        validator: function validator(value) {
 	            if (value == null) {
 	                throw new Error('Please, choose icon');
@@ -15708,10 +15678,8 @@
 
 	    channels.editionView().title('<h4>Channels <i class="fa fa-angle-right" aria-hidden="true"></i> Edit: {{ entry.values.title }}</h4>').actions(['list', '<ma-delete-button label="Remove" entry="entry" entity="entity"></ma-delete-button>']).fields([channels.creationView().fields(), nga.field('ChannelStreams', 'referenced_list').label('Channel Streams').targetEntity(admin.getEntity('ChannelStreams')).targetReferenceField('channel_id').targetFields([nga.field('stream_url').map(function truncate(value) {
 	        if (!value) {
-
 	            return '';
 	        }
-
 	        return value.length > 25 ? value.substr(0, 25) + '...' : value;
 	    }).label('Stream Url'), nga.field('stream_source_id', 'reference').targetEntity(admin.getEntity('ChannelStreamSources')).targetField(nga.field('stream_source')).cssClasses('hidden-xs').label('Stream Source'), nga.field('stream_format').cssClasses('hidden-xs').label('Stream Format'), nga.field('token', 'boolean').label('Token'), nga.field('encryption', 'boolean').cssClasses('hidden-xs').label('Encryption'), nga.field('is_octoshape', 'boolean').label('Is Octoshape')]).listActions(['edit', '<ma-delete-button label="Remove" entry="entry" entity="entity"></ma-delete-button>']), nga.field('template').label('').template('<ma-create-button entity-name="ChannelStreams" class="pull-right" label="ADD STREAM" default-values="{ channel_id: entry.values.id }"></ma-create-button>')]);
 
@@ -15745,20 +15713,14 @@
 	exports['default'] = function (nga, admin) {
 	    var channelstream = admin.getEntity('ChannelStreams');
 	    channelstream.listView().title('<h4>Channel Streams <i class="fa fa-angle-right" aria-hidden="true"></i> List</h4>').batchActions([]).fields([nga.field('channel_id', 'reference').targetEntity(admin.getEntity('Channels')).targetField(nga.field('channel_number')).label('Nr'), nga.field('channel_id', 'reference').targetEntity(admin.getEntity('Channels')).targetField(nga.field('title')).label('Channel'), nga.field('stream_source_id', 'reference').targetEntity(admin.getEntity('ChannelStreamSources')).targetField(nga.field('stream_source')).label('Stream Source'), nga.field('stream_url', 'string').map(function truncate(value) {
-
 	        if (!value) {
-
 	            return 'No Stream Url';
 	        }
-
 	        return value.length > 25 ? value.substr(0, 25) + '...' : value;
 	    }).label('Stream Url'), nga.field('token_url', 'string').map(function truncate(value) {
-
 	        if (!value) {
-
 	            return 'No Token Url';
 	        }
-
 	        return value.length > 25 ? value.substr(0, 25) + '...' : value;
 	    }).label('Token Url'), nga.field('encryption_url', 'string').label('Encryption Url'), nga.field('token', 'boolean').label('Token'), nga.field('encryption', 'boolean').label('Encryption'), nga.field('stream_format', 'choice').choices([{ value: 0, label: 'MPEG Dash' }, { value: 1, label: 'Smooth Streaming' }, { value: 2, label: 'HLS' }, { value: 3, label: 'OTHER' }]).validation({ required: true }).label('Stream Format')]).listActions(['edit']).exportFields([channelstream.listView().fields()]);
 
@@ -15766,15 +15728,9 @@
 
 	    channelstream.creationView().title('<h4>Channel Streams <i class="fa fa-angle-right" aria-hidden="true"></i> Create: Channel Stream</h4>').onSubmitSuccess(['progression', 'notification', '$state', 'entry', 'entity', function (progression, notification, $state, entry, entity) {
 	        progression.done();
-	        //notification.log(`Element ${entry._identifierValue} successfully created.`, { addnCls: 'humane-flatty-success' });
 	        $state.go($state.get('edit'), { entity: 'Channels', id: entry.values.channel_id });
 	        return false;
-	    }]).fields([nga.field('channel_id', 'reference').targetEntity(admin.getEntity('Channels')).targetField(nga.field('title')).attributes({ placeholder: 'Select Channel' })
-	    //.permanentFilters({
-	    //    published: nga.field('channel_id') // display only the published posts
-	    //})
-	    //.template(disabled_field)
-	    .validation({ required: true }).label('Channel').perPage(1000), nga.field('stream_source_id', 'reference').targetEntity(admin.getEntity('ChannelStreamSources')).targetField(nga.field('stream_source')).attributes({ placeholder: 'Select Stream Source' }).validation({ required: true }).label('Stream Source Id'), nga.field('stream_url', 'string').attributes({ placeholder: 'Stream Url' }).validation({ required: true }).label('Stream Url'), nga.field('stream_format', 'choice').attributes({ placeholder: 'Stream Format' }).choices([{ value: 0, label: 'MPEG Dash' }, { value: 1, label: 'Smooth Streaming' }, { value: 2, label: 'HLS' }, { value: 3, label: 'OTHER' }]).validation({ required: true }).label('Stream Format'), nga.field('is_octoshape', 'boolean').validation({ required: true }).label('Is Octoshape'), nga.field('token', 'boolean').attributes({ placeholder: 'Token' }).validation({ required: true }).label('Token'), nga.field('token_url', 'string').attributes({ placeholder: 'Token Url' }).validation({ required: true }).label('Token Url'), nga.field('encryption', 'boolean').attributes({ placeholder: 'Encryption' }).validation({ required: true }).label('Encryption'), nga.field('encryption_url', 'string').attributes({ placeholder: 'Encryption Url' }).validation({ required: true }).label('Encryption Url'), nga.field('template').label('').template(_edit_buttonHtml2['default'])]);
+	    }]).fields([nga.field('channel_id', 'reference').targetEntity(admin.getEntity('Channels')).targetField(nga.field('title')).attributes({ placeholder: 'Select Channel' }).validation({ required: true }).label('Channel').perPage(1000), nga.field('stream_source_id', 'reference').targetEntity(admin.getEntity('ChannelStreamSources')).targetField(nga.field('stream_source')).attributes({ placeholder: 'Select Stream Source' }).validation({ required: true }).label('Stream Source Id'), nga.field('stream_url', 'string').attributes({ placeholder: 'Stream Url' }).validation({ required: true }).label('Stream Url'), nga.field('stream_format', 'choice').attributes({ placeholder: 'Stream Format' }).choices([{ value: 0, label: 'MPEG Dash' }, { value: 1, label: 'Smooth Streaming' }, { value: 2, label: 'HLS' }, { value: 3, label: 'OTHER' }]).validation({ required: true }).label('Stream Format'), nga.field('is_octoshape', 'boolean').validation({ required: true }).label('Is Octoshape'), nga.field('token', 'boolean').attributes({ placeholder: 'Token' }).validation({ required: true }).label('Token'), nga.field('token_url', 'string').attributes({ placeholder: 'Token Url' }).validation({ required: true }).label('Token Url'), nga.field('encryption', 'boolean').attributes({ placeholder: 'Encryption' }).validation({ required: true }).label('Encryption'), nga.field('encryption_url', 'string').attributes({ placeholder: 'Encryption Url' }).validation({ required: true }).label('Encryption Url'), nga.field('template').label('').template(_edit_buttonHtml2['default'])]);
 
 	    channelstream.editionView().title('<h4>Channel Streams <i class="fa fa-angle-right" aria-hidden="true"></i> Edit: {{ entry.values.channel_id }}</h4>').actions(['list', 'delete']).fields([channelstream.creationView().fields()]);
 
@@ -15839,7 +15795,6 @@
 
 		combo.creationView().onSubmitSuccess(['progression', 'notification', '$state', 'entry', 'entity', function (progression, notification, $state, entry, entity) {
 			progression.done();
-			//notification.log(`Element ${entry._identifierValue} successfully created.`, { addnCls: 'humane-flatty-success' });
 			$state.go($state.get('edit'), { entity: entity.name(), id: entry._identifierValue });
 			return false;
 		}]).title('<h4>Products & Services <i class="fa fa-angle-right" aria-hidden="true"></i> Create: Product</h4>').fields([nga.field('name', 'string').attributes({ placeholder: 'Name' }).validation({ required: true }).label('Name'), nga.field('duration').attributes({ placeholder: 'Duration' }).validation({ required: true }).label('Duration'), nga.field('value', 'number').attributes({ placeholder: 'Value' }).validation({ required: true }).label('Value'), nga.field('isavailable', 'boolean').attributes({ placeholder: 'Is Available' }).validation({ required: true }).label('Is Available'), nga.field('template').label('').template(_edit_buttonHtml2['default'])]);
@@ -15874,16 +15829,13 @@
 	    combopackages.listView().title('<h4>Combo Packages <i class="fa fa-angle-right" aria-hidden="true"></i> List</h4>').batchActions([]).fields([nga.field('package_id', 'reference').targetEntity(admin.getEntity('Packages')).targetField(nga.field('package_name')).label('Package'), nga.field('combo_id', 'reference').targetEntity(admin.getEntity('Combos')).targetField(nga.field('name')).label('Combo')]).listActions(['edit']).exportFields([combopackages.listView().fields()]);
 
 	    combopackages.deletionView().title('<h4>Combo Packages <i class="fa fa-angle-right" aria-hidden="true"></i> Remove <span style ="color:red;"> {{ entry.values.package.package_name }} </span> from <span style ="color:red;"> {{ entry.values.combo.name }} </span></h4>').fields([nga.field('combo', 'template').template(function (entry, value) {
-
 	        return entry.values.combo.name;
 	    }), nga.field('package', 'template').template(function (entry, value) {
-
 	        return entry.values['package'].package_name;
 	    })]).actions(['<ma-back-button entry="entry" entity="entity"></ma-back-button>']);
 
 	    combopackages.creationView().onSubmitSuccess(['progression', 'notification', '$state', 'entry', 'entity', function (progression, notification, $state, entry, entity) {
 	        progression.done();
-	        //notification.log(`Element ${entry._identifierValue} successfully created.`, { addnCls: 'humane-flatty-success' });
 	        $state.go($state.get('edit'), { entity: 'Combos', id: entry.values.combo_id });
 	        return false;
 	    }]).title('<h4>Link Package with Combo/Plan</h4>').fields([nga.field('combo_id', 'reference').targetEntity(admin.getEntity('Combos')).targetField(nga.field('name')).validation({ required: true }).label('Product'), nga.field('package_id', 'reference').targetEntity(admin.getEntity('Packages')).targetField(nga.field('package_name').map(function getpckdes(value, entry) {
@@ -15916,18 +15868,14 @@
 	exports['default'] = function (nga, admin) {
 	    var customerdata = admin.getEntity('CustomerData');
 	    customerdata.listView().title('<h4>Customer Data <i class="fa fa-angle-right" aria-hidden="true"></i> List</h4>').batchActions([]).fields([nga.field('group_id', 'reference').targetEntity(admin.getEntity('CustomerGroups')).targetField(nga.field('description')).cssClasses('hidden-xs').label('Group'), nga.field('firstname', 'string').label('Firstname'), nga.field('lastname', 'string').label('Lastname'), nga.field('email', 'email').cssClasses('hidden-xs').label('Email'), nga.field('address', 'string').map(function truncate(value) {
-
 	        if (!value) {
-
 	            return '';
 	        }
-
 	        return value.length > 15 ? value.substr(0, 15) + '...' : value;
 	    }).cssClasses('hidden-xs').label('Address'), nga.field('city', 'string').cssClasses('hidden-xs').label('City'), nga.field('country').cssClasses('hidden-xs').label('Country'), nga.field('telephone', 'string').cssClasses('hidden-xs').label('Telephone')]).filters([nga.field('q').label('').template('<div class="input-group"><input type="text" ng-model="value" placeholder="Search" class="form-control"></input><span class="input-group-addon"><i class="glyphicon glyphicon-search"></i></span></div>').pinned(true)]).listActions(['edit']).exportFields([customerdata.listView().fields()]);
 
 	    customerdata.creationView().title('<h4>Customer Data <i class="fa fa-angle-right" aria-hidden="true"></i> Create Customer</h4>').onSubmitSuccess(['progression', 'notification', '$state', 'entry', 'entity', function (progression, notification, $state, entry, entity) {
 	        progression.done();
-	        //notification.log(`Element ${entry._identifierValue} successfully created.`, { addnCls: 'humane-flatty-success' });
 	        $state.go($state.get('edit'), { entity: entity.name(), id: entry._identifierValue });
 	        return false;
 	    }]).fields([nga.field('group_id', 'reference').targetEntity(admin.getEntity('CustomerGroups')).targetField(nga.field('description')).attributes({ placeholder: 'Select Group' }).label('Group').validation({ required: true }), nga.field('firstname', 'string').attributes({ placeholder: 'First Name' }).validation({ required: true }).label('Firstname'), nga.field('lastname', 'string').attributes({ placeholder: 'Last Name' }).validation({ required: true }).label('Lastname'), nga.field('email', 'email').attributes({ placeholder: 'Email' }).validation({ required: true }).label('Email'), nga.field('address', 'string').attributes({ placeholder: 'Address' }).validation({ required: true }).label('Address'), nga.field('city', 'string').attributes({ placeholder: 'City' }).validation({ required: true }).label('City'), nga.field('country', 'choice').choices([{ value: ' Afghanistan', label: ' Afghanistan' }, { value: ' Albania', label: ' Albania' }, { value: ' Algeria', label: ' Algeria' }, { value: ' Andorra', label: ' Andorra' }, { value: ' Angola', label: ' Angola' }, { value: ' Antigua and Barbuda', label: ' Antigua and Barbuda' }, { value: ' Argentina', label: ' Argentina' }, { value: ' Armenia', label: ' Armenia' }, { value: ' Australia', label: ' Australia' }, { value: ' Austria', label: ' Austria' }, { value: ' Azerbaijan', label: ' Azerbaijan' }, { value: ' Bahamas', label: ' Bahamas' }, { value: ' Bahrain', label: ' Bahrain' }, { value: ' Bangladesh', label: ' Bangladesh' }, { value: ' Barbados', label: ' Barbados' }, { value: ' Belarus', label: ' Belarus' }, { value: ' Belgium', label: ' Belgium' }, { value: ' Belize', label: ' Belize' }, { value: ' Benin', label: ' Benin' }, { value: ' Bhutan', label: ' Bhutan' }, { value: ' Bolivia', label: ' Bolivia' }, { value: ' Bosnia and Herzegovina', label: ' Bosnia and Herzegovina' }, { value: ' Botswana', label: ' Botswana' }, { value: ' Brazil', label: ' Brazil' }, { value: ' Brunei Darussalam', label: ' Brunei Darussalam' }, { value: ' Bulgaria', label: ' Bulgaria' }, { value: ' Burkina Faso', label: ' Burkina Faso' }, { value: ' Burundi', label: ' Burundi' }, { value: ' Cabo Verde', label: ' Cabo Verde' }, { value: ' Cambodia', label: ' Cambodia' }, { value: ' Cameroon', label: ' Cameroon' }, { value: ' Canada', label: ' Canada' }, { value: ' Central African Republic', label: ' Central African Republic' }, { value: ' Chad', label: ' Chad' }, { value: ' Chile', label: ' Chile' }, { value: ' China', label: ' China' }, { value: ' Colombia', label: ' Colombia' }, { value: ' Comoros', label: ' Comoros' }, { value: ' Congo', label: ' Congo ' }, { value: ' Costa Rica', label: ' Costa Rica' }, { value: ' Côte D Ivoire', label: ' Côte D Ivoire' }, { value: ' Croatia', label: ' Croatia' }, { value: ' Cuba', label: ' Cuba' }, { value: ' Cyprus', label: ' Cyprus' }, { value: ' Czech Republic', label: ' Czech Republic' }, { value: ' (North Korea)', label: '(North Korea)' }, { value: ' Congo', label: ' Congo' }, { value: ' Denmark', label: ' Denmark' }, { value: ' Djibouti', label: ' Djibouti' }, { value: ' Dominica', label: ' Dominica' }, { value: ' Dominican Republic', label: ' Dominican Republic' }, { value: ' Ecuador', label: ' Ecuador' }, { value: ' Egypt', label: ' Egypt' }, { value: ' El Salvador', label: ' El Salvador' }, { value: ' Equatorial Guinea', label: ' Equatorial Guinea' }, { value: ' Eritrea', label: ' Eritrea' }, { value: 'Estonia', label: ' Estonia' }, { value: ' Ethiopia', label: ' Ethiopia' }, { value: ' Fiji', label: ' Fiji' }, { value: ' Finland', label: ' Finland' }, { value: ' France', label: ' France' }, { value: ' Gabon', label: ' Gabon ' }, { value: ' Gambia', label: ' Gambia ' }, { value: ' Georgia', label: ' Georgia' }, { value: ' Germany', label: ' Germany ' }, { value: ' Ghana', label: ' Ghana ' }, { value: ' Greece', label: ' Greece ' }, { value: ' Grenada', label: ' Grenada' }, { value: ' Guatemala', label: ' Guatemala' }, { value: ' Guinea', label: ' Guinea' }, { value: ' Guinea-Bissau', label: ' Guinea-Bissau' }, { value: ' Guyana', label: ' Guyana' }, { value: ' Haiti', label: ' Haiti ' }, { value: ' Honduras', label: ' Honduras' }, { value: ' Hungary', label: ' Hungary' }, { value: ' Iceland', label: ' Iceland ' }, { value: ' India', label: ' India ' }, { value: ' Indonesia', label: ' Indonesia' }, { value: ' Iran', label: ' Iran ' }, { value: ' Iraq', label: ' Iraq' }, { value: ' Ireland', label: ' Ireland ' }, { value: ' Israel', label: ' Israel' }, { value: ' Italy', label: ' Italy' }, { value: ' Jamaica', label: ' Jamaica' }, { value: ' Japan', label: ' Japan ' }, { value: ' Jordan', label: ' Jordan' }, { value: ' Kazakhstan', label: ' Kazakhstan ' }, { value: ' Kenya', label: ' Kenya ' }, { value: ' Kiribati', label: ' Kiribati' }, { value: ' Kuwait', label: ' Kuwait' }, { value: ' Kyrgyzstan', label: ' Kyrgyzstan' }, { value: ' Lao', label: ' Lao' }, { value: ' Latvia', label: ' Latvia' }, { value: ' Lebanon', label: ' Lebanon' }, { value: ' Lesotho', label: ' Lesotho' }, { value: ' Liberia', label: ' Liberia' }, { value: ' Libya', label: ' Libya ' }, { value: ' Liechtenstein', label: ' Liechtenstein' }, { value: ' Lithuania', label: ' Lithuania ' }, { value: ' Luxembourg', label: ' Luxembourg' }, { value: ' Macedonia', label: ' Macedonia ' }, { value: ' Madagascar', label: ' Madagascar' }, { value: ' Malawi', label: ' Malawi ' }, { value: ' Malaysia', label: ' Malaysia' }, { value: ' Maldives', label: ' Maldives ' }, { value: ' Mali', label: ' Mali' }, { value: ' Malta', label: ' Malta' }, { value: ' Marshall Islands', label: ' Marshall Islands ' }, { value: ' Mauritania', label: ' Mauritania' }, { value: ' Mauritius', label: ' Mauritius' }, { value: ' Mexico', label: ' Mexico' }, { value: ' Micronesia', label: ' Micronesia' }, { value: ' Monaco', label: ' Monaco' }, { value: ' Mongolia', label: ' Mongolia' }, { value: ' Montenegro', label: ' Montenegro' }, { value: ' Morocco', label: ' Morocco' }, { value: ' Mozambique', label: ' Mozambique' }, { value: ' Myanmar', label: ' Myanmar' }, { value: ' Namibia', label: ' Namibia ' }, { value: ' Nauru', label: ' Nauru ' }, { value: ' Nepal', label: ' Nepal ' }, { value: ' Netherlands', label: ' Netherlands' }, { value: ' New Zealand', label: ' New Zealand' }, { value: ' Nicaragua', label: ' Nicaragua ' }, { value: ' Niger', label: ' Niger  ' }, { value: ' Nigeria', label: ' Nigeria ' }, { value: ' Norway', label: ' Norway ' }, { value: ' Oman', label: ' Oman ' }, { value: ' Pakistan', label: ' Pakistan ' }, { value: ' Palau', label: ' Palau ' }, { value: ' Panama', label: ' Panama ' }, { value: ' Papua New Guinea', label: ' Papua New Guinea ' }, { value: ' Paraguay', label: ' Paraguay ' }, { value: ' Peru', label: ' Peru' }, { value: ' Philippines', label: ' Philippines ' }, { value: ' Poland', label: ' Poland ' }, { value: ' Portugal', label: ' Portugal ' }, { value: ' Qatar', label: ' Qatar  ' }, { value: ' Republic of Korea (South Korea)', label: ' Republic of Korea (South Korea) ' }, { value: ' Republic of Moldova', label: ' Republic of Moldova ' }, { value: ' Romania', label: ' Romania' }, { value: ' Russian Federation', label: ' Russian Federation ' }, { value: ' Rwanda', label: ' Rwanda ' }, { value: ' Saint Kitts and Nevis', label: ' Saint Kitts and Nevis' }, { value: ' Saint Lucia', label: ' Saint Lucia ' }, { value: ' Saint Vincent and the Grenadines', label: ' Saint Vincent and the Grenadines ' }, { value: ' Samoa', label: ' Samoa ' }, { value: ' San Marino', label: ' San Marino' }, { value: ' Sao Tome and Principe', label: ' Sao Tome and Principe  ' }, { value: ' Saudi Arabia', label: ' Saudi Arabia ' }, { value: ' Senegal', label: ' Senegal' }, { value: ' Serbia', label: ' Serbia ' }, { value: ' Seychelles', label: ' Seychelles ' }, { value: ' Sierra Leone', label: ' Sierra Leone ' }, { value: ' Singapore', label: ' Singapore  ' }, { value: ' Slovakia', label: ' Slovakia  ' }, { value: ' Slovenia', label: ' Slovenia  ' }, { value: ' Solomon Islands', label: ' Solomon Islands' }, { value: ' Somalia', label: ' Somalia ' }, { value: ' South Africa', label: ' South Africa ' }, { value: ' South Sudan', label: ' South Sudan ' }, { value: ' Spain', label: ' Spain    ' }, { value: ' Sri Lanka', label: ' Sri Lanka ' }, { value: ' Sudan', label: ' Sudan    ' }, { value: ' Suriname', label: ' Suriname  ' }, { value: ' Swaziland', label: ' Swaziland  ' }, { value: ' Sweden', label: ' Sweden  ' }, { value: ' Switzerland', label: ' Switzerland ' }, { value: ' Syrian Arab Republic', label: ' Syrian Arab Republic  ' }, { value: ' Tajikistan', label: ' Tajikistan' }, { value: ' Thailand', label: ' Thailand ' }, { value: ' Timor-Leste', label: ' Timor-Leste ' }, { value: ' Togo', label: ' Togo  ' }, { value: ' Tonga', label: ' Tonga ' }, { value: ' Trinidad and Tobago', label: ' Trinidad and Tobago ' }, { value: ' Tunisia', label: ' Tunisia ' }, { value: ' Turkey', label: ' Turkey  ' }, { value: ' Turkmenistan', label: ' Turkmenistan ' }, { value: ' Tuvalu', label: ' Tuvalu  ' }, { value: ' Uganda', label: ' Uganda  ' }, { value: ' Ukraine', label: ' Ukraine  ' }, { value: ' United Arab Emirates', label: ' United Arab Emirates  ' }, { value: ' United Kingdom', label: ' United Kingdom' }, { value: ' United Republic of Tanzania', label: ' United Republic of Tanzania ' }, { value: ' United States of America', label: ' United States of America   ' }, { value: ' Uruguay', label: ' Uruguay ' }, { value: ' Uzbekistan', label: ' Uzbekistan ' }, { value: ' Vanuatu', label: ' Vanuatu ' }, { value: ' Venezuela', label: ' Venezuela  ' }, { value: ' Vietnam', label: ' Vietnam' }, { value: ' Yemen', label: ' Yemen ' }, { value: ' Zambia', label: ' Zambia ' }, { value: ' Zimbabwe', label: ' Zimbabwe ' }]).attributes({ placeholder: 'Country' }).validation({ required: true }).label('Country'), nga.field('telephone').attributes({ placeholder: 'Telephone' }).validation({ required: true }).label('Telephone'), nga.field('template').label('').template(_edit_buttonHtml2['default'])]);
@@ -15991,11 +15939,7 @@
 				return '';
 			}
 			return value.length > 25 ? value.substr(0, 25) + '...' : value;
-		}).cssClasses('hidden-xs').label('Url'), nga.field('menu_code', 'choice').attributes({ placeholder: 'Menu Code' }).choices([{ value: 1, label: 'Live TV' }, { value: 2, label: 'EPG' }, { value: 3, label: 'Logout' }, { value: 4, label: 'Applications' }, { value: 10, label: 'Network Test' }, { value: 11, label: 'Vod' }, { value: 20, label: 'Personal' }, { value: 21, label: 'Catchup' }]).validation({ required: true }).label('Menu Code'), nga.field('position', 'string').label('Position'), nga.field('appid', 'choice').attributes({ placeholder: 'App ID' }).choices([{ value: 1, label: 'Android Set Top Box' }, { value: 2, label: 'Android Smart Phone' }, { value: 3, label: 'IOS' }, { value: 4, label: 'Android Smart TV' }, { value: 5, label: 'Samsung Smart TV' }]).validation({ required: true }).label('App ID'),
-		//nga.field('locale', 'string')
-		//	.cssClasses('hidden-xs')
-		//	.label('Locale'),
-		nga.field('isavailable', 'boolean').label('Available')]).filters([nga.field('q').label('').template('<div class="input-group"><input type="text" ng-model="value" placeholder="Search" class="form-control"></input><span class="input-group-addon"><i class="glyphicon glyphicon-search"></i></span></div>').pinned(true), nga.field('appid', 'number').attributes({ placeholder: 'App Id' }).label('App ID')]).listActions(['edit']).exportFields([devicemenu.listView().fields()]);
+		}).cssClasses('hidden-xs').label('Url'), nga.field('menu_code', 'choice').attributes({ placeholder: 'Menu Code' }).choices([{ value: 1, label: 'Live TV' }, { value: 2, label: 'EPG' }, { value: 3, label: 'Logout' }, { value: 4, label: 'Applications' }, { value: 10, label: 'Network Test' }, { value: 11, label: 'Vod' }, { value: 20, label: 'Personal' }, { value: 21, label: 'Catchup' }]).validation({ required: true }).label('Menu Code'), nga.field('position', 'string').label('Position'), nga.field('appid', 'choice').attributes({ placeholder: 'App ID' }).choices([{ value: 1, label: 'Android Set Top Box' }, { value: 2, label: 'Android Smart Phone' }, { value: 3, label: 'IOS' }, { value: 4, label: 'Android Smart TV' }, { value: 5, label: 'Samsung Smart TV' }]).validation({ required: true }).label('App ID'), nga.field('isavailable', 'boolean').label('Available')]).filters([nga.field('q').label('').template('<div class="input-group"><input type="text" ng-model="value" placeholder="Search" class="form-control"></input><span class="input-group-addon"><i class="glyphicon glyphicon-search"></i></span></div>').pinned(true), nga.field('appid', 'number').attributes({ placeholder: 'App Id' }).label('App ID')]).listActions(['edit']).exportFields([devicemenu.listView().fields()]);
 
 		devicemenu.creationView().onSubmitSuccess(['progression', 'notification', '$state', 'entry', 'entity', function (progression, notification, $state, entry, entity) {
 			progression.done();
@@ -16008,12 +15952,7 @@
 					throw new Error('Please, choose icon');
 				}
 			}
-		}).label('Icon *'), nga.field('menu_code', 'choice').attributes({ placeholder: 'Menu Code' }).choices([{ value: 1, label: 'Live TV' }, { value: 2, label: 'EPG' }, { value: 3, label: 'Logout' }, { value: 4, label: 'Applications' }, { value: 10, label: 'Network Test' }, { value: 11, label: 'Vod' }, { value: 20, label: 'Personal' }, { value: 21, label: 'Catchup' }]).validation({ required: true }).label('Menu Code'), nga.field('appid', 'choice').attributes({ placeholder: 'App ID' }).choices([{ value: 1, label: 'Android Set Top Box' }, { value: 2, label: 'Android Smart Phone' }, { value: 3, label: 'IOS' }, { value: 4, label: 'Android Smart TV' }, { value: 5, label: 'Samsung Smart TV' }]).validation({ required: true }).label('App ID'), nga.field('position', 'string').attributes({ placeholder: 'Position' }).validation({ required: true }).label('Position'),
-		//nga.field('locale', 'string')
-		//	.attributes({ placeholder: 'Locale' })
-		//	.validation({ required: true })
-		//	.label('Locale'),
-		nga.field('isavailable', 'boolean').attributes({ placeholder: 'Is Available' }).validation({ required: true }).label('Is Available'), nga.field('template').label('').template(_edit_buttonHtml2['default'])]);
+		}).label('Icon *'), nga.field('menu_code', 'choice').attributes({ placeholder: 'Menu Code' }).choices([{ value: 1, label: 'Live TV' }, { value: 2, label: 'EPG' }, { value: 3, label: 'Logout' }, { value: 4, label: 'Applications' }, { value: 10, label: 'Network Test' }, { value: 11, label: 'Vod' }, { value: 20, label: 'Personal' }, { value: 21, label: 'Catchup' }]).validation({ required: true }).label('Menu Code'), nga.field('appid', 'choice').attributes({ placeholder: 'App ID' }).choices([{ value: 1, label: 'Android Set Top Box' }, { value: 2, label: 'Android Smart Phone' }, { value: 3, label: 'IOS' }, { value: 4, label: 'Android Smart TV' }, { value: 5, label: 'Samsung Smart TV' }]).validation({ required: true }).label('App ID'), nga.field('position', 'string').attributes({ placeholder: 'Position' }).validation({ required: true }).label('Position'), nga.field('isavailable', 'boolean').attributes({ placeholder: 'Is Available' }).validation({ required: true }).label('Is Available'), nga.field('template').label('').template(_edit_buttonHtml2['default'])]);
 
 		devicemenu.editionView().title('<h4>Main Menu <i class="fa fa-angle-right" aria-hidden="true"></i> Edit: {{ entry.values.title }}</h4>').actions(['list']).fields([devicemenu.creationView().fields()]);
 
@@ -16065,14 +16004,14 @@
 			} else if (value === 5) {
 				return 'Samsung';
 			}
-		}).label('App'), nga.field('app_version').label('App Version'), nga.field('screen_resolution').label('Screan Rezolution'), nga.field('hdmi').label('HDMI'), nga.field('device_brand').map(function truncate(value) {
+		}).label('App'), nga.field('app_version').label('App Version'), nga.field('screen_resolution').label('Screen Resolution'), nga.field('hdmi').label('HDMI'), nga.field('device_brand').map(function truncate(value) {
 			if (!value) {
 				return '';
 			}
 			return value.length > 14 ? value.substr(0, 14) + '...' : value;
 		}).label('Device Brand'), nga.field('device_active', 'boolean').label('Device Active'), nga.field('api_version', 'string').label('Api Version')]).filters([nga.field('q').label('').template('<div class="input-group"><input type="text" ng-model="value" placeholder="Search" class="form-control"></input><span class="input-group-addon"><i class="glyphicon glyphicon-search"></i></span></div>').pinned(true), nga.field('appid').attributes({ placeholder: 'App Id' }).label('App ID'), nga.field('app_version').attributes({ placeholder: 'App Version' }).label('App Version'), nga.field('api_version').attributes({ placeholder: 'Api Version' }).label('Api Version'), nga.field('ntype').attributes({ placeholder: 'Ntype' }).label('Ntype')]).listActions(['edit']).exportFields([devices.listView().fields()]);
 
-		devices.creationView().title('<h4>Devices <i class="fa fa-angle-right" aria-hidden="true"></i> Create: Device</h4>').fields([nga.field('username').attributes({ placeholder: 'Username' }).validation({ required: true }).editable(false).label('Username'), nga.field('login_data_id', 'reference').targetEntity(admin.getEntity('LoginData')).targetField(nga.field('username')).editable(false).attributes({ placeholder: 'Select Username' }).validation({ required: true }).label('Login Data Id'), nga.field('googleappid', 'string').editable(false).attributes({ placeholder: 'Google App Id' }).label('Google App ID'), nga.field('device_active', 'boolean').validation({ required: true }).label('Device Active'), nga.field('device_mac_address', 'string').attributes({ placeholder: 'Device Mac Address' }).validation({ required: true }).editable(false).label('Device Mac Address'), nga.field('device_wifimac_address', 'string').attributes({ placeholder: 'Device Wifi Mac Address' }).validation({ required: true }).editable(false).label('Device Wifi Mac Address'), nga.field('device_ip', 'string').attributes({ placeholder: 'Device IP' }).validation({ required: true }).editable(false).label('Device IP'), nga.field('device_id', 'string').attributes({ placeholder: 'Device ID' }).validation({ required: true }).editable(false).label('Device ID'), nga.field('ntype', 'string').attributes({ placeholder: 'Ntype' }).validation({ required: true }).editable(false).label('Ntype'), nga.field('appid', 'string').attributes({ placeholder: 'App ID' }).validation({ required: true }).editable(false).label('App ID'), nga.field('api_version', 'string').attributes({ placeholder: 'Api Version' }).validation({ required: true }).editable(false).label('Api Version'), nga.field('firmware', 'string').editable(false).label('Firmware'), nga.field('os').editable(false).label('Os'), nga.field('screen_resolution').editable(false).label('Screan Rezolution'), nga.field('hdmi').editable(false).label('HDMI'), nga.field('device_brand').editable(false).label('Device Brand'), nga.field('app_version', 'string').editable(false).validation({ required: true }).label('App Version'), nga.field('createdAt', 'datetime').editable(false).label('First login'), nga.field('updatedAt', 'datetime').editable(false).label('Last login'), nga.field('template').label('').template(_edit_buttonHtml2['default'])]);
+		devices.creationView().title('<h4>Devices <i class="fa fa-angle-right" aria-hidden="true"></i> Create: Device</h4>').fields([nga.field('username').attributes({ placeholder: 'Username' }).validation({ required: true }).editable(false).label('Username'), nga.field('googleappid', 'string').editable(false).attributes({ placeholder: 'Google App Id' }).label('Google App ID'), nga.field('device_active', 'boolean').validation({ required: true }).label('Device Active'), nga.field('device_mac_address', 'string').attributes({ placeholder: 'Device Mac Address' }).validation({ required: true }).editable(false).label('Device Mac Address'), nga.field('device_wifimac_address', 'string').attributes({ placeholder: 'Device Wifi Mac Address' }).validation({ required: true }).editable(false).label('Device Wifi Mac Address'), nga.field('device_ip', 'string').attributes({ placeholder: 'Device IP' }).validation({ required: true }).editable(false).label('Device IP'), nga.field('device_id', 'string').attributes({ placeholder: 'Device ID' }).validation({ required: true }).editable(false).label('Device ID'), nga.field('ntype', 'string').attributes({ placeholder: 'Ntype' }).validation({ required: true }).editable(false).label('Ntype'), nga.field('appid', 'string').attributes({ placeholder: 'App ID' }).validation({ required: true }).editable(false).label('App ID'), nga.field('api_version', 'string').attributes({ placeholder: 'Api Version' }).validation({ required: true }).editable(false).label('Api Version'), nga.field('firmware', 'string').editable(false).label('Firmware'), nga.field('os').editable(false).label('Os'), nga.field('screen_resolution').editable(false).label('Screen Resolution'), nga.field('hdmi').editable(false).label('HDMI'), nga.field('device_brand').editable(false).label('Device Brand'), nga.field('app_version', 'string').editable(false).validation({ required: true }).label('App Version'), nga.field('createdAt', 'datetime').editable(false).label('First Login'), nga.field('updatedAt', 'datetime').editable(false).label('Last Login'), nga.field('template').label('').template(_edit_buttonHtml2['default'])]);
 
 		devices.editionView().title('<h4>Devices <i class="fa fa-angle-right" aria-hidden="true"></i> Edit: {{ entry.values.username }}</h4>').actions(['list']).fields([devices.creationView().fields()]);
 
@@ -16100,17 +16039,12 @@
 	exports['default'] = function (nga, admin) {
 		var epgdata = admin.getEntity('EpgData');
 		epgdata.listView().title('<h4>Epg Data <i class="fa fa-angle-right" aria-hidden="true"></i> List</h4>').actions(['batch', 'export', 'create']).fields([nga.field('channel_number').cssClasses('hidden-xs').label('Nr'), nga.field('title', 'string').label('Title'), nga.field('short_name', 'string').cssClasses('hidden-xs').label('Short Name'), nga.field('short_description').label('Short Description'), nga.field('long_description', 'text').map(function truncate(value) {
-
 			if (!value) {
-
 				return 'No Description';
 			}
-
 			return value.length > 40 ? value.substr(0, 40) + '...' : value;
 		}).cssClasses('hidden-xs').label('Long Description'), nga.field('program_start', 'datetime').cssClasses('hidden-xs').label('Program Start'), nga.field('program_end', 'datetime').cssClasses('hidden-xs').label('Program End'), nga.field('startutctime', 'datetime').cssClasses('hidden-xs').label('Start Utc Time'), nga.field('stoputctime', 'datetime').cssClasses('hidden-xs').label('Stop Utc Time'), nga.field('duration_seconds', 'number').cssClasses('hidden-xs').label('Duration'), nga.field('timezone', 'number').map(function truncate(value) {
-
 			if (!value) {
-
 				return "No Timezone";
 			}
 		}).cssClasses('hidden-xs').label('Timezone')]).filters([nga.field('q').label('').template('<div class="input-group"><input type="text" ng-model="value" placeholder="Search" class="form-control"></input><span class="input-group-addon"><i class="glyphicon glyphicon-search"></i></span></div>').pinned(true)]).listActions(['edit']).exportFields([epgdata.listView().fields()]);
@@ -16142,14 +16076,8 @@
 
 	exports['default'] = function (nga, admin) {
 	    var epgImport = admin.getEntity('epgimport');
-	    epgImport.listView().title('<h4>Epg Data <i class="fa fa-angle-right" aria-hidden="true"></i> List</h4>').actions(['batch', 'create']).fields([nga.field('channel_number').cssClasses('hidden-xs').label('Nr'), nga.field('title', 'string').label('Title'), nga.field('short_name', 'string').cssClasses('hidden-xs').label('Short Name'), nga.field('short_description').label('Short Description'), nga.field('program_start', 'datetime').cssClasses('hidden-xs').label('Program Start'), nga.field('program_end', 'datetime').cssClasses('hidden-xs').label('Program End'), nga.field('startutctime', 'datetime').cssClasses('hidden-xs').label('Start Utc Time'),
-	    /*nga.field('stoputctime', 'datetime')
-	     .cssClasses('hidden-xs')
-	     .label('Stop Utc Time'),*/
-	    nga.field('duration_seconds', 'number').cssClasses('hidden-xs').label('Duration'), nga.field('timezone', 'number').map(function truncate(value) {
-
+	    epgImport.listView().title('<h4>Epg Data <i class="fa fa-angle-right" aria-hidden="true"></i> List</h4>').actions(['batch', 'create']).fields([nga.field('channel_number').cssClasses('hidden-xs').label('Nr'), nga.field('title', 'string').label('Title'), nga.field('short_name', 'string').cssClasses('hidden-xs').label('Short Name'), nga.field('short_description').label('Short Description'), nga.field('program_start', 'datetime').cssClasses('hidden-xs').label('Program Start'), nga.field('program_end', 'datetime').cssClasses('hidden-xs').label('Program End'), nga.field('startutctime', 'datetime').cssClasses('hidden-xs').label('Start Utc Time'), nga.field('duration_seconds', 'number').cssClasses('hidden-xs').label('Duration'), nga.field('timezone', 'number').map(function truncate(value) {
 	        if (!value) {
-
 	            return "No Timezone";
 	        }
 	    }).cssClasses('hidden-xs').label('Timezone')]).filters([nga.field('q').label('').template('<div class="input-group"><input type="text" ng-model="value" placeholder="Search" class="form-control"></input><span class="input-group-addon"><i class="glyphicon glyphicon-search"></i></span></div>').pinned(true)]).listActions(['edit']).exportFields([epgImport.listView().fields()]);
@@ -16189,20 +16117,25 @@
 
 	exports['default'] = function (nga, admin) {
 		var genre = admin.getEntity('Genres');
-		genre.listView().title('<h4>Genres <i class="fa fa-angle-right" aria-hidden="true"></i> List</h4>').batchActions([]).fields([nga.field('description', 'string').label('Description'), nga.field('channels').map(function total(value, entry) {
+		genre.listView().title('<h4>Genres <i class="fa fa-angle-right" aria-hidden="true"></i> List</h4>').batchActions([]).fields([nga.field('description', 'string').label('Description'), nga.field('icon_url', 'file').template('<img src="{{ entry.values.icon_url }}" height="35" width="35" />').cssClasses('hidden-xs').label('Icon'), nga.field('is_available', 'boolean').label('Available'), nga.field('channels').map(function total(value, entry) {
 			var obj = [];
 			for (var i = value.length - 1; i >= 0; i--) {
 				obj[i] = value[i].total;
-
-				console.log(obj[i]);
-
 				return obj[i];
 			}
-		}).label('Number of Channels')]).listActions(['edit']).exportFields([genre.listView().fields()]);
+		}).label('Number of Channels')]).listActions(['edit', 'delete']).exportFields([genre.listView().fields()]);
 
-		genre.creationView().title('<h4>Genres <i class="fa fa-angle-right" aria-hidden="true"></i> Create: Genre</h4>').fields([nga.field('description', 'string').attributes({ placeholder: 'Genre Name' }).validation({ required: true }).label('Description'), nga.field('template').label('').template(_edit_buttonHtml2['default'])]);
+		genre.deletionView().title('<h4>Genre <i class="fa fa-angle-right" aria-hidden="true"></i> Remove <span style ="color:red;"> {{ entry.values.description }} </span></h4>').actions(['<ma-back-button entry="entry" entity="entity"></ma-back-button>']);
 
-		genre.editionView().title('<h4>Genres <i class="fa fa-angle-right" aria-hidden="true"></i> Edit: {{ entry.values.description }}</h4>').actions(['list']).fields([genre.creationView().fields(), nga.field('', 'referenced_list').label('Channel').targetEntity(admin.getEntity('Channels')).targetReferenceField('genre_id').targetFields([nga.field('channel_number').label('Nr'), nga.field('icon_url', 'file').template('<img src="{{ entry.values.icon_url }}" height="35" width="35" />').label('Icon'), nga.field('title', 'string').attributes({ placeholder: 'Title' }).validation({ required: true }).label('Title'), nga.field('isavailable', 'boolean').label('Available')]).listActions(['edit']), nga.field('template').label('').template(_filter_genre_btnHtml2['default'])]);
+		genre.creationView().title('<h4>Genres <i class="fa fa-angle-right" aria-hidden="true"></i> Create: Genre</h4>').fields([nga.field('description', 'string').attributes({ placeholder: 'Genre Name' }).validation({ required: true }).label('Description'), nga.field('is_available', 'boolean').attributes({ placeholder: 'Is Available' }).validation({ required: true }).label('Is Available'), nga.field('icon_url', 'file').uploadInformation({ 'url': '/file-upload/single-file/genre/icon_url', 'apifilename': 'result' }).template('<div class="row">' + '<div class="col-xs-12 col-sm-1"><img src="{{ entry.values.icon_url }}" height="40" width="40" /></div>' + '<div class="col-xs-12 col-sm-8"><ma-file-field field="field" value="entry.values.icon_url"></ma-file-field></div>' + '</div>').validation({
+			validator: function validator(value) {
+				if (value == null) {
+					throw new Error('Please, choose icon');
+				}
+			}
+		}).label('icon *'), nga.field('template').label('').template(_edit_buttonHtml2['default'])]);
+
+		genre.editionView().title('<h4>Genres <i class="fa fa-angle-right" aria-hidden="true"></i> Edit: {{ entry.values.description }}</h4>').actions(['list']).fields([genre.creationView().fields(), nga.field('', 'referenced_list').label('Channel').targetEntity(admin.getEntity('Channels')).targetReferenceField('genre_id').targetFields([nga.field('channel_number').label('Nr'), nga.field('icon_url', 'file').template('<img src="{{ entry.values.icon_url }}" height="35" width="35" />').label('Icon'), nga.field('title', 'string').attributes({ placeholder: 'Title' }).validation({ required: true }).label('Title')]).listActions(['edit']), nga.field('template').label('').template(_filter_genre_btnHtml2['default'])]);
 
 		return genre;
 	};
@@ -16222,7 +16155,7 @@
 	'use strict';
 
 	Object.defineProperty(exports, '__esModule', {
-		value: true
+	    value: true
 	});
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
@@ -16232,54 +16165,44 @@
 	var _edit_buttonHtml2 = _interopRequireDefault(_edit_buttonHtml);
 
 	exports['default'] = function (nga, admin) {
-		var logindata = admin.getEntity('LoginData');
-		logindata.listView().title('<h4>Login Accounts <i class="fa fa-angle-right" aria-hidden="true"></i> List</h4>').batchActions([]).fields([nga.field('customer_id', 'reference').targetEntity(admin.getEntity('CustomerData')).targetField(nga.field('firstname')).targetField(nga.field('firstname')).cssClasses('hidden-xs').label('Customer'), nga.field('username').isDetailLink(true).label('Username'), nga.field('channel_stream_source', 'reference').targetEntity(admin.getEntity('ChannelStreamSources')).targetField(nga.field('stream_source')).cssClasses('hidden-xs').label('Channel Stream Source'), nga.field('vod_stream_source', 'reference').targetEntity(admin.getEntity('VodStreamSources')).targetField(nga.field('description')).cssClasses('hidden-xs').label('Vod Stream Source'), nga.field('pin', 'string').cssClasses('hidden-xs').label('Pin'), nga.field('activity_timeout').cssClasses('hidden-xs').label('Activity time out'), nga.field('timezone', 'number').cssClasses('hidden-xs').label('Timezone'), nga.field('force_upgrade', 'boolean').cssClasses('hidden-xs').label('Force Upgrade'), nga.field('account_lock', 'boolean').cssClasses('hidden-xs').label('Account Lock'), nga.field('get_messages', 'boolean').label('Get messages'), nga.field('auto_timezone', 'boolean').cssClasses('hidden-xs').label('Auto Timezone')]).filters([nga.field('q').label('').template('<div class="input-group"><input type="text" ng-model="value" placeholder="Search" class="form-control"></input><span class="input-group-addon"><i class="glyphicon glyphicon-search"></i></span></div>').pinned(true)]).listActions(['edit']);
+	    var logindata = admin.getEntity('LoginData');
+	    logindata.listView().title('<h4>Login Accounts <i class="fa fa-angle-right" aria-hidden="true"></i> List</h4>').batchActions([]).fields([nga.field('customer_id', 'reference').targetEntity(admin.getEntity('CustomerData')).targetField(nga.field('firstname')).targetField(nga.field('firstname')).cssClasses('hidden-xs').label('Customer'), nga.field('username').isDetailLink(true).label('Username'), nga.field('channel_stream_source', 'reference').targetEntity(admin.getEntity('ChannelStreamSources')).targetField(nga.field('stream_source')).cssClasses('hidden-xs').label('Channel Stream Source'), nga.field('vod_stream_source', 'reference').targetEntity(admin.getEntity('VodStreamSources')).targetField(nga.field('description')).cssClasses('hidden-xs').label('VOD Stream Source'), nga.field('pin', 'string').cssClasses('hidden-xs').label('Pin'), nga.field('activity_timeout').cssClasses('hidden-xs').label('Activity Time Out'), nga.field('timezone', 'number').cssClasses('hidden-xs').label('Timezone'), nga.field('account_lock', 'boolean').cssClasses('hidden-xs').label('Account Lock'), nga.field('get_messages', 'boolean').label('Get messages'), nga.field('auto_timezone', 'boolean').cssClasses('hidden-xs').label('Auto Timezone')]).filters([nga.field('q').label('').template('<div class="input-group"><input type="text" ng-model="value" placeholder="Search" class="form-control"></input><span class="input-group-addon"><i class="glyphicon glyphicon-search"></i></span></div>').pinned(true)]).listActions(['edit']);
 
-		logindata.creationView().title('<h4>Login Accounts <i class="fa fa-angle-right" aria-hidden="true"></i> Create: Login Account</h4>').fields([nga.field('customer_id', 'reference').targetEntity(admin.getEntity('CustomerData'))
-		//.targetField(nga.field('firstname'))
-		.targetField(nga.field('firstnmae', 'template').map(function (v, e) {
-			return e.firstname + ' ' + e.lastname;
-		})).attributes({ placeholder: 'Select Customer' }).label('Customer').perPage(1000).validation({ required: true }), nga.field('username', 'string').attributes({ placeholder: 'Username' }).label('Username').validation({ required: true }), nga.field('password', 'password').attributes({ placeholder: 'Password' }).label('Password').validation({ required: true }), nga.field('channel_stream_source', 'reference').targetEntity(admin.getEntity('ChannelStreamSources')).targetField(nga.field('stream_source')).attributes({ placeholder: 'Select Channel Stream Source' }).label('Channel Stream Source').validation({ required: true }), nga.field('vod_stream_source', 'reference').targetEntity(admin.getEntity('VodStreamSources')).targetField(nga.field('description')).attributes({ placeholder: 'Select Vod Stream Source' }).label('Vod Stream Source').validation({ required: true }), nga.field('pin', 'string').attributes({ placeholder: 'Pin' }).validation({ required: true }).label('Pin'), nga.field('activity_timeout', 'string').attributes({ placeholder: 'Activity time out' }).validation({ required: true }).defaultValue(300).label('Activity time out'), nga.field('timezone', 'choice').choices([{ value: -12, label: '(UTC-12:00) International Date Line West' }, { value: -11, label: '(UTC-11:00) Samoa' }, { value: -10, label: '(UTC-10:00) Hawaii' }, { value: -9, label: '(UTC-9:00) Alaska' }, { value: -8, label: '(UTC-8:00) Pacific Time (US & Canada)' }, { value: -7, label: '(UTC-7:00) Arizona, La Paz, Mazatlan' }, { value: -6, label: '(UTC-6:00) Central America, Monterrey, Mexico City ' }, { value: -5, label: '(UTC-5:00) Bogota, Lima, Quito, Indiana' }, { value: -4, label: '(UTC-4:00) Atlantic Time (Canada), Manaus ' }, { value: -3, label: '(UTC-3:00) Brasilia, Buenos Aires, Cayenne' }, { value: -2, label: '(UTC-2:00) Mid-Atlantic' }, { value: -1, label: '(UTC-1:00) Azores, Cape Verde Is.' }, { value: 0, label: '(UTC 0:00) Dublin, Lisbon, London, Reykjavik' }, { value: +1, label: '(UTC+1:00) Amsterdam, Berlin, Rome, Paris, Prague, Skopje ' }, { value: +2, label: '(UTC+2:00) Athens, Istanbul, Cairo, Helsinki, Kyiv, Vilnius ' }, { value: +3, label: '(UTC+3:00) Baghdad, Kuwait, Moscow, St. Petersburg, Nairobi' }, { value: +4, label: '(UTC+4:00) Abu Dhabi, Baku, Muscat' }, { value: +5, label: '(UTC+5:00) Ekaterinburg, Karachi, Tashkent' }, { value: +6, label: '(UTC+6:00) Astana, Dhaka, Novosibirsk' }, { value: +7, label: '(UTC+7:00) Bangkok, Hanoi, Jakarta' }, { value: +8, label: '(UTC+8:00) Beijing, Hong Kong, Kuala Lumpur, Perth, Taipei' }, { value: +9, label: '(UTC+9:00) Sapporo, Tokyo, Seoul' }, { value: +10, label: '(UTC+10:00) Brisbane, Melbourne, Sydney' }, { value: +11, label: '(UTC+11:00) Magadan, Solomon Is.' }, { value: +12, label: '(UTC+12:00) Auckland, Fiji' }]).attributes({ placeholder: 'Select Timezone' }).validation({ required: true }).label('Timezone'), nga.field('get_messages', 'boolean').attributes({ placeholder: 'Auto Timezone' }).validation({ required: true }).label('Get messages'), nga.field('auto_timezone', 'boolean').attributes({ placeholder: 'Auto Timezone' }).validation({ required: true }).label('Auto Timezone'), nga.field('force_upgrade', 'boolean').attributes({ placeholder: 'Force Upgrade' }).label('Force Upgrade').validation({ required: true }), nga.field('account_lock', 'boolean').attributes({ placeholder: 'Account Lock' }).label('Account Lock').validation({ required: true }), nga.field('template').label('').template(_edit_buttonHtml2['default'])]);
+	    logindata.creationView().title('<h4>Login Accounts <i class="fa fa-angle-right" aria-hidden="true"></i> Create: Login Account</h4>').fields([nga.field('customer_id', 'reference').targetEntity(admin.getEntity('CustomerData')).targetField(nga.field('firstnmae', 'template').map(function (v, e) {
+	        return e.firstname + ' ' + e.lastname;
+	    })).attributes({ placeholder: 'Select Customer' }).label('Customer').perPage(1000).validation({ required: true }), nga.field('username', 'string').attributes({ placeholder: 'Username' }).label('Username').validation({ required: true }), nga.field('password', 'password').attributes({ placeholder: 'Password' }).label('Password').validation({ required: true }), nga.field('channel_stream_source', 'reference').targetEntity(admin.getEntity('ChannelStreamSources')).targetField(nga.field('stream_source')).attributes({ placeholder: 'Select Channel Stream Source' }).label('Channel Stream Source').validation({ required: true }), nga.field('vod_stream_source', 'reference').targetEntity(admin.getEntity('VodStreamSources')).targetField(nga.field('description')).attributes({ placeholder: 'Select Vod Stream Source' }).label('VOD Stream Source').validation({ required: true }), nga.field('pin', 'string').attributes({ placeholder: 'Pin' }).validation({ required: true }).label('Pin'), nga.field('activity_timeout', 'string').attributes({ placeholder: 'Activity time out' }).validation({ required: true }).defaultValue(300).label('Activity Time Out'), nga.field('timezone', 'choice').choices([{ value: -12, label: '(UTC-12:00) International Date Line West' }, { value: -11, label: '(UTC-11:00) Samoa' }, { value: -10, label: '(UTC-10:00) Hawaii' }, { value: -9, label: '(UTC-9:00) Alaska' }, { value: -8, label: '(UTC-8:00) Pacific Time (US & Canada)' }, { value: -7, label: '(UTC-7:00) Arizona, La Paz, Mazatlan' }, { value: -6, label: '(UTC-6:00) Central America, Monterrey, Mexico City ' }, { value: -5, label: '(UTC-5:00) Bogota, Lima, Quito, Indiana' }, { value: -4, label: '(UTC-4:00) Atlantic Time (Canada), Manaus ' }, { value: -3, label: '(UTC-3:00) Brasilia, Buenos Aires, Cayenne' }, { value: -2, label: '(UTC-2:00) Mid-Atlantic' }, { value: -1, label: '(UTC-1:00) Azores, Cape Verde Is.' }, { value: 0, label: '(UTC 0:00) Dublin, Lisbon, London, Reykjavik' }, { value: +1, label: '(UTC+1:00) Amsterdam, Berlin, Rome, Paris, Prague, Skopje ' }, { value: +2, label: '(UTC+2:00) Athens, Istanbul, Cairo, Helsinki, Kyiv, Vilnius ' }, { value: +3, label: '(UTC+3:00) Baghdad, Kuwait, Moscow, St. Petersburg, Nairobi' }, { value: +4, label: '(UTC+4:00) Abu Dhabi, Baku, Muscat' }, { value: +5, label: '(UTC+5:00) Ekaterinburg, Karachi, Tashkent' }, { value: +6, label: '(UTC+6:00) Astana, Dhaka, Novosibirsk' }, { value: +7, label: '(UTC+7:00) Bangkok, Hanoi, Jakarta' }, { value: +8, label: '(UTC+8:00) Beijing, Hong Kong, Kuala Lumpur, Perth, Taipei' }, { value: +9, label: '(UTC+9:00) Sapporo, Tokyo, Seoul' }, { value: +10, label: '(UTC+10:00) Brisbane, Melbourne, Sydney' }, { value: +11, label: '(UTC+11:00) Magadan, Solomon Is.' }, { value: +12, label: '(UTC+12:00) Auckland, Fiji' }]).attributes({ placeholder: 'Select Timezone' }).validation({ required: true }).label('Timezone'), nga.field('get_messages', 'boolean').attributes({ placeholder: 'Auto Timezone' }).validation({ required: true }).label('Get messages'), nga.field('auto_timezone', 'boolean').attributes({ placeholder: 'Auto Timezone' }).validation({ required: true }).label('Auto Timezone'), nga.field('account_lock', 'boolean').attributes({ placeholder: 'Account Lock' }).label('Account Lock').validation({ required: true }), nga.field('template').label('').template(_edit_buttonHtml2['default'])]);
 
-		logindata.editionView().title('<h4>Login Accounts <i class="fa fa-angle-right" aria-hidden="true"></i> Edit: {{ entry.values.username }}</h4>').actions(['list']).fields([nga.field('livetvlastchange', 'datetime').editable(false).label('Livetv last change'), nga.field('updatelivetvtimestamp', 'boolean').editable(true).validation({ required: true }).label('Update livetv data'), nga.field('vodlastchange', 'datetime').editable(false).label('Vod last change'), nga.field('updatevodtimestamp', 'boolean').editable(true).validation({ required: true }).label('Update vod data'), logindata.creationView().fields(), nga.field('Subscriptions', 'referenced_list').label('Subscription').targetEntity(admin.getEntity('Subscriptions')).targetReferenceField('login_id').targetFields([nga.field('package_id', 'reference').targetEntity(admin.getEntity('Packages')).targetField(nga.field('package_name')).label('Package'), nga.field('package_id', 'reference').targetEntity(admin.getEntity('Packages')).targetField(nga.field('package_type_id').map(function truncate(value) {
+	    logindata.editionView().title('<h4>Login Accounts <i class="fa fa-angle-right" aria-hidden="true"></i> Edit: {{ entry.values.username }}</h4>').actions(['list']).fields([nga.field('customer_id', 'reference').targetEntity(admin.getEntity('CustomerData')).targetField(nga.field('firstnmae', 'template').map(function (v, e) {
+	        return e.firstname + ' ' + e.lastname;
+	    })).attributes({ placeholder: 'Select Customer' }).label('Customer').perPage(1000).validation({ required: true }), nga.field('username', 'string').attributes({ placeholder: 'Username' }).label('Username').validation({ required: true }), nga.field('password', 'password').attributes({ placeholder: 'Password' }).label('Password').validation({ required: true }), nga.field('pin', 'string').attributes({ placeholder: 'Pin' }).validation({ required: true }).label('Pin'), nga.field('channel_stream_source', 'reference').targetEntity(admin.getEntity('ChannelStreamSources')).targetField(nga.field('stream_source')).attributes({ placeholder: 'Select Channel Stream Source' }).label('Channel Stream Source').validation({ required: true }), nga.field('vod_stream_source', 'reference').targetEntity(admin.getEntity('VodStreamSources')).targetField(nga.field('description')).attributes({ placeholder: 'Select Vod Stream Source' }).label('VOD Stream Source').validation({ required: true }), nga.field('activity_timeout', 'string').attributes({ placeholder: 'Activity time out' }).validation({ required: true }).defaultValue(300).label('Activity Time Out'), nga.field('timezone', 'choice').choices([{ value: -12, label: '(UTC-12:00) International Date Line West' }, { value: -11, label: '(UTC-11:00) Samoa' }, { value: -10, label: '(UTC-10:00) Hawaii' }, { value: -9, label: '(UTC-9:00) Alaska' }, { value: -8, label: '(UTC-8:00) Pacific Time (US & Canada)' }, { value: -7, label: '(UTC-7:00) Arizona, La Paz, Mazatlan' }, { value: -6, label: '(UTC-6:00) Central America, Monterrey, Mexico City ' }, { value: -5, label: '(UTC-5:00) Bogota, Lima, Quito, Indiana' }, { value: -4, label: '(UTC-4:00) Atlantic Time (Canada), Manaus ' }, { value: -3, label: '(UTC-3:00) Brasilia, Buenos Aires, Cayenne' }, { value: -2, label: '(UTC-2:00) Mid-Atlantic' }, { value: -1, label: '(UTC-1:00) Azores, Cape Verde Is.' }, { value: 0, label: '(UTC 0:00) Dublin, Lisbon, London, Reykjavik' }, { value: +1, label: '(UTC+1:00) Amsterdam, Berlin, Rome, Paris, Prague, Skopje ' }, { value: +2, label: '(UTC+2:00) Athens, Istanbul, Cairo, Helsinki, Kyiv, Vilnius ' }, { value: +3, label: '(UTC+3:00) Baghdad, Kuwait, Moscow, St. Petersburg, Nairobi' }, { value: +4, label: '(UTC+4:00) Abu Dhabi, Baku, Muscat' }, { value: +5, label: '(UTC+5:00) Ekaterinburg, Karachi, Tashkent' }, { value: +6, label: '(UTC+6:00) Astana, Dhaka, Novosibirsk' }, { value: +7, label: '(UTC+7:00) Bangkok, Hanoi, Jakarta' }, { value: +8, label: '(UTC+8:00) Beijing, Hong Kong, Kuala Lumpur, Perth, Taipei' }, { value: +9, label: '(UTC+9:00) Sapporo, Tokyo, Seoul' }, { value: +10, label: '(UTC+10:00) Brisbane, Melbourne, Sydney' }, { value: +11, label: '(UTC+11:00) Magadan, Solomon Is.' }, { value: +12, label: '(UTC+12:00) Auckland, Fiji' }]).attributes({ placeholder: 'Select Timezone' }).validation({ required: true }).label('Timezone'), nga.field('livetvlastchange', 'datetime').editable(false).label('Live TV Last Change'), nga.field('updatelivetvtimestamp', 'boolean').editable(true).validation({ required: true }).label('Update Live TV Data'), nga.field('vodlastchange', 'datetime').editable(false).label('VOD Last Change'), nga.field('updatevodtimestamp', 'boolean').editable(true).validation({ required: true }).label('Update VOD data'), nga.field('get_messages', 'boolean').attributes({ placeholder: 'Auto Timezone' }).validation({ required: true }).label('Get messages'), nga.field('auto_timezone', 'boolean').attributes({ placeholder: 'Auto Timezone' }).validation({ required: true }).label('Auto Timezone'), nga.field('account_lock', 'boolean').attributes({ placeholder: 'Account Lock' }).label('Account Lock').validation({ required: true }), nga.field('template').label('').template(_edit_buttonHtml2['default']), nga.field('Subscriptions', 'referenced_list').label('Subscription').targetEntity(admin.getEntity('Subscriptions')).targetReferenceField('login_id').targetFields([nga.field('package_id', 'reference').targetEntity(admin.getEntity('Packages')).targetField(nga.field('package_name')).label('Package'), nga.field('package_id', 'reference').targetEntity(admin.getEntity('Packages')).targetField(nga.field('package_type_id').map(function truncate(value) {
+	        if (value === 1) {
+	            return 'Mobile Package';
+	        } else if (value === 2) {
+	            return 'STB Package';
+	        } else if (value === 3) {
+	            return 'VOD Package';
+	        }
+	    })).label('Package Type'), nga.field('start_date', 'date').cssClasses('hidden-xs').template(function (entry) {
+	        var moment = new Date().toISOString().slice(0, 10);
+	        var ng_vlera_start = new Date(entry.values.start_date).toISOString().slice(0, 10);
+	        var ng_vlera_end = new Date(entry.values.end_date).toISOString().slice(0, 10);
+	        if (moment >= ng_vlera_start && moment <= ng_vlera_end) {
+	            return ng_vlera_start.fontcolor("green");
+	        } else {
+	            return ng_vlera_start.fontcolor("red").bold();
+	        }
+	    }).label('Start Date'), nga.field('end_date', 'date').cssClasses('hidden-xs').template(function (entry) {
+	        var moment = new Date().toISOString().slice(0, 10);
+	        var ng_vlera_start = new Date(entry.values.start_date).toISOString().slice(0, 10);
+	        var ng_vlera_end = new Date(entry.values.end_date).toISOString().slice(0, 10);
+	        if (moment >= ng_vlera_start && moment <= ng_vlera_end) {
+	            return ng_vlera_end.fontcolor("green");
+	        } else {
+	            return ng_vlera_end.fontcolor("red").bold();
+	        }
+	    }).label('End Date')]), nga.field('ADD SUBSCRIPTION', 'template').label('').template('<ma-create-button entity-name="Subscriptions" class="pull-right" label="ADD SUBSCRIPTION" default-values="{ login_id: entry.values.id }"></ma-create-button>'), nga.field('Devices', 'referenced_list').label('Devices').targetEntity(admin.getEntity('Devices')).targetReferenceField('login_data_id').targetFields([nga.field('login_data_id', 'reference').targetEntity(admin.getEntity('LoginData')).targetField(nga.field('username')).label('Account'), nga.field('device_ip').cssClasses('hidden-xs').label('Device IP'), nga.field('appid').cssClasses('hidden-xs').label('App ID'), nga.field('app_version').cssClasses('hidden-xs').label('App Version'), nga.field('ntype').cssClasses('hidden-xs').label('Ntype'), nga.field('updatedAt', 'date').cssClasses('hidden-xs').label('Last Updated'), nga.field('device_brand').cssClasses('hidden-xs').label('Device Brand'), nga.field('device_active', 'boolean').label('Device Active')]).listActions(['edit']), nga.field('Salesreports', 'referenced_list').label('Sale Reports').targetEntity(nga.entity('Salesreports')).targetReferenceField('login_data_id').targetFields([nga.field('user_username', 'string').label('User Username'), nga.field('distributorname', 'string').cssClasses('hidden-xs').label('Distributor Name'), nga.field('saledate', 'date').cssClasses('hidden-xs').label('Sale Date'), nga.field('combo_id', 'reference').targetEntity(admin.getEntity('Combos')).targetField(nga.field('name')).label('Product')])]);
 
-			if (value === 1) {
-
-				return 'Mobile Package';
-			} else if (value === 2) {
-
-				return 'STB Package';
-			} else if (value === 3) {
-
-				return 'VOD Package';
-			}
-		})).label('Package Type'), nga.field('start_date', 'date').cssClasses('hidden-xs').template(function (entry) {
-			var moment = new Date().toISOString().slice(0, 10);
-			var ng_vlera_start = new Date(entry.values.start_date).toISOString().slice(0, 10);
-			var ng_vlera_end = new Date(entry.values.end_date).toISOString().slice(0, 10);
-
-			if (moment >= ng_vlera_start && moment <= ng_vlera_end) {
-
-				return ng_vlera_start.fontcolor("green");
-			} else {
-
-				return ng_vlera_start.fontcolor("red").bold();
-			}
-		}).label('Start Date'), nga.field('end_date', 'date').cssClasses('hidden-xs').template(function (entry) {
-			var moment = new Date().toISOString().slice(0, 10);
-			var ng_vlera_start = new Date(entry.values.start_date).toISOString().slice(0, 10);
-			var ng_vlera_end = new Date(entry.values.end_date).toISOString().slice(0, 10);
-
-			if (moment >= ng_vlera_start && moment <= ng_vlera_end) {
-
-				return ng_vlera_end.fontcolor("green");
-			} else {
-
-				return ng_vlera_end.fontcolor("red").bold();
-			}
-		}).label('End Date')]), nga.field('ADD SUBSCRIPTION', 'template').label('').template('<ma-create-button entity-name="Subscriptions" class="pull-right" label="ADD SUBSCRIPTION" default-values="{ login_id: entry.values.id }"></ma-create-button>'), nga.field('Devices', 'referenced_list').label('Devices').targetEntity(admin.getEntity('Devices')).targetReferenceField('login_data_id').targetFields([nga.field('login_data_id', 'reference').targetEntity(admin.getEntity('LoginData')).targetField(nga.field('username')).label('Account'), nga.field('device_ip').cssClasses('hidden-xs').label('Device IP'), nga.field('appid').cssClasses('hidden-xs').label('App ID'), nga.field('app_version').cssClasses('hidden-xs').label('App Version'), nga.field('ntype').cssClasses('hidden-xs').label('Ntype'), nga.field('updatedAt', 'date').cssClasses('hidden-xs').label('Last Updated'), nga.field('device_brand').cssClasses('hidden-xs').label('Device Brand'), nga.field('device_active', 'boolean').label('Device Active')]).listActions(['edit']), nga.field('Salesreports', 'referenced_list').label('Sale Reports').targetEntity(nga.entity('Salesreports')).targetReferenceField('login_data_id').targetFields([nga.field('user_username', 'string').label('User Username'), nga.field('distributorname', 'string').cssClasses('hidden-xs').label('Distributor Name'), nga.field('saledate', 'date').cssClasses('hidden-xs').label('Sale Date'), nga.field('combo_id', 'reference').targetEntity(admin.getEntity('Combos')).targetField(nga.field('name')).label('Product')])]);
-
-		return logindata;
+	    return logindata;
 	};
 
 	module.exports = exports['default'];
@@ -16380,9 +16303,11 @@
 
 	exports['default'] = function (nga, admin) {
 		var mychann = admin.getEntity('mychannels');
-		mychann.listView().title('<h4>My  Channels <i class="fa fa-angle-right" aria-hidden="true"></i> List</h4>').batchActions([]).fields([nga.field('channel_number').label('Channel Nr'), nga.field('login_id', 'reference').targetEntity(admin.getEntity('LoginData')).targetField(nga.field('username')).label('Login'), nga.field('title', 'string').label('Title'), nga.field('description', 'string').label('Description'), nga.field('stream_url', 'string').label('Stream Url'), nga.field('isavailable', 'boolean').label('Is Available')]).listActions(['edit']).filters([nga.field('q').label('').template('<div class="input-group"><input type="text" ng-model="value" placeholder="Search" class="form-control"></input><span class="input-group-addon"><i class="glyphicon glyphicon-search"></i></span></div>').pinned(true)]);
+		mychann.listView().title('<h4>My  Channels <i class="fa fa-angle-right" aria-hidden="true"></i> List</h4>').batchActions([]).fields([nga.field('login_id', 'reference').targetEntity(admin.getEntity('LoginData')).targetField(nga.field('username')).label('Username'), nga.field('title', 'string').label('Title'), nga.field('channel_number').label('Channel Nr'), nga.field('genre_id', 'reference').targetEntity(admin.getEntity('Genres')).targetField(nga.field('description')).label('Genre'), nga.field('description', 'string').label('Description'), nga.field('isavailable', 'boolean').label('Is Available')]).listActions(['edit', 'delete']).filters([nga.field('q').label('').template('<div class="input-group"><input type="text" ng-model="value" placeholder="Search" class="form-control"></input><span class="input-group-addon"><i class="glyphicon glyphicon-search"></i></span></div>').pinned(true)]);
 
-		mychann.creationView().title('<h4>My  Channels <i class="fa fa-angle-right" aria-hidden="true"></i> Create</h4>').fields([nga.field('login_id', 'reference').targetEntity(admin.getEntity('LoginData')).targetField(nga.field('username')).label('Login'), nga.field('channel_number').label('Channel Nr'), nga.field('title', 'string').label('Title'), nga.field('description', 'string').label('Description'), nga.field('stream_url', 'string').label('Stream Url'), nga.field('isavailable', 'boolean').validation({ required: true }).label('Is Available'), nga.field('template').label('').template(_edit_buttonHtml2['default'])]);
+		mychann.creationView().title('<h4>My  Channels <i class="fa fa-angle-right" aria-hidden="true"></i> Create</h4>').fields([nga.field('login_id', 'reference').targetEntity(admin.getEntity('LoginData')).targetField(nga.field('username')).label('Username'), nga.field('title', 'string').label('Title'), nga.field('channel_number').label('Channel Nr'), nga.field('stream_url', 'string').label('Stream Url'), nga.field('genre_id', 'reference').targetEntity(admin.getEntity('Genres')).targetField(nga.field('description')).validation({ required: true }).attributes({ placeholder: 'Select Genre' }).label('Genre'), nga.field('description', 'string').label('Description'), nga.field('isavailable', 'boolean').validation({ required: true }).label('Is Available'), nga.field('template').label('').template(_edit_buttonHtml2['default'])]);
+
+		mychann.deletionView().title('<h4>User Channels <i class="fa fa-angle-right" aria-hidden="true"></i> Remove <span style ="color:red;"> {{ entry.values.title }} </span></h4>').actions(['<ma-back-button entry="entry" entity="entity"></ma-back-button>']);
 
 		mychann.editionView().title('<h4>My  Channels <i class="fa fa-angle-right" aria-hidden="true"></i> Create</h4>').fields([mychann.creationView().fields()]);
 
@@ -16421,14 +16346,11 @@
 
 		packageschannels.creationView().onSubmitSuccess(['progression', 'notification', '$state', 'entry', 'entity', function (progression, notification, $state, entry, entity) {
 			progression.done();
-			//notification.log(`Element ${entry._identifierValue} successfully created.`, { addnCls: 'humane-flatty-success' });
 			$state.go($state.get('edit'), { entity: 'Packages', id: entry.values.package_id });
 			return false;
 		}]).title('<h4>Package Channels <i class="fa fa-angle-right" aria-hidden="true"></i> Create: Package Channels</h4>').fields([nga.field('package_id', 'reference').targetEntity(admin.getEntity('Packages')).targetField(nga.field('package_name')).validation({ required: true }).label('Packages'), nga.field('channel_id', 'reference').targetEntity(admin.getEntity('Channels')).targetField(nga.field('title', 'template').map(function (v, e) {
 			return e.channel_number + ' - ' + e.title;
-		})).validation({ required: true }).attributes({ placeholder: 'Select Channel' }).perPage(1000)
-		//.permanentFilters({field1: 'value'})
-		.label('Channels'), nga.field('template').label('').template(_edit_buttonHtml2['default'])]);
+		})).validation({ required: true }).attributes({ placeholder: 'Select Channel' }).perPage(1000).label('Channels'), nga.field('template').label('').template(_edit_buttonHtml2['default'])]);
 
 		packageschannels.editionView().title('<h4>Package Channels <i class="fa fa-angle-right" aria-hidden="true"></i> Edit: {{ entry.values.channel_id }}</h4>').actions(['list']).fields([packageschannels.creationView().fields()]);
 
@@ -16478,7 +16400,7 @@
 
 	exports['default'] = function (nga, admin) {
 			var salesreport = admin.getEntity('Salesreports');
-			salesreport.listView().title('<h4>Salesreports <i class="fa fa-angle-right" aria-hidden="true"></i> List</h4>').batchActions(['filter']).fields([nga.field('user_id', 'reference').targetEntity(admin.getEntity('Users')).targetField(nga.field('username')).cssClasses('hidden-xs').label('User'), nga.field('user_username').label('User Username'), nga.field('distributorname', 'string').cssClasses('hidden-xs').label('Distributor Name'), nga.field('saledate', 'datetime').cssClasses('hidden-xs').label('Sale Date'), nga.field('combo_id', 'reference').targetEntity(admin.getEntity('Combos')).targetField(nga.field('name')).label('Products')]).filters([nga.field('q').label('').template('<div class="input-group"><input type="text" ng-model="value" placeholder="Search" class="form-control"></input><span class="input-group-addon"><i class="glyphicon glyphicon-search"></i></span></div>').pinned(true), nga.field('user_username').attributes({ placeholder: 'Client' }).label('Client'), nga.field('distributorname').attributes({ placeholder: 'Distributor' }).label('Distributor'), nga.field('startsaledate', 'datetime').attributes({ placeholder: 'Sale date from' }).label('Start sale date'), nga.field('endsaledate', 'datetime').attributes({ placeholder: 'Sale date to' }).label('End sale date'), nga.field('name').attributes({ placeholder: 'Product' }).label('Product')]).exportFields([salesreport.listView().fields()]);
+			salesreport.listView().title('<h4>Salesreports <i class="fa fa-angle-right" aria-hidden="true"></i> List</h4>').batchActions(['filter']).fields([nga.field('user_id', 'reference').targetEntity(admin.getEntity('Users')).targetField(nga.field('username')).cssClasses('hidden-xs').label('User'), nga.field('user_username').label('User Username'), nga.field('distributorname', 'string').cssClasses('hidden-xs').label('Distributor Name'), nga.field('saledate', 'date').cssClasses('hidden-xs').label('Sale Date'), nga.field('combo_id', 'reference').targetEntity(admin.getEntity('Combos')).targetField(nga.field('name')).label('Products')]).filters([nga.field('q').label('').template('<div class="input-group"><input type="text" ng-model="value" placeholder="Search" class="form-control"></input><span class="input-group-addon"><i class="glyphicon glyphicon-search"></i></span></div>').pinned(true), nga.field('user_username').attributes({ placeholder: 'Client' }).label('Client'), nga.field('distributorname').attributes({ placeholder: 'Distributor' }).label('Distributor'), nga.field('startsaledate', 'date').attributes({ placeholder: 'Sale date from' }).label('Start sale date'), nga.field('endsaledate', 'date').attributes({ placeholder: 'Sale date to' }).label('End sale date'), nga.field('name').attributes({ placeholder: 'Product' }).label('Product')]).exportFields([salesreport.listView().fields()]);
 
 			return salesreport;
 	};
@@ -16505,24 +16427,9 @@
 
 	exports['default'] = function (nga, admin) {
 		var settings = admin.getEntity('Settings');
-		settings.listView().batchActions([]).fields([nga.field('email_username').validation({ required: true }).label('Email Username').template('<div class="form-group">' + '<ma-input-field field="field" value="entry.values.email_username"></ma-input-field>' + '<small id="emailHelp" class="form-text text-muted">Username for outgoing smtp mail server.</small>' + '</div>').attributes({ placeholder: 'Username' }), nga.field('email_password', 'password').validation({ required: true }).label('Email Password').template('<div class="form-group">' + '<ma-input-field field="field" type="password" value="entry.values.email_password"></ma-input-field>' + '<small id="emailHelp" class="form-text text-muted">Passowrd for outgoing smtp mail server.</small>' + '</div>').attributes({ placeholder: 'Password' }), nga.field('email_address').validation({ required: true }).label('Email Address').template('<div class="form-group">' + '<ma-input-field field="field" value="entry.values.email_address"></ma-input-field>' + '<small id="emailHelp" class="form-text text-muted">Email address for outboing smtp mail server.</small>' + '</div>').attributes({ placeholder: 'Address' }), nga.field('activity_timeout', 'number').attributes({ placeholder: 'Activity Timeout' }).template('<div class="form-group">' + '<ma-input-field field="field" value="entry.values.activity_timeout"></ma-input-field>' + '<small id="emailHelp" class="form-text text-muted">If there is no activity for this time then application will return to main menu.</small>' + '</div>').label('Activity Time Out'), nga.field('log_event_interval', 'number').attributes({ placeholder: 'Log event internel' }).template('<div class="form-group">' + '<ma-input-field field="field" value="entry.values.log_event_interval"></ma-input-field>' + '<small id="emailHelp" class="form-text text-muted">Frequency to send audience logs.</small>' + '</div>').label('Log event internel'),
+		settings.listView().batchActions([]).fields([nga.field('email_username').validation({ required: true }).label('Email Username').template('<div class="form-group">' + '<ma-input-field field="field" value="entry.values.email_username"></ma-input-field>' + '<small id="emailHelp" class="form-text text-muted">Username for outgoing smtp mail server.</small>' + '</div>').attributes({ placeholder: 'Username' }), nga.field('email_password', 'password').validation({ required: true }).label('Email Password').template('<div class="form-group">' + '<ma-input-field field="field" type="password" value="entry.values.email_password"></ma-input-field>' + '<small id="emailHelp" class="form-text text-muted">Passowrd for outgoing smtp mail server.</small>' + '</div>').attributes({ placeholder: 'Password' }), nga.field('email_address').validation({ required: true }).label('Email Address').template('<div class="form-group">' + '<ma-input-field field="field" value="entry.values.email_address"></ma-input-field>' + '<small id="emailHelp" class="form-text text-muted">Email address for outboing smtp mail server.</small>' + '</div>').attributes({ placeholder: 'Address' }), nga.field('activity_timeout', 'number').attributes({ placeholder: 'Activity Timeout' }).template('<div class="form-group">' + '<ma-input-field field="field" value="entry.values.activity_timeout"></ma-input-field>' + '<small id="emailHelp" class="form-text text-muted">If there is no activity for this time then application will return to main menu.</small>' + '</div>').label('Activity Time Out'), nga.field('log_event_interval', 'number').attributes({ placeholder: 'Log event internel' }).template('<div class="form-group">' + '<ma-input-field field="field" value="entry.values.log_event_interval"></ma-input-field>' + '<small id="emailHelp" class="form-text text-muted">Frequency to send audience logs.</small>' + '</div>').label('Log event internel'), nga.field('channel_log_time', 'number').attributes({ placeholder: 'Channel log time' }).template('<div class="form-group">' + '<ma-input-field field="field" value="entry.values.channel_log_time"></ma-input-field>' + '<small id="emailHelp" class="form-text text-muted">Timeout to define a channel as not able to play.</small>' + '</div>').label('Channel log time'), nga.field('analytics_id', 'string').attributes({ placeholder: 'Analytics ID' }).template('<div class="form-group">' + '<ma-input-field field="field" value="entry.values.analytics_id"></ma-input-field>' + '<small id="emailHelp" class="form-text text-muted">Google analytics ID to monitor audience and system logs.</small>' + '</div>').label('Analytics ID'), nga.field('box_logo_url', 'file').validation({ required: true }).label('Box Logo').template('<div class="row">' + '<div class="col-xs-12 col-sm-1"><img src="{{ entry.values.box_logo_url }}" height="40" width="40" /></div>' + '<div class="col-xs-12 col-sm-8"><ma-file-field field="field" value="entry.values.box_logo_url"></ma-file-field></div>' + '</div>').uploadInformation({ 'url': '/file-upload/single-file/settings/box_logo_url', 'apifilename': 'result' }), nga.field('box_background_url', 'file').validation({ required: true }).label('Box Background').template('<div class="row">' + '<div class="col-xs-12 col-sm-1"><img src="{{ entry.values.box_background_url }}" height="40" width="40" /></div>' + '<div class="col-xs-12 col-sm-8"><ma-file-field field="field" value="entry.values.box_background_url"></ma-file-field></div>' + '</div>').uploadInformation({ 'url': '/file-upload/single-file/settings/box_background_url', 'apifilename': 'result' }), nga.field('mobile_background_url', 'file').validation({ required: true }).label('Mobile Background').template('<div class="row">' + '<div class="col-xs-12 col-sm-1"><img src="{{ entry.values.mobile_background_url }}" height="40" width="40" /></div>' + '<div class="col-xs-12 col-sm-8"><ma-file-field field="field" value="entry.values.mobile_background_url"></ma-file-field></div>' + '</div>').uploadInformation({ 'url': '/file-upload/single-file/settings/mobile_background_url', 'apifilename': 'result' }), nga.field('mobile_logo_url', 'file').validation({ required: true }).label('Mobile Logo').template('<div class="row">' + '<div class="col-xs-12 col-sm-1"><img src="{{ entry.values.mobile_logo_url }}" height="40" width="40" /></div>' + '<div class="col-xs-12 col-sm-8"><ma-file-field field="field" value="entry.values.mobile_logo_url"></ma-file-field></div>' + '</div>').uploadInformation({ 'url': '/file-upload/single-file/settings/mobile_logo_url', 'apifilename': 'result' }), nga.field('vod_background_url', 'file').validation({ required: true }).label('VOD Background').template('<div class="row">' + '<div class="col-xs-12 col-sm-1"><img src="{{ entry.values.vod_background_url }}" height="40" width="40" /></div>' + '<div class="col-xs-12 col-sm-8"><ma-file-field field="field" value="entry.values.vod_background_url"></ma-file-field></div>' + '</div>').uploadInformation({ 'url': '/file-upload/single-file/settings/vod_background_url', 'apifilename': 'result' }), nga.field('locale', 'string').validation({ required: true }).label('Locale').template('<div class="form-group">' + '<ma-input-field field="field" value="entry.values.locale"></ma-input-field>' + '<small id="emailHelp" class="form-text text-muted">User interface language (not in use).</small>' + '</div>'), nga.field('assets_url', 'string').validation({ required: true }).label('Assets URL').template('<div class="form-group">' + '<ma-input-field field="field" value="entry.values.assets_url"></ma-input-field>' + '<small id="emailHelp" class="form-text text-muted">URL to provide images through a CDN.</small>' + '</div>').attributes({ placeholder: 'Assets URL' }), nga.field('new_encryption_key').validation({ required: true }).label('New Encryption Key').template('<div class="form-group">' + '<ma-input-field field="field" value="entry.values.new_encryption_key"></ma-input-field>' + '<small id="emailHelp" class="form-text text-muted">Key used to encrypt/decrypt token</small>' + '</div>'), nga.field('key_transition', 'boolean').validation({ required: true }).label('Key Transition'), nga.field('menulastchange', 'datetime').editable(false).label('Menu Last Change'), nga.field('updatemenulastchange', 'boolean').editable(true).validation({ required: true }).label('Update Menu Timestamp'), nga.field('livetvlastchange', 'datetime').editable(false).label('Live TV Last Change'), nga.field('updatelivetvtimestamp', 'boolean').editable(true).validation({ required: true }).label('Update Live TV Timestamp'), nga.field('vodlastchange', 'datetime').editable(false).label('VOD Last Change'), nga.field('updatevodtimestamp', 'boolean').editable(true).validation({ required: true }).label('Update VOD Timestamp'), nga.field('googlegcmapi').template('<div class="form-group">' + '<ma-input-field field="field" value="entry.values.googlegcmapi"></ma-input-field>' + '<small id="emailHelp" class="form-text text-muted">Google GCM API code for push messages to android devices.</small>' + '</div>').label('googlegcmapi'), nga.field('applekeyid').template('<div class="form-group">' + '<ma-input-field field="field" value="entry.values.applekeyid"></ma-input-field>' + '<small id="emailHelp" class="form-text text-muted">Apple key id for push messages to apple devices.</small>' + '</div>').label('applekeyid'), nga.field('appleteamid').template('<div class="form-group">' + '<ma-input-field field="field" value="entry.values.appleteamid"></ma-input-field>' + '<small id="emailHelp" class="form-text text-muted">Apple team id for push messages to apple devices.</small>' + '</div>').label('appleteamid'), nga.field('applecertificate', 'text').template('<div class="form-group">' + '<ma-text-field field="field" value="entry.values.applecertificate"></ma-text-field>' + '<small id="emailHelp" class="form-text text-muted">Apple team id for push messages to apple devices.</small>' + '</div>').label('applecertificate'), nga.field('updatedAt', 'datetime').editable(false).label('Last Updated')]);
 
-		//nga.field('company_url', 'string')
-		//	.label('Company Url'),
-
-		nga.field('channel_log_time', 'number').attributes({ placeholder: 'Channel log time' }).template('<div class="form-group">' + '<ma-input-field field="field" value="entry.values.channel_log_time"></ma-input-field>' + '<small id="emailHelp" class="form-text text-muted">Timeout to define a channel as not able to play.</small>' + '</div>').label('Channel log time'), nga.field('analytics_id', 'string').attributes({ placeholder: 'Analytics ID' }).template('<div class="form-group">' + '<ma-input-field field="field" value="entry.values.analytics_id"></ma-input-field>' + '<small id="emailHelp" class="form-text text-muted">Google analytics ID to monitor audience and system logs.</small>' + '</div>').label('Analytics ID'), nga.field('box_logo_url', 'file').validation({ required: true }).label('Box Logo URL').template('<div class="row">' + '<div class="col-xs-12 col-sm-1"><img src="{{ entry.values.box_logo_url }}" height="40" width="40" /></div>' + '<div class="col-xs-12 col-sm-8"><ma-file-field field="field" value="entry.values.box_logo_url"></ma-file-field></div>' + '</div>').uploadInformation({ 'url': '/file-upload/single-file/settings/box_logo_url', 'apifilename': 'result' }), nga.field('box_background_url', 'file').validation({ required: true }).label('Box Background URL').template('<div class="row">' + '<div class="col-xs-12 col-sm-1"><img src="{{ entry.values.box_background_url }}" height="40" width="40" /></div>' + '<div class="col-xs-12 col-sm-8"><ma-file-field field="field" value="entry.values.box_background_url"></ma-file-field></div>' + '</div>').uploadInformation({ 'url': '/file-upload/single-file/settings/box_background_url', 'apifilename': 'result' }), nga.field('mobile_background_url', 'file').validation({ required: true }).label('Mobile Background URL').template('<div class="row">' + '<div class="col-xs-12 col-sm-1"><img src="{{ entry.values.mobile_background_url }}" height="40" width="40" /></div>' + '<div class="col-xs-12 col-sm-8"><ma-file-field field="field" value="entry.values.mobile_background_url"></ma-file-field></div>' + '</div>').uploadInformation({ 'url': '/file-upload/single-file/settings/mobile_background_url', 'apifilename': 'result' }), nga.field('mobile_logo_url', 'file').validation({ required: true }).label('Mobile Logo URL').template('<div class="row">' + '<div class="col-xs-12 col-sm-1"><img src="{{ entry.values.mobile_logo_url }}" height="40" width="40" /></div>' + '<div class="col-xs-12 col-sm-8"><ma-file-field field="field" value="entry.values.mobile_logo_url"></ma-file-field></div>' + '</div>').uploadInformation({ 'url': '/file-upload/single-file/settings/mobile_logo_url', 'apifilename': 'result' }), nga.field('vod_background_url', 'file').validation({ required: true }).label('VOD Background URL').template('<div class="row">' + '<div class="col-xs-12 col-sm-1"><img src="{{ entry.values.vod_background_url }}" height="40" width="40" /></div>' + '<div class="col-xs-12 col-sm-8"><ma-file-field field="field" value="entry.values.vod_background_url"></ma-file-field></div>' + '</div>').uploadInformation({ 'url': '/file-upload/single-file/settings/vod_background_url', 'apifilename': 'result' }), nga.field('locale', 'string').validation({ required: true }).label('Locale').template('<div class="form-group">' + '<ma-input-field field="field" value="entry.values.locale"></ma-input-field>' + '<small id="emailHelp" class="form-text text-muted">User interface language (not in use).</small>' + '</div>'), nga.field('assets_url', 'string').validation({ required: true }).label('Assets URL').template('<div class="form-group">' + '<ma-input-field field="field" value="entry.values.assets_url"></ma-input-field>' + '<small id="emailHelp" class="form-text text-muted">URL to provide images through a CDN.</small>' + '</div>').attributes({ placeholder: 'Assets URL' }),
-		//nga.field('ip_service_url')
-		//	.validation({ required: true })
-		//	.label('Ip service url'),
-		nga.field('new_encryption_key').validation({ required: true }).label('New encryption key').template('<div class="form-group">' + '<ma-input-field field="field" value="entry.values.new_encryption_key"></ma-input-field>' + '<small id="emailHelp" class="form-text text-muted">Key used to encrypt/decrypt token</small>' + '</div>'),
-		//nga.field('old_encryption_key')
-		//	.validation({ required: true })
-		//	.label('Old encryption key'),
-		nga.field('key_transition', 'boolean').validation({ required: true }).label('Key Transition'), nga.field('menulastchange', 'datetime').editable(false).label('Menu Last Change'), nga.field('updatemenulastchange', 'boolean').editable(true).validation({ required: true }).label('Update Menu Timestamp'), nga.field('livetvlastchange', 'datetime').editable(false).label('Livtv Last Change'), nga.field('updatelivetvtimestamp', 'boolean').editable(true).validation({ required: true }).label('Update LiveTV Timestamp'), nga.field('vodlastchange', 'datetime').editable(false).label('Vod Last Change'), nga.field('updatevodtimestamp', 'boolean').editable(true).validation({ required: true }).label('Update VOD Timestamp'), nga.field('googlegcmapi').template('<div class="form-group">' + '<ma-input-field field="field" value="entry.values.googlegcmapi"></ma-input-field>' + '<small id="emailHelp" class="form-text text-muted">Google GCM API code for push messages to android devices.</small>' + '</div>').label('googlegcmapi'), nga.field('applekeyid').template('<div class="form-group">' + '<ma-input-field field="field" value="entry.values.applekeyid"></ma-input-field>' + '<small id="emailHelp" class="form-text text-muted">Apple key id for push messages to apple devices.</small>' + '</div>').label('applekeyid'), nga.field('appleteamid').template('<div class="form-group">' + '<ma-input-field field="field" value="entry.values.appleteamid"></ma-input-field>' + '<small id="emailHelp" class="form-text text-muted">Apple team id for push messages to apple devices.</small>' + '</div>').label('appleteamid'), nga.field('applecertificate', 'text').template('<div class="form-group">' + '<ma-text-field field="field" value="entry.values.applecertificate"></ma-text-field>' + '<small id="emailHelp" class="form-text text-muted">Apple team id for push messages to apple devices.</small>' + '</div>').label('applecertificate'), nga.field('updatedAt', 'datetime').editable(false).label('Last Updated')]);
-
-		settings.editionView().title('<h4><i class="fa fa-angle-right" aria-hidden="true"></i> Company Settings</h4>')
-		//.template(set)
-		.actions(['']).onSubmitSuccess(['progression', 'notification', '$state', 'entry', 'entity', function (progression, notification, $state, entry, entity) {
+		settings.editionView().title('<h4><i class="fa fa-angle-right" aria-hidden="true"></i> Company Settings</h4>').actions(['']).onSubmitSuccess(['progression', 'notification', '$state', 'entry', 'entity', function (progression, notification, $state, entry, entity) {
 			// stop the progress bar
 			progression.done();
 			// add a notification
@@ -16560,24 +16467,18 @@
 			var moment = new Date().toISOString().slice(0, 10);
 			var ng_vlera_start = new Date(entry.values.start_date).toISOString().slice(0, 10);
 			var ng_vlera_end = new Date(entry.values.end_date).toISOString().slice(0, 10);
-
 			if (moment >= ng_vlera_start && moment <= ng_vlera_end) {
-
 				return ng_vlera_start.fontcolor("green");
 			} else {
-
 				return ng_vlera_start.fontcolor("red").bold();
 			}
 		}).label('Start Date'), nga.field('end_date', 'date').template(function (entry, values) {
 			var moment = new Date().toISOString().slice(0, 10);
 			var ng_vlera_start = new Date(entry.values.start_date).toISOString().slice(0, 10);
 			var ng_vlera_end = new Date(entry.values.end_date).toISOString().slice(0, 10);
-
 			if (moment >= ng_vlera_start && moment <= ng_vlera_end) {
-
 				return ng_vlera_end.fontcolor("green");
 			} else {
-
 				return ng_vlera_end.fontcolor("red").bold();
 			}
 		}).label('End Date')]).filters([nga.field('login_id', 'reference').targetEntity(admin.getEntity('LoginData')).targetField(nga.field('username')).attributes({ placeholder: 'Search' }).remoteComplete(true, {
@@ -16588,22 +16489,16 @@
 		}).label('').pinned(true)]).exportFields([subscription.listView().fields()]);
 
 		subscription.deletionView().title('<h4>Subscriptions <i class="fa fa-angle-right" aria-hidden="true"></i> Remove <span style ="color:red;"> {{ entry.values.package.package_name }} </span> from <span style ="color:red;"> {{ entry.values.login_datum.username }} </span></h4>').fields([nga.field('login_datum', 'template').template(function (entry, value) {
-
 			return entry.values.login_datum.username;
 		}), nga.field('package', 'template').template(function (entry, value) {
-
 			return entry.values['package'].package_name;
 		})]).actions(['<ma-back-button entry="entry" entity="entity"></ma-back-button>']);
 
 		subscription.creationView().title('<h4>Subscriptions <i class="fa fa-angle-right" aria-hidden="true"></i> Create: Subscription</h4>').onSubmitSuccess(['progression', 'notification', '$state', 'entry', 'entity', function (progression, notification, $state, entry, entity) {
 			progression.done();
-			//notification.log(`Element ${entry._identifierValue} successfully created.`, { addnCls: 'humane-flatty-success' });
-			//console.log(entry.values.login_id);
-			console.log(entry);
 			$state.go($state.get('edit'), { entity: 'LoginData', id: entry.values.login_id });
-
 			return false;
-		}]).fields([nga.field('login_id', 'reference').targetEntity(admin.getEntity('LoginData')).targetField(nga.field('username')).attributes({ placeholder: 'Select Account' }).validation({ required: true }).label('User'), nga.field('combo_id', 'reference').targetEntity(admin.getEntity('Combos')).targetField(nga.field('name')).attributes({ placeholder: 'Select Product' }).validation({ required: true }).label('Combo'), nga.field('start_date', 'date').attributes({ placeholder: 'Start Date' }).validation({ required: true }).defaultValue(new Date()).label('Start Date'), nga.field('template').label('').template(_edit_buttonHtml2['default'])]);
+		}]).fields([nga.field('login_id', 'reference').targetEntity(admin.getEntity('LoginData')).targetField(nga.field('username')).attributes({ placeholder: 'Select Account' }).validation({ required: true }).label('Username'), nga.field('combo_id', 'reference').targetEntity(admin.getEntity('Combos')).targetField(nga.field('name')).attributes({ placeholder: 'Select Product' }).validation({ required: true }).label('Combo'), nga.field('start_date', 'date').attributes({ placeholder: 'Start Date' }).validation({ required: true }).defaultValue(new Date()).label('Start Date'), nga.field('template').label('').template(_edit_buttonHtml2['default'])]);
 
 		subscription.editionView().title('<h4>Subscriptions <i class="fa fa-angle-right" aria-hidden="true"></i></h4>').fields([subscription.creationView().fields()]);
 
@@ -16685,12 +16580,9 @@
 	exports['default'] = function (nga, admin) {
 		var app_management = admin.getEntity('appmanagement');
 		app_management.listView().title('<h4>App Management <i class="fa fa-angle-right" aria-hidden="true"></i> List</h4>').batchActions([]).fields([nga.field('appid', 'string').label('App ID'), nga.field('app_version').cssClasses('hidden-xs').label('App Version'), nga.field('title').cssClasses('hidden-xs').label('Title'), nga.field('description').label('Description'), nga.field('url').label('Url'), nga.field('upgrade_min_api', 'string').label('Min Upgrade Api'), nga.field('upgrade_min_app_version', 'string').label('Min Upgrade App Version'), nga.field('beta_version').map(function app(value) {
-
 			if (value === true) {
-
 				return 'Beta';
 			} else if (value === false) {
-
 				return 'Live';
 			}
 		}).label('Beta Version'), nga.field('isavailable', 'boolean').label('Is Available')]).listActions(['edit']).exportFields([app_management.listView().fields()]);
@@ -16733,75 +16625,45 @@
 	exports['default'] = function (nga, admin) {
 		var message = admin.getEntity('messages');
 		message.listView().batchActions(['sendmessage', '<my-custom-directive selection="selection"></my-custom-directive>']).title('<h4>Messages <i class="fa fa-angle-right" aria-hidden="true"></i> List</h4>').fields([nga.field('username').label('Username'), nga.field('title').label('Title'), nga.field('message').map(function truncate(value) {
-
 			if (!value) {
-
 				return '';
 			}
-
 			return value.length > 14 ? value.substr(0, 14) + '...' : value;
 		}).label('Messages'), nga.field('action').label('Action'), nga.field('username', 'reference').targetEntity(admin.getEntity('Devices')).targetField(nga.field('appid').map(function app(value) {
-
 			if (value === 1) {
-
 				return 'Box';
 			} else if (value === 2) {
-
 				return 'Android';
 			} else if (value === 3) {
-
 				return 'Ios';
 			} else if (value === 4) {
-
 				return 'Stv';
 			} else if (value === 5) {
-
 				return 'Samsung';
 			}
 		})).label('App ID'), nga.field('createdat', 'datetime').label('Created')]).listActions(['edit']).exportFields([message.listView().fields()]);
 
 		message.creationView().title('<h4>Messages <i class="fa fa-angle-right" aria-hidden="true"></i> Create: Messages</h4>').fields([nga.field('type', 'choice').choices(function (entry) {
-
 			var types = [{ value: 'one', label: 'One User' }, { value: 'all', label: 'All User' }];
-
 			return types;
 		}).label('User Type'), nga.field('username', 'reference').targetEntity(admin.getEntity('LoginData')).targetField(nga.field('username').map(function (value) {
-
 			var user = [];
-
 			for (var i = 0; i < value.length; i++) {
 				user[i] = value[i].username;
-
-				//if (types.value === 'one') {
-
-				//	return value;
-
-				//} else {
-
-				// return value.hide();
-
-				//}
-
 				return value;
 			}
 		})), nga.field('toandroidsmartphone', 'boolean').validation({ required: true }).label('Android Smartphone'), nga.field('toios', 'boolean').validation({ required: true }).label('IOS'), nga.field('toandroidbox', 'boolean').validation({ required: true }).label('Android Box'), nga.field('timetolive', 'number').attributes({ placeholder: 'ttl' }).validation({ required: true }).label('Time to live in sec'), nga.field('message', 'text').attributes({ placeholder: 'Message' }).validation({ required: true }).label('Messages'), nga.field('sendtoactivedevices', 'boolean').validation({ required: true }).defaultValue(true).label('Send only to active devices'), nga.field('template').label('').template(_edit_buttonHtml2['default'])]);
 
 		message.editionView().title('<h4>Messages <i class="fa fa-angle-right" aria-hidden="true"></i></h4>').actions(['list']).fields([nga.field('username').validation({ required: true }).label('Username'), nga.field('googleappid').attributes({ placeholder: 'Google app id' }).label('Google App ID'), nga.field('title').label('Title'), nga.field('action').label('Action'), nga.field('username', 'reference').targetEntity(admin.getEntity('Devices')).targetField(nga.field('appid').map(function app(value) {
-
 			if (value === 1) {
-
 				return 'Box';
 			} else if (value === 2) {
-
 				return 'Android';
 			} else if (value === 3) {
-
 				return 'Ios';
 			} else if (value === 4) {
-
 				return 'Stv';
 			} else if (value === 5) {
-
 				return 'Samsung';
 			}
 		})).editable(false).label('App ID'), nga.field('message', 'text').attributes({ placeholder: 'Message' }).validation({ required: true }).label('Messages')]);
@@ -16815,7 +16677,6 @@
 /* 151 */
 /***/ function(module, exports, __webpack_require__) {
 
-	//TODO: preview logs
 	'use strict';
 
 	Object.defineProperty(exports, '__esModule', {
@@ -16833,7 +16694,7 @@
 	    logs.listView().title('<h4>User logs <i class="fa fa-angle-right" aria-hidden="true"></i> List</h4>').batchActions([]).fields([nga.field('id', 'number').label('id'), nga.field('username', 'string').label('user'), nga.field('user_ip', 'string').label('from ip'), nga.field('action', 'string').label('action'), nga.field('createdAt', 'datetime').label('date')]).listActions(['show']);
 
 	    logs.showView().title('<h4>Logs <i class="fa fa-angle-right" aria-hidden="true"></i> Details</h4>').fields([nga.field('id', 'number').label('id'), nga.field('user.username', 'string').label('user'), nga.field('user_ip', 'string').label('from ip'), nga.field('action', 'string').label('action'), nga.field('details', 'json').map(function detailsdecode(value, entry) {
-	        return JSON.parse(value); // decodeURIComponent(value);
+	        return JSON.parse(value);
 	    }).label('details'), nga.field('createdAt', 'date').label('date')]);
 
 	    return logs;
@@ -16888,9 +16749,9 @@
 
 	exports['default'] = function (nga, admin) {
 		var app_gr = admin.getEntity('appgroup');
-		app_gr.listView().title('<h4>App Group <i class="fa fa-angle-right" aria-hidden="true"></i> List</h4>').batchActions([]).fields([nga.field('app_group_id').label('App group id'), nga.field('app_group_name').label('App group name'), nga.field('app_id').label('App id')]).listActions(['edit']).exportFields([app_gr.listView().fields()]);
+		app_gr.listView().title('<h4>App Group <i class="fa fa-angle-right" aria-hidden="true"></i> List</h4>').batchActions([]).fields([nga.field('app_group_id').label('App Group ID'), nga.field('app_group_name').label('App Group Name'), nga.field('app_id').label('App ID')]).listActions(['edit']).exportFields([app_gr.listView().fields()]);
 
-		app_gr.creationView().title('<h4>App Group <i class="fa fa-angle-right" aria-hidden="true"></i> Create: APP</h4>').fields([nga.field('app_group_id').attributes({ placeholder: 'App group id' }).validation({ required: true }).label('App group id'), nga.field('app_group_name').attributes({ placeholder: 'App group name' }).validation({ required: true }).label('App group name'), nga.field('app_id').attributes({ placeholder: 'App ID' }).validation({ required: true }).label('App id'), nga.field('template').label('').template(_edit_buttonHtml2['default'])]);
+		app_gr.creationView().title('<h4>App Group <i class="fa fa-angle-right" aria-hidden="true"></i> Create: APP</h4>').fields([nga.field('app_group_id').attributes({ placeholder: 'App Group ID' }).validation({ required: true }).label('App Group ID'), nga.field('app_group_name').attributes({ placeholder: 'App Group Name' }).validation({ required: true }).label('App Group Name'), nga.field('app_id').attributes({ placeholder: 'App ID' }).validation({ required: true }).label('App ID'), nga.field('template').label('').template(_edit_buttonHtml2['default'])]);
 
 		app_gr.editionView().title('<h4>App Group <i class="fa fa-angle-right" aria-hidden="true"></i> Edit: {{ entry.values.title }}</h4>').actions(['list']).fields([app_gr.creationView().fields()]);
 
@@ -16919,21 +16780,15 @@
 
 	exports['default'] = function (nga, admin) {
 		var vod = admin.getEntity('Vods');
-		vod.listView().title('<h4>Vods <i class="fa fa-angle-right" aria-hidden="true"></i> List</h4>').batchActions([]).fields([nga.field('icon_url', 'file').template('<img src="{{ entry.values.icon_url }}" height="35" width="35" />').cssClasses('hidden-xs').label('Icon'), nga.field('title', 'string').label('Title'), nga.field('category_id', 'reference').targetEntity(admin.getEntity('VodCategories')).targetField(nga.field('name')).label('Category'), nga.field('package_id', 'reference').targetEntity(admin.getEntity('Packages')).targetField(nga.field('package_name')).cssClasses('hidden-xs').label('Package'), nga.field('year', 'string').cssClasses('hidden-xs').label('Year'), nga.field('clicks', 'number').label('Clicks'), nga.field('rate', 'number').cssClasses('hidden-xs').label('Rate'), nga.field('duration', 'number').cssClasses('hidden-xs').label('Duration'), nga.field('director', 'string').cssClasses('hidden-xs').label('Director'), nga.field('isavailable', 'boolean').cssClasses('hidden-xs').label('Available')]).sortDir("DESC").sortField("year").filters([nga.field('q').label('').template('<div class="input-group"><input type="text" ng-model="value" placeholder="Search" class="form-control"></input><span class="input-group-addon"><i class="glyphicon glyphicon-search"></i></span></div>').pinned(true)]).listActions(['edit']).exportFields([vod.listView().fields()]);
+		vod.listView().title('<h4>Vods <i class="fa fa-angle-right" aria-hidden="true"></i> List</h4>').batchActions([]).fields([nga.field('title', 'string').label('Title'), nga.field('category_id', 'reference').targetEntity(admin.getEntity('VodCategories')).targetField(nga.field('name')).label('Category'), nga.field('package_id', 'reference').targetEntity(admin.getEntity('Packages')).targetField(nga.field('package_name')).cssClasses('hidden-xs').label('Package'), nga.field('duration', 'number').cssClasses('hidden-xs').label('Duration'), nga.field('icon_url', 'file').template('<img src="{{ entry.values.icon_url }}" height="35" width="35" />').cssClasses('hidden-xs').label('Icon'), nga.field('isavailable', 'boolean').cssClasses('hidden-xs').label('Available')]).sortDir("DESC").sortField("year").filters([nga.field('q').label('').template('<div class="input-group"><input type="text" ng-model="value" placeholder="Search" class="form-control"></input><span class="input-group-addon"><i class="glyphicon glyphicon-search"></i></span></div>').pinned(true)]).listActions(['edit']).exportFields([vod.listView().fields()]);
 
 		vod.deletionView().title('<h4>Vods <i class="fa fa-angle-right" aria-hidden="true"></i> Remove <span style ="color:red;"> {{ entry.values.title }}').actions(['<ma-back-button entry="entry" entity="entity"></ma-back-button>']);
 
-		vod.creationView().title('<h4>Vods <i class="fa fa-angle-right" aria-hidden="true"></i> Create: Vod</h4>').onSubmitSuccess(['progression', 'notification', '$state', 'entry', 'entity', function (progression, notification, $state, entry, entity) {
+		vod.creationView().title('<h4>Vods <i class="fa fa-angle-right" aria-hidden="true"></i> Create: Movie</h4>').onSubmitSuccess(['progression', 'notification', '$state', 'entry', 'entity', function (progression, notification, $state, entry, entity) {
 			progression.done();
-			console.log(entry);
 			$state.go($state.get('list'), { entity: 'Vods' });
-
 			return false;
-		}]).fields([nga.field('title', 'string').attributes({ placeholder: 'Title' }).validation({ required: true }).label('Title'), nga.field('category_id', 'reference').targetEntity(admin.getEntity('VodCategories')).targetField(nga.field('name')).attributes({ placeholder: 'Select Category' }).validation({ required: true }).label('Category'), nga.field('package_id', 'reference').targetEntity(admin.getEntity('Packages')).targetField(nga.field('package_name')).attributes({ placeholder: 'Select Package' })
-		//.permanentFilters({
-		//    package_type_id: [3,4] // display only the published posts
-		//})
-		.validation({ required: true }).label('Package'), nga.field('year', 'string').attributes({ placeholder: 'Year' }).validation({ required: true }).label('Year'), nga.field('director', 'string').attributes({ placeholder: 'Director' }).validation({ required: true }).label('Director'), nga.field('rate', 'number').attributes({ placeholder: 'Rate' }).validation({ required: true }).label('Rate'), nga.field('clicks', 'number').attributes({ placeholder: 'Clicks' }).validation({ required: true }).label('Clicks'), nga.field('duration').validation({ required: true }).attributes({ placeholder: 'Duration' }).label('Duration'), nga.field('description', 'text').attributes({ placeholder: 'Description' }).validation({ required: true }).label('Description'), nga.field('starring', 'text').attributes({ placeholder: 'Starring' }).validation({ required: true }).label('Starring'), nga.field('icon_url', 'file').uploadInformation({ 'url': '/file-upload/single-file/vod/icon_url', 'apifilename': 'result' }).template('<div class="row">' + '<div class="col-xs-12 col-sm-1"><img src="{{ entry.values.icon_url }}" height="40" width="40" /></div>' + '<div class="col-xs-12 col-sm-8"><ma-file-field field="field" value="entry.values.icon_url"></ma-file-field></div>' + '</div>').validation({
+		}]).fields([nga.field('title', 'string').attributes({ placeholder: 'Title' }).validation({ required: true }).label('Title'), nga.field('category_id', 'reference').targetEntity(admin.getEntity('VodCategories')).targetField(nga.field('name')).attributes({ placeholder: 'Select Category' }).validation({ required: true }).label('Category'), nga.field('package_id', 'reference').targetEntity(admin.getEntity('Packages')).targetField(nga.field('package_name')).attributes({ placeholder: 'Select Package' }).validation({ required: true }).label('Package'), nga.field('year', 'string').attributes({ placeholder: 'Year' }).validation({ required: true }).label('Year'), nga.field('director', 'string').attributes({ placeholder: 'Director' }).validation({ required: true }).label('Director'), nga.field('rate', 'number').attributes({ placeholder: 'Rate' }).validation({ required: true }).label('Rate'), nga.field('clicks', 'number').attributes({ placeholder: 'Clicks' }).validation({ required: true }).label('Clicks'), nga.field('duration').validation({ required: true }).attributes({ placeholder: 'Duration' }).label('Duration'), nga.field('description', 'text').attributes({ placeholder: 'Description' }).validation({ required: true }).label('Description'), nga.field('starring', 'text').attributes({ placeholder: 'Starring' }).validation({ required: true }).label('Starring'), nga.field('icon_url', 'file').uploadInformation({ 'url': '/file-upload/single-file/vod/icon_url', 'apifilename': 'result' }).template('<div class="row">' + '<div class="col-xs-12 col-sm-1"><img src="{{ entry.values.icon_url }}" height="40" width="40" /></div>' + '<div class="col-xs-12 col-sm-8"><ma-file-field field="field" value="entry.values.icon_url"></ma-file-field></div>' + '</div>').validation({
 			validator: function validator(value) {
 				if (value == null) {
 					throw new Error('Please, choose icon');
@@ -16948,7 +16803,6 @@
 		}).label('Image *'), nga.field('pin_protected', 'boolean').attributes({ placeholder: 'Pin Protected' }).validation({ required: true }).label('Pin Protected'), nga.field('isavailable', 'boolean').attributes({ placeholder: 'Is Available' }).validation({ required: true }).label('Is Available'), nga.field('template').label('').template(_edit_buttonHtml2['default'])]);
 
 		vod.editionView().title('<h4>Vods <i class="fa fa-angle-right" aria-hidden="true"></i> Edit: {{ entry.values.title }}</h4>').actions(['list', '<ma-delete-button label="Remove" entry="entry" entity="entity"></ma-delete-button>']).fields([vod.creationView().fields(), nga.field('vodsubtitles', 'referenced_list').label('Subtitles').targetEntity(admin.getEntity('vodsubtitles')).targetReferenceField('vod_id').targetFields([nga.field('title').label('Language')]).listActions(['edit', 'delete']), nga.field('ADD SUBTITLES', 'template').label('').template('<ma-create-button entity-name="vodsubtitles" class="pull-right" label="ADD SUBTITLES" default-values="{ vod_id: entry.values.id }"></ma-create-button>'), nga.field('vodstreams', 'referenced_list').label('Stream Sources').targetEntity(admin.getEntity('vodstreams')).targetReferenceField('vod_id').targetFields([nga.field('url').map(function truncate(value) {
-
 			if (!value) {
 				return '';
 			}
@@ -16978,30 +16832,23 @@
 
 	exports['default'] = function (nga, admin) {
 		var vodcategory = admin.getEntity('VodCategories');
-		vodcategory.listView().title('<h4>Vod Categories <i class="fa fa-angle-right" aria-hidden="true"></i> List</h4>').batchActions([]).fields([nga.field('icon_url', 'file').template('<img src="{{ entry.values.icon_url }}" height="35" width="35" />').cssClasses('hidden-xs').label('Icon'), nga.field('name', 'string').label('Name'), nga.field('description', 'text').cssClasses('hidden-xs').label('Description'),
-		/*
-	 nga.field('pay', 'string')
-	 	.cssClasses('hidden-xs')
-	 	.label('Pay'),
-	 */
-		nga.field('sorting', 'string').cssClasses('hidden-xs').label('Sorting'), nga.field('isavailable', 'boolean').label('Available'), nga.field('password', 'boolean').label('Password')]).listActions(['edit', '<ma-delete-button label="Remove" entry="entry" entity="entity" size="xs"></ma-delete-button>']).exportFields([vodcategory.listView().fields()]);
+		vodcategory.listView().title('<h4>Vod Categories <i class="fa fa-angle-right" aria-hidden="true"></i> List</h4>').batchActions([]).fields([nga.field('icon_url', 'file').template('<img src="{{ entry.values.icon_url }}" height="35" width="35" />').cssClasses('hidden-xs').label('Icon'), nga.field('small_icon_url', 'file').template('<img src="{{ entry.values.small_icon_url }}" height="35" width="35" />').cssClasses('hidden-xs').label('Small icon'), nga.field('name', 'string').label('Name'), nga.field('description', 'text').cssClasses('hidden-xs').label('Description'), nga.field('sorting', 'string').cssClasses('hidden-xs').label('Sorting'), nga.field('isavailable', 'boolean').label('Available'), nga.field('password', 'boolean').label('Password')]).listActions(['edit', '<ma-delete-button label="Remove" entry="entry" entity="entity" size="xs"></ma-delete-button>']).exportFields([vodcategory.listView().fields()]);
 
 		vodcategory.deletionView().title('<h4>Vod Category <i class="fa fa-angle-right" aria-hidden="true"></i> Remove <span style ="color:red;"> {{ entry.values.name }} </span></h4>').actions(['<ma-back-button entry="entry" entity="entity"></ma-back-button>']);
 
-		vodcategory.creationView().title('<h4>Vod Categories <i class="fa fa-angle-right" aria-hidden="true"></i> Create: Vod Category</h4>').fields([nga.field('name', 'string').attributes({ placeholder: 'Name' }).validation({ required: true }).label('Name'), nga.field('description', 'text').attributes({ placeholder: 'Description' }).validation({ required: true }).label('Description'),
-		/*
-	 nga.field('pay', 'string')
-	 	.attributes({ placeholder: 'Pay' })
-	 	.validation({ required: true })
-	 	.label('Pay'),
-	 */
-		nga.field('sorting', 'number').attributes({ placeholder: 'Sorting' }).validation({ required: true }).label('Sorting'), nga.field('icon_url', 'file').uploadInformation({ 'url': '/file-upload/single-file/vodcategory/icon_url', 'apifilename': 'result' }).template('<div class="row">' + '<div class="col-xs-12 col-sm-1"><img src="{{ entry.values.icon_url }}" height="40" width="40" /></div>' + '<div class="col-xs-12 col-sm-8"><ma-file-field field="field" value="entry.values.icon_url"></ma-file-field></div>' + '</div>').validation({
+		vodcategory.creationView().title('<h4>Vod Categories <i class="fa fa-angle-right" aria-hidden="true"></i> Create: Vod Category</h4>').fields([nga.field('name', 'string').attributes({ placeholder: 'Name' }).validation({ required: true }).label('Name'), nga.field('description', 'text').attributes({ placeholder: 'Description' }).validation({ required: true }).label('Description'), nga.field('sorting', 'number').attributes({ placeholder: 'Sorting' }).validation({ required: true }).label('Sorting'), nga.field('icon_url', 'file').uploadInformation({ 'url': '/file-upload/single-file/vodcategory/icon_url', 'apifilename': 'result' }).template('<div class="row">' + '<div class="col-xs-12 col-sm-1"><img src="{{ entry.values.icon_url }}" height="40" width="40" /></div>' + '<div class="col-xs-12 col-sm-8"><ma-file-field field="field" value="entry.values.icon_url"></ma-file-field></div>' + '</div>').validation({
 			validator: function validator(value) {
 				if (value == null) {
 					throw new Error('Please, choose icon');
 				}
 			}
-		}).label('icon *'), nga.field('password', 'boolean').attributes({ placeholder: 'Password' }).validation({ required: true }).label('Password'), nga.field('isavailable', 'boolean').attributes({ placeholder: 'Is Available' }).validation({ required: true }).label('Is Available'), nga.field('template').label('').template(_edit_buttonHtml2['default'])]);
+		}).label('Icon *'), nga.field('small_icon_url', 'file').uploadInformation({ 'url': '/file-upload/single-file/vodcategory/small_icon_url', 'apifilename': 'result' }).template('<div class="row">' + '<div class="col-xs-12 col-sm-1"><img src="{{ entry.values.small_icon_url }}" height="40" width="40" /></div>' + '<div class="col-xs-12 col-sm-8"><ma-file-field field="field" value="entry.values.small_icon_url"></ma-file-field></div>' + '</div>').validation({
+			validator: function validator(value) {
+				if (value == null) {
+					throw new Error('Please, choose icon');
+				}
+			}
+		}).label('Small icon *'), nga.field('password', 'boolean').attributes({ placeholder: 'Password' }).validation({ required: true }).label('Password'), nga.field('isavailable', 'boolean').attributes({ placeholder: 'Is Available' }).validation({ required: true }).label('Is Available'), nga.field('template').label('').template(_edit_buttonHtml2['default'])]);
 
 		vodcategory.editionView().title('<h4>Vod Categories <i class="fa fa-angle-right" aria-hidden="true"></i> Edit: {{ entry.values.name }}</h4>').actions(['list']).fields([vodcategory.creationView().fields()]);
 
@@ -17029,12 +16876,9 @@
 	exports['default'] = function (nga, admin) {
 		var vodstream = admin.getEntity('vodstreams');
 		vodstream.listView().title('<h4>Vod Streams <i class="fa fa-angle-right" aria-hidden="true"></i> List</h4>').batchActions([]).fields([nga.field('vod_id', 'reference').targetEntity(admin.getEntity('Vods')).targetField(nga.field('title')).label('Vod'), nga.field('stream_source_id', 'reference').targetEntity(admin.getEntity('VodStreamSources')).targetField(nga.field('description')).label('Stream Source'), nga.field('url', 'string').map(function truncate(value) {
-
 			if (!value) {
-
 				return '';
 			}
-
 			return value.length > 25 ? value.substr(0, 25) + '...' : value;
 		}).label('Url'), nga.field('token', 'boolean').label('Token'), nga.field('encryption', 'boolean').label('Encryption'), nga.field('token_url', 'string').label('Token Url')]).listActions(['edit']).exportFields([vodstream.listView().fields()]);
 
@@ -17067,9 +16911,9 @@
 
 	exports['default'] = function (nga, admin) {
 	  var vodstreamsource = admin.getEntity('VodStreamSources');
-	  vodstreamsource.listView().title('<h4>Vod Stream Sources <i class="fa fa-angle-right" aria-hidden="true"></i> List</h4>').batchActions([]).fields([nga.field('description', 'string').label('Description')]).listActions(['edit']).exportFields([vodstreamsource.listView().fields()]);
+	  vodstreamsource.listView().title('<h4>Vod Stream Sources <i class="fa fa-angle-right" aria-hidden="true"></i> List</h4>').batchActions([]).fields([nga.field('description', 'string').label('Stream Source')]).listActions(['edit']).exportFields([vodstreamsource.listView().fields()]);
 
-	  vodstreamsource.creationView().title('<h4>Vod Stream Sources <i class="fa fa-angle-right" aria-hidden="true"></i> Create: Vod Stream Source</h4>').fields([nga.field('description', 'string').attributes({ placeholder: 'Description' }).validation({ required: true }).label('Description'), nga.field('template').label('').template(_edit_buttonHtml2['default'])]);
+	  vodstreamsource.creationView().title('<h4>Vod Stream Sources <i class="fa fa-angle-right" aria-hidden="true"></i> Create: Vod Stream Source</h4>').fields([nga.field('description', 'string').attributes({ placeholder: 'Description' }).validation({ required: true }).label('Stream Source'), nga.field('template').label('').template(_edit_buttonHtml2['default'])]);
 
 	  vodstreamsource.editionView().title('<h4>Vod Stream Sources <i class="fa fa-angle-right" aria-hidden="true"></i> Edit: {{ entry.values.description }}</h4>').actions(['list']).fields([vodstreamsource.creationView().fields()]);
 
@@ -17097,12 +16941,9 @@
 	exports['default'] = function (nga, admin) {
 		var vodsubtitles = admin.getEntity('vodsubtitles');
 		vodsubtitles.listView().title('<h4>Vod Subtitles <i class="fa fa-angle-right" aria-hidden="true"></i> List</h4>').batchActions([]).fields([nga.field('vod_id', 'reference').targetEntity(admin.getEntity('Vods')).targetField(nga.field('title')).label('Vod'), nga.field('title', 'string').label('Title'), nga.field('subtitle_url', 'string').map(function truncate(value) {
-
 			if (!value) {
-
 				return '';
 			}
-
 			return value.length > 25 ? value.substr(0, 25) + '...' : value;
 		}).label('Subtitle Url')]).filters([nga.field('q').label('').template('<div class="input-group"><input type="text" ng-model="value" placeholder="Search" class="form-control"></input><span class="input-group-addon"><i class="glyphicon glyphicon-search"></i></span></div>').pinned(true)]).listActions(['edit']).exportFields([vodsubtitles.listView().fields()]);
 
@@ -17110,9 +16951,6 @@
 
 		vodsubtitles.creationView().title('<h4>Vod Subtitles <i class="fa fa-angle-right" aria-hidden="true"></i> Create: Vod Subtitles</h4>').onSubmitSuccess(['progression', 'notification', '$state', 'entry', 'entity', function (progression, notification, $state, entry, entity) {
 			progression.done();
-			//notification.log(`Element ${entry._identifierValue} successfully created.`, { addnCls: 'humane-flatty-success' });
-			//console.log(entry.values.login_id);
-			console.log(entry);
 			$state.go($state.get('edit'), { entity: 'Vods', id: entry.values.vod_id });
 
 			return false;
@@ -17186,16 +17024,7 @@
 
 	    if ((Role() === 'admin', 'guest')) {
 
-	        return nga.menu().addChild(nga.menu().title('Dashboard').icon('<span class="fa fa-tachometer fa-fw"></span>')).addChild(nga.menu().title('Customers').icon('<span class="fa fa-user fa-fw"></span>').addChild(nga.menu(admin.getEntity('CustomerGroups')).title('Customer Group').icon('<span class="fa fa-users fa-fw"></span>')).addChild(nga.menu(admin.getEntity('CustomerData')).title('Customer').icon('<span class="fa fa-user fa-fw"></span>')).addChild(nga.menu(admin.getEntity('LoginData')).title('Login Accounts').icon('<span class="fa fa-user-plus fa-fw"></span>')).addChild(nga.menu(admin.getEntity('Devices')).title('Devices').icon('<span class="fa fa-outdent fa-fw"></span>'))).addChild(nga.menu(admin.getEntity('Subscriptions')).title('Subscriptions').icon('<span class="fa fa-calendar-check-o fa-fw"></span>')).addChild(nga.menu().title('Sales').icon('<span class="fa fa-list fa-fw"></span>').addChild(nga.menu(admin.getEntity('Salesreports')).title('Exports').icon('<span class="fa fa-list fa-fw"></span>'))).addChild(nga.menu(admin.getEntity('Combos')).title('Products / Plans').icon('<span class="fa fa-tags fa-fw"></span>')).addChild(nga.menu().template('<div class="menu_space">Settings</div>')).addChild(nga.menu(admin.getEntity('Settings')).title('Company Settings').link('/Settings/edit/1').icon('<span class="fa fa-cog fa-fw"></span>')).addChild(nga.menu(admin.getEntity('DeviceMenus')).title('Main Menu').icon('<span class="fa fa-align-justify fa-fw"></span>')).addChild(nga.menu().title('TV Channels').icon('<span class="fa fa-television fa-fw"></span>').addChild(nga.menu(admin.getEntity('Genres')).title('Categories / Genre').icon('<span class="fa fa-folder-open fa-fw"></span>')).addChild(nga.menu(admin.getEntity('Channels')).title('Channels / Streams').icon('<span class="fa fa-television fa-fw"></span>')).addChild(nga.menu(admin.getEntity('Packages')).title('Channel Packages').icon('<span class="fa fa-th fa-fw"></span>')).addChild(nga.menu(admin.getEntity('ChannelStreamSources')).title('Live Tv Stream Source').icon('<span class="fa fa-signal fa-fw"></span>'))).addChild(nga.menu().title('VOD').icon('<span class="fa fa-film fa-fw"></span>').addChild(nga.menu(admin.getEntity('VodCategories')).title('Vod Categories').icon('<span class="fa fa-folder-open fa-fw"></span>')).addChild(nga.menu(admin.getEntity('Vods')).title('Vod Movies').icon('<span class="fa fa-film fa-fw"></span>')).addChild(nga.menu(admin.getEntity('vodPackages')).title('Vod Packages').icon('<span class="fa fa-th fa-fw"></span>')).addChild(nga.menu(admin.getEntity('VodStreamSources')).title('Vod Stream Source').icon('<span class="fa fa-signal fa-fw"></span>'))).addChild(nga.menu().title('EPG').icon('<span class="fa fa-film fa-fw"></span>').addChild(nga.menu(admin.getEntity('EpgData')).title('Epg Data').icon('<span class="fa fa-folder-open fa-fw"></span>')).addChild(nga.menu(admin.getEntity('epgimport')).title('Epg Import').icon('<span class="fa fa-film fa-fw"></span>'))).addChild(nga.menu(admin.getEntity('appgroup')).title('App Group').icon('<span class="fa fa-file fa-fw"></span>')).addChild(nga.menu().title('System Users').icon('<span class="fa fa-users fa-fw"></span>').addChild(nga.menu(admin.getEntity('Users')).title('Users').icon('<span class="fa fa-user fa-fw"></span>')).addChild(nga.menu(admin.getEntity('Groups')).title('User Groups').icon('<span class="fa fa-users fa-fw"></span>'))).addChild(nga.menu().template('<div class="menu_space">Other</div>')).addChild(nga.menu(admin.getEntity('appmanagement')).title('APP Management').icon('<span class="fa fa-sign-in fa-fw"></span>')).addChild(nga.menu(admin.getEntity('mychannels')).title('My Channels').icon('<span class="fa fa-sign-in fa-fw"></span>'))
-
-	        /*
-	        .addChild(nga.menu(admin.getEntity('messages'))
-	        .title('Messages')
-	        .icon('<span class="fa fa-sign-in fa-fw"></span>')
-	        )
-	        */
-
-	        .addChild(nga.menu(admin.getEntity('logs')).title('Logs').icon('<span class="fa fa-sign-in fa-fw"></span>')).addChild(nga.menu().title('HELP').icon('<span class="fa fa-question-circle fa-fw"></span>'));
+	        return nga.menu().addChild(nga.menu().title('Dashboard').icon('<span class="fa fa-tachometer fa-fw"></span>')).addChild(nga.menu().title('Customers').icon('<span class="fa fa-user fa-fw"></span>').addChild(nga.menu(admin.getEntity('CustomerGroups')).title('Customer Group').icon('<span class="fa fa-users fa-fw"></span>')).addChild(nga.menu(admin.getEntity('CustomerData')).title('Customer').icon('<span class="fa fa-user fa-fw"></span>')).addChild(nga.menu(admin.getEntity('LoginData')).title('Login Accounts').icon('<span class="fa fa-user-plus fa-fw"></span>')).addChild(nga.menu(admin.getEntity('Devices')).title('Devices').icon('<span class="fa fa-outdent fa-fw"></span>'))).addChild(nga.menu(admin.getEntity('Subscriptions')).title('Subscriptions').icon('<span class="fa fa-calendar-check-o fa-fw"></span>')).addChild(nga.menu().title('Sales').icon('<span class="fa fa-list fa-fw"></span>').addChild(nga.menu(admin.getEntity('Salesreports')).title('Exports').icon('<span class="fa fa-list fa-fw"></span>'))).addChild(nga.menu(admin.getEntity('Combos')).title('Products / Plans').icon('<span class="fa fa-tags fa-fw"></span>')).addChild(nga.menu().template('<div class="menu_space">Settings</div>')).addChild(nga.menu(admin.getEntity('Settings')).title('Company Settings').link('/Settings/edit/1').icon('<span class="fa fa-cog fa-fw"></span>')).addChild(nga.menu(admin.getEntity('DeviceMenus')).title('Main Menu').icon('<span class="fa fa-align-justify fa-fw"></span>')).addChild(nga.menu().title('TV Channels').icon('<span class="fa fa-television fa-fw"></span>').addChild(nga.menu(admin.getEntity('Genres')).title('Categories / Genre').icon('<span class="fa fa-folder-open fa-fw"></span>')).addChild(nga.menu(admin.getEntity('Channels')).title('Channels / Streams').icon('<span class="fa fa-television fa-fw"></span>')).addChild(nga.menu(admin.getEntity('ChannelStreamSources')).title('Live TV Stream Source').icon('<span class="fa fa-signal fa-fw"></span>')).addChild(nga.menu(admin.getEntity('Packages')).title('Channel Packages').icon('<span class="fa fa-th fa-fw"></span>'))).addChild(nga.menu().title('VOD').icon('<span class="fa fa-film fa-fw"></span>').addChild(nga.menu(admin.getEntity('VodCategories')).title('VOD Categories').icon('<span class="fa fa-folder-open fa-fw"></span>')).addChild(nga.menu(admin.getEntity('Vods')).title('VOD Movies').icon('<span class="fa fa-film fa-fw"></span>')).addChild(nga.menu(admin.getEntity('VodStreamSources')).title('VOD Stream Source').icon('<span class="fa fa-signal fa-fw"></span>')).addChild(nga.menu(admin.getEntity('vodPackages')).title('VOD Packages').icon('<span class="fa fa-th fa-fw"></span>'))).addChild(nga.menu().title('EPG').icon('<span class="fa fa-film fa-fw"></span>').addChild(nga.menu(admin.getEntity('epgimport')).title('EPG Import').icon('<span class="fa fa-film fa-fw"></span>')).addChild(nga.menu(admin.getEntity('EpgData')).title('EPG Data').icon('<span class="fa fa-folder-open fa-fw"></span>'))).addChild(nga.menu(admin.getEntity('appgroup')).title('APP Group').icon('<span class="fa fa-file fa-fw"></span>')).addChild(nga.menu().title('System Users').icon('<span class="fa fa-users fa-fw"></span>').addChild(nga.menu(admin.getEntity('Groups')).title('User Groups').icon('<span class="fa fa-users fa-fw"></span>')).addChild(nga.menu(admin.getEntity('Users')).title('Users').icon('<span class="fa fa-user fa-fw"></span>'))).addChild(nga.menu().template('<div class="menu_space">Other</div>')).addChild(nga.menu(admin.getEntity('appmanagement')).title('APP Management').icon('<span class="fa fa-sign-in fa-fw"></span>')).addChild(nga.menu(admin.getEntity('mychannels')).title('My Channels').icon('<span class="fa fa-sign-in fa-fw"></span>')).addChild(nga.menu(admin.getEntity('logs')).title('Logs').icon('<span class="fa fa-sign-in fa-fw"></span>')).addChild(nga.menu().title('HELP').icon('<span class="fa fa-question-circle fa-fw"></span>'));
 	    }
 	};
 

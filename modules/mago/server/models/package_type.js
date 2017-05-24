@@ -9,7 +9,7 @@ module.exports = function(sequelize, DataTypes) {
             autoIncrement: true
         },
         description: {
-            type: DataTypes.STRING(32),
+            type: DataTypes.STRING(250),
             allowNull: false
         }
     }, {
@@ -27,6 +27,6 @@ module.exports = function(sequelize, DataTypes) {
         }
     }
 
-    ); //,packagetype = packageType.create({ description: 'Someone' });
+    );
     return packageType;
 };

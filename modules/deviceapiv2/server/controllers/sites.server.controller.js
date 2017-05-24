@@ -1,15 +1,17 @@
 'use strict';
 var path = require('path'),
-		db = require(path.resolve('./config/lib/sequelize')).models,
-		crypto = require('crypto'),
-		async = require('async'),
-		nodemailer = require('nodemailer'),
-		response = require(path.resolve("./config/responses.js")),
-		authentication = require(path.resolve('./modules/deviceapiv2/server/controllers/authentication.server.controller.js')),
-		subscription = db.subscription,
-		login_data = db.login_data,
-		customer_data = db.customer_data;
-
+    db = require(path.resolve('./config/lib/sequelize')).models,
+	crypto = require('crypto'),
+	async = require('async'),
+	nodemailer = require('nodemailer'),
+	response = require(path.resolve("./config/responses.js")),
+	authentication = require(path.resolve('./modules/deviceapiv2/server/controllers/authentication.server.controller.js')),
+	subscription = db.subscription,
+    Combo = db.combo,
+    login_data = db.login_data,
+    SalesData = db.salesreport,
+    dateFormat = require('dateformat'),
+    customer_data = db.customer_data;
 
 exports.createaccount = function(req,res) {
 
@@ -18,7 +20,7 @@ exports.createaccount = function(req,res) {
 		port: 465,
 		secure: true, // use SSL
 		auth: {
-			user: req.app.locals.settings.email_username, 
+			user: req.app.locals.settings.email_username,
 			pass: req.app.locals.settings.email_password
 		}
 	};
@@ -29,7 +31,7 @@ exports.createaccount = function(req,res) {
 		// Generate random token
 		function(done) {
 			crypto.randomBytes(20, function(err, buffer) {
-				var token = new Buffer().toString('hex');
+				var token = Buffer.from('tokensample').toString('hex');
 				done(err, token);
 			});
 		},
@@ -50,7 +52,7 @@ exports.createaccount = function(req,res) {
 					return null;
 				}
 			}).catch(function (err) {
-				console.log(err);
+				//todo: return some response?
 			});
 		},
 		// check if email exists
@@ -61,8 +63,6 @@ exports.createaccount = function(req,res) {
 				if (customer_record) {
 					var myEmailRes=response.REGISTRATION_ERROR;
 					myEmailRes.extra_data='Email already exists';
-					console.log('Registration Error email');
-					console.log(myEmailRes);
 					res.send(myEmailRes);
 					done(null, 1);
 					return null;
@@ -72,9 +72,10 @@ exports.createaccount = function(req,res) {
 					return null;
 				}
 			}).catch(function (err) {
-				console.log(err);
+				//todo: return some response?
 			});
 		},
+		//create account
 		function(token, done) {
 			if(token !== 1){
 				var salt = authentication.makesalt();
@@ -107,33 +108,31 @@ exports.createaccount = function(req,res) {
 						done(null,token, new_customer);
 						return null;
 					}).catch(function(err){
-						console.log(err);
+						//todo: return some response?
 					});
 					return null;
 				}).catch(function (err) {
-					console.log(err);
+					//todo: return some response?
 				});
 			}
 			else{
-				console.log("Not going to insert any data");
+				//todo: return some response?
 			}
 		},
+		//todo: remove this part and it's template?
 		function(token, new_customer, done) {
-			console.log('enter email template');
 			res.render(path.resolve('modules/deviceapiv2/server/templates/new-account'), {
 				name: new_customer.firstname + ' ' + new_customer.lastname,
-				appName: req.app.locals.title, //TODO: handle this field
+				appName: req.app.locals.title, //todo: remains from old api???
 				url: req.app.locals.originUrl + '/apiv2/sites/confirm-account/' + token
 
 			}, function(err, emailHTML) {
-				if(err) console.log(err);
 				done(err, emailHTML, new_customer.email);
 			});
 		},
 		function(emailHTML, email, done) {
-			console.log('enter send email process'+email);
 			var mailOptions = {
-				to: email,
+				to: email, //user.email,
 				from: 'NOREPLY_EMAIL', //replace with automatic reply email address
 				subject: 'account confirmation email',
 				html: emailHTML
@@ -143,15 +142,10 @@ exports.createaccount = function(req,res) {
 				var myEmail;
 				if (!err) {
 					myEmail=response.EMAIL_SENT;
-					console.log('Email sent');
-					console.log(myEmail);
 					res.send(myEmail);
 
 				} else {
-					console.log(err);
 					myEmail=response.EMAIL_NOT_SENT;
-					console.log('Email not sent');
-					console.log(myEmail);
 					res.send(myEmail);
 				}
 				done(err);
@@ -179,27 +173,80 @@ exports.confirmNewAccountToken = function(req, res) {
 		user.resetPasswordExpires = 0;
 		user.account_lock = 0;
 		user.save().then(function (result) {
-			console.log('resetpasworexpir = 0');
-			insertpackage(result.id, 92, '2016-10-24 00:00:00', '2020-10-24 00:00:00', result.username, 'registration');
-			insertpackage(result.id, 93, '2016-10-24 00:00:00', '2020-10-24 00:00:00', result.username, 'registration');
-			insertpackage(result.id, 2, '2016-10-24 00:00:00', '2020-10-24 00:00:00', result.username, 'registration');
+            add_default_subscription(result.id);
 			res.send('Account confirmed, you can now login');
 		});
 	});
 
-	function insertpackage(id, comboid, startdate, enddate, customer, user){
-		subscription.create({
-			login_id: id,
-			package_id: comboid,
-			start_date: startdate,
-			end_date: enddate,
-			customer_username: customer,
-			user_username: user
-		}).then(function(results) {
-			console.log(results)
-		}).catch(function(error) {
-			console.log(error)
-		});
+
+    //Adds a default package
+	function add_default_subscription(account_id){
+
+        // Loading Combo with All its packages
+        Combo.findOne({
+            where: {
+                id: 1
+            }, include: [{model:db.combo_packages,include:[db.package]}]
+        }).then(function(combo) {
+            if (!combo)
+                return res.status(404).send({message: 'No Product with that identifier has been found'});
+            else {
+                // Load Customer by LoginID
+                login_data.findOne({
+                    where: {
+                        id: account_id
+                    }, include: [{model:db.customer_data},{model:db.subscription}]
+                }).then(function(loginData) {
+                    if (!loginData) return res.status(404).send({message: 'No Login with that identifier has been found'});
+
+                    // Subscription Processing
+                    // For Each package in Combo
+                    combo.combo_packages.forEach(function(item,i,arr){
+                        var startDate = Date.now();
+
+                        var sub = {
+                            login_id: loginData.id,
+                            package_id: item.package_id,
+                            customer_username: loginData.username,
+                            user_username: 'registration' //live
+                        };
+
+                        sub.start_date = Date.now();
+                        sub.end_date =  addDays(Date.now(), combo.duration);
+
+                        // Saving Subscription
+                        subscription.create(sub).then(function(savedSub) {
+                            if (!savedSub) return res.status(400).send({message: 'fail create data'});
+                        })
+
+                    });
+
+                    // Insert Into SalesData
+                    var sData = {
+                        user_id: 1,
+                        user_username: loginData.username,
+                        login_data_id: loginData.id,
+                        distributorname: 'admin',
+                        saledate: new Date(),
+                        combo_id: combo.id
+                    };
+                    SalesData.create(sData)
+                        .then(function(salesData){
+                            if (!salesData) return res.status(400).send({message: 'fail create sales data'});
+                        });
+
+
+                });
+                return null;
+            }
+        });
 	}
+
+
+    function addDays(startdate_ts, duration) {
+        var end_date_ts = startdate_ts + duration * 86400000; //add duration in number of seconds
+        var end_date =  dateFormat(end_date_ts, "yyyy-mm-dd hh:MM:ss"); // convert enddate from timestamp to datetime
+        return end_date;
+    }
 
 };

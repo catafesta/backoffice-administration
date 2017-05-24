@@ -21,7 +21,7 @@ function getipaddress(theip){
 }
 
 function trackobject(object_data,req, cb) {
-   
+
     object_data.v = 1;
     object_data.tid = req.app.locals.settings.analytics_id;
     object_data.ua = req.headers["user-agent"];
@@ -59,8 +59,6 @@ exports.event = function(req, res) {
         cd:req.body.screen_name || null //screen name
     };
 
-    winston.info("Analytics Event:"+querystring.stringify(object_data));
-
     trackobject(object_data, req, function (err) {
         if (err) {console.log(err)}
     });
@@ -76,8 +74,6 @@ exports.screen = function(req, res) {
         cd:req.body.screen_name || null //screen name
     };
 
-    winston.info("Analytics Screen;"+req.method+";"+req.baseUrl+";"+querystring.stringify(req.body));
-
     trackobject(object_data, req, function (err) {
         if (err) {winston.info(err)}
     });
@@ -85,8 +81,6 @@ exports.screen = function(req, res) {
 };
 
 exports.timing = function(req, res) {
-
-    winston.info("Analytics request;"+req.method+";"+req.baseUrl+";"+querystring.stringify(req.body));
 
     var object_data = {
         t:'timing',

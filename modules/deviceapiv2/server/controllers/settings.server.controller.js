@@ -2,7 +2,7 @@
 var path = require('path'),
     db = require(path.resolve('./config/lib/sequelize')),
     response = require(path.resolve("./config/responses.js")),
-    winston = require(path.resolve('./config/lib/winston')),
+    vod = require(path.resolve("./modules/deviceapiv2/server/controllers/vod.server.controller.js")),
     dateFormat = require('dateformat'),
     moment = require('moment'),
     async = require('async'),
@@ -47,48 +47,45 @@ exports.settings = function(req, res) {
                 callback(null, login_data);
                 return null;
             }).catch(function(error) {
-                console.log(error);
+                //TODO: return some response?
             });
         },
         //CHECKING IF THE USER NEEDS TO REFRESH SERVER SIDE DATA
         function(login_data, callback) {
             if (req.body.activity === 'livetv') {
                 //db value of last livetv refresh is bigger than client last refresh -> return true. Else return false
-
                 if ((req.body.livetvtimestamp >= parseFloat(req.app.locals.settings.livetvlastchange)) && (req.body.livetvtimestamp >= parseFloat(req.thisuser.livetvlastchange))){
-                    callback(null, login_data, false, req.body.livetvtimestamp);
+                    callback(null, login_data, false);
                 }
                 else{
                     settings_response.timestamp = req.app.locals.settings.livetvlastchange;
-                    callback(null, login_data, true, parseFloat(req.app.locals.settings.livetvlastchange));
+                    callback(null, login_data, true);
                 }
             }
             else if (req.body.activity === 'vod') {
                 //db value of last vod refresh is bigger than client last refresh -> return true. Else return false
-
                 if ((req.body.vodtimestamp >= parseFloat(req.app.locals.settings.vodlastchange)) && (req.body.vodtimestamp >= parseFloat(req.thisuser.vodlastchange))){
-                    callback(null, login_data, false, req.body.vodtimestamp);
+                    callback(null, login_data, false);
                 }
                 else {
-                    callback(null, login_data, true, parseFloat(req.app.locals.settings.vodlastchange));
+                    callback(null, login_data, true);
                 }
             }
             else if(req.body.activity === 'login'){
                 //db value of last main menu or livetv refresh is bigger than client last refresh -> return true. Else return false
                 if (req.body.mainmenutimestamp >= parseFloat(req.app.locals.settings.menulastchange)){
-                    callback(null, login_data, false, req.body.mainmenutimestamp);
+                    callback(null, login_data, false);
                 }
                 else {
-                    callback(null, login_data, true, parseFloat(req.app.locals.settings.menulastchange));
+                    callback(null, login_data, true);
                 }
             }
             else{
-                //in case of unexpected activity value, return false
-                callback(null, login_data, false, 0);
+                callback(null, login_data, false); //in case of unexpected activity value, return false
             }
         },
         //GETTING DAYS LEFT, DEPENDING ON THE ACTIVITY OF THE USER
-        function(login_data, refresh, timestamp, callback){
+        function(login_data, refresh, callback){
             var activity = (req.body.activity === 'login') ? 'livetv' : req.body.activity; //login activity requires livetv days_left, other activity require their own days_left
             //sequelize currently does not support non-primary foreign keys, so the code must be broken into two queries
             models.app_group.findOne({
@@ -104,24 +101,24 @@ exports.settings = function(req, res) {
                         ]}
                     ]
                 }).then(function (enddate) {
-                    var end_date = moment(enddate[0].end_date, "YYYY-M-DD HH:mm:ss");
+                    var end_date = (enddate[0]) ? moment(enddate[0].end_date, "YYYY-M-DD HH:mm:ss") : moment(new Date(), "YYYY-M-DD HH:mm:ss");  //if no subscription found, enddate set as current time to return 0 days left
                     var current_date = moment(new Date(), "YYYY-M-DD HH:mm:ss");
                     var seconds_left = end_date.diff(current_date, 'seconds');
                     var daysleft = Number((seconds_left / 86400).toFixed(0));
-                    callback(null, login_data, daysleft, refresh, timestamp);
+                    callback(null, login_data, daysleft, refresh);
                     return null;
                 }).catch(function(error) {
-                    callback(null, login_data, 0, refresh, timestamp);
+                    callback(null, login_data, 0, refresh);
                     return null;
                 });
                 return null;
             }).catch(function(error) {
-                console.log(error);
+                //todo: return some response?
             });
         },
-        function(login_data, daysleft, refresh, timestamp, callback) {
+        function(login_data, daysleft, refresh, callback) {
             var get_beta_app = (login_data.beta_user) ? 1 : 0;
-            //FIND LATEST AVAILABLE UPGRADE FOR THIS APPID, WHOSE API AND APP VERSION REQUIREMENT IS FULLFILLED BY THE DEVICE, and status fits the user status
+            //FIND LATEST AVAILABLE UPGRADE FOR THIS APPID, WHOSE API AND APP VERSION REQUIREMENT IS FULFILLED BY THE DEVICE, and status fits the user status
             models.app_management.findOne({
                 attributes: ['id', 'title', 'description', 'url', 'isavailable', 'updatedAt'],
                 limit: 1,
@@ -142,44 +139,98 @@ exports.settings = function(req, res) {
                     description = result['description'];
                     location = req.app.locals.settings.assets_url+''+result['url'];
                     activated = result['isavailable'];
-                    callback(null, login_data, daysleft, refresh, timestamp, true);
+                    callback(null, login_data, daysleft, refresh, true);
                 }
                 else{
-                    callback(null, login_data, daysleft, refresh, timestamp, false); //if there are no available upgrades, return false
+                    callback(null, login_data, daysleft, refresh, false); //if there are no available upgrades, return false
                 }
                 return null;
             }).catch(function(error) {
-                console.log(error);
-                callback(null, login_data, daysleft, refresh, timestamp, false);
+                callback(null, login_data, daysleft, refresh, false);
                 return null;
             });
         },
         //get client offset from the ip_timezone service
-        function(login_data, daysleft, refresh, timestamp, available_upgrade, callback) {
+        function(login_data, daysleft, refresh, available_upgrade, callback) {
 
             var client_ip = (req.headers['x-forwarded-for']) ? req.headers['x-forwarded-for'].split(',').pop().replace('::ffff:', '').replace(' ', '') : req.ip.replace('::ffff:', '');
             var apiurl = req.app.locals.settings.ip_service_url+req.app.locals.settings.ip_service_key+'/'+client_ip;
 
-
-            http.get(apiurl, function(resp){
-                resp.on('data', function(ip_info){
-                    callback(null, login_data, daysleft, refresh, timestamp, available_upgrade, JSON.parse(ip_info).gmtOffset);
+            try {
+                http.get(apiurl, function(resp){
+                    resp.on('data', function(ip_info){
+                        callback(null, login_data, daysleft, refresh, available_upgrade, JSON.parse(ip_info).gmtOffset);
+                    });
+                }).on("error", function(e){
+                    callback(null, login_data, daysleft, refresh, available_upgrade, 0); //return offset 0 to avoid errors
                 });
-            }).on("error", function(e){
-                console.log("Got error: " + e.message);
-                callback(null, login_data, daysleft, refresh, timestamp, available_upgrade, 0); //return offset 0 to avoid errors
-            });
+            } catch(e) {
+                callback(null, login_data, daysleft, refresh, available_upgrade, 0); //catch error 'Unable to determine domain name' when url is invalid / key+service are invalid
+            }
+        },
+        function(login_data, daysleft, refresh, available_upgrade, offset, callback){
+            var allowed_content = (login_data.show_adult === true) ? [0, 1] : [0];
+
+            if(req.body.activity === 'vod'){
+                models.vod.count({
+                    include: [
+                        {model: models.vod_stream, required: true, attributes: ['url', 'encryption']},
+                        {model: models.vod_category, required: true, attributes: [], where:{password:{in: allowed_content}, isavailable: true}}
+                    ],
+                    where: {pin_protected:{in: allowed_content}, isavailable: true}
+                }).then(function (record_count) {
+                    callback(null, login_data, daysleft, refresh, available_upgrade, offset, record_count); //return nr of vod records
+                    return null;
+                }).catch(function(error) {
+                    //todo: return some response?
+                });
+            }
+            else{
+                callback(null, login_data, daysleft, refresh, available_upgrade, offset, 0); //activity is not vod, send record count 0
+            }
+        },
+        //for vod activity, checks if there is a movie that the user would like to resume. if yes, sends url and position to the application and deletes the record
+        function(login_data, daysleft, refresh, available_upgrade, offset, record_count, callback){
+            if(req.body.activity === 'vod'){
+                models.vod_resume.findOne({
+                    attributes: ['vod_id', 'resume_position'],
+                    where: {login_id: login_data.id, device_id: {not: req.auth_obj.boxid}}
+                }).then(function (resume_movie) {
+                    if(resume_movie){
+                        models.vod_stream.findOne({
+                            attributes: ['url'],
+                            where: {vod_id: resume_movie.vod_id}
+                        }).then(function (movie_url) {
+                            vod.delete_resume_movie(login_data.id, resume_movie.vod_id);
+                            callback(null, login_data, daysleft, refresh, available_upgrade, offset, record_count, true, movie_url.url, resume_movie.resume_position); //send resume = true, movie stream and position
+                            return null;
+                        }).catch(function(error) {
+                            callback(null, login_data, daysleft, refresh, available_upgrade, offset, record_count, false, 0, 0); //error occurred, send resume = false
+                        });
+                        return null;
+                    }
+                    else {
+                        callback(null, login_data, daysleft, refresh, available_upgrade, offset, record_count, false, 0, 0); //no movie to resume was found, send resume = false
+                    }
+                    return null;
+                }).catch(function(error) {
+                    callback(null, login_data, daysleft, refresh, available_upgrade, offset, record_count, false, 0, 0); //error occurred, send resume = false
+                });
+            }
+            else{
+                callback(null, login_data, daysleft, refresh, available_upgrade, offset, record_count, false, 0, 0); //activity different from vod, send resume = false
+            }
         },
         //RETURNING CLIENT RESPONSE
-        function(login_data, daysleft, refresh, timestamp, available_upgrade, offset) {
+        function(login_data, daysleft, refresh, available_upgrade, offset, record_count, resume_vod, movie_url, resume_position) {
             //appoint calculated refresh to the right activity, false to others
             var mainmenurefresh = (req.body.activity === 'login') ? refresh : false;
             var vodrefresh = (req.body.activity === 'vod') ? refresh : false;
             var livetvrefresh = (req.body.activity === 'livetv') ? refresh : false;
 
             //return images based on appid
-            var logo_url = (req.auth_obj.appid == 1) ?  req.app.locals.settings.box_logo_url :  req.app.locals.settings.mobile_logo_url;
-            var background_url = (req.auth_obj.appid == 1) ?  req.app.locals.settings.box_background_url :  req.app.locals.settings.mobile_background_url;
+            var logo_url = (req.auth_obj.appid == 1 || req.auth_obj.appid == 4 || req.auth_obj.appid == 5) ?  req.app.locals.settings.box_logo_url :  req.app.locals.settings.mobile_logo_url;
+            var background_url = (req.auth_obj.appid == 1|| req.auth_obj.appid == 4 || req.auth_obj.appid == 5) ?  req.app.locals.settings.box_background_url :  req.app.locals.settings.mobile_background_url;
             var vod_background_url = (req.auth_obj.appid == 1) ?  req.app.locals.settings.vod_background_url :  req.app.locals.settings.vod_background_url;
 
             //days_left message is empty if user still has subscription
@@ -192,9 +243,12 @@ exports.settings = function(req, res) {
                 "livetvrefresh": livetvrefresh,
                 "vodrefresh": vodrefresh,
                 "mainmenurefresh": mainmenurefresh,
-                "timestamp": timestamp,
                 "daysleft": daysleft,
                 "days_left_message": days_left_message,
+                "record_count": Math.ceil(record_count / 200),
+                "resume_movie": resume_vod,
+                "movie_url": movie_url.toString(),
+                "resume_position": resume_position,
                 "company_url": req.app.locals.settings.company_url,
                 "log_event_interval":  req.app.locals.settings.log_event_interval,
                 "channel_log_time":  req.app.locals.settings.channel_log_time,
@@ -211,7 +265,6 @@ exports.settings = function(req, res) {
             res.send(settings_response);
         }
     ], function (err) {
-        console.log(err);
         res.send(response.DATABASE_ERROR);
     });
 

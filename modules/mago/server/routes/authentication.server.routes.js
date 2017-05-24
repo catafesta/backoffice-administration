@@ -13,15 +13,12 @@ module.exports = function(app) {
 
     /* ===== Authentication ===== */
     app.route('/api/auth/login')
-        //.all(policy.isAllowed)
         .post(authController.authenticate);
 
     app.route('/api/auth/tokenvalidate/:token')
-        //.all(policy.isAllowed)
         .get(authController.renderPasswordForm);
 
     app.route('/api/auth/reset/:token')
-        //.all(policy.isAllowed)
         .post(authController.resetPassword);
 
     app.route('/api/personal-details')

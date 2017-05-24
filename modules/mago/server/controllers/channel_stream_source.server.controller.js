@@ -84,19 +84,13 @@ exports.delete = function(req, res) {
  */
 exports.list = function(req, res) {
 
-  var query = req.query;
-  var offset_start = parseInt(query._start);
-  var records_limit = query._end - query._start;
-
   DBModel.findAndCountAll({
-
   }).then(function(results) {
     if (!results) {
       return res.status(404).send({
         message: 'No data found'
       });
     } else {
-
       res.setHeader("X-Total-Count", results.count);      
       res.json(results.rows);
     }

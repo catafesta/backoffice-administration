@@ -6,10 +6,8 @@ var fs = require('fs'),
 var folder;
 
 function makeDirectory(dirName, cb){
-    console.log(dirName);
     if (!fs.existsSync(dirName)){
         mkdirp(dirName, function(err){
-            console.log(err);
             cb(err);
         })
     } else {
@@ -26,7 +24,11 @@ function mkdir_recursive(basepath, custompath){
     var fullpath = basepath;
     for(var i = 0; i< custompath.split('/').length-1; i++){ //length-1 makes sure that the filename itself is not included in the path creation
         fullpath = fullpath + custompath.split('/')[i]+'/';
-        if (!fs.existsSync(fullpath)) mkdirp(fullpath, function(err){console.log(err);});
+        if (!fs.existsSync(fullpath)) {
+            mkdirp(fullpath, function(err){
+                //todo: return some response?
+            });
+        }
     }
 }
 
@@ -51,11 +53,10 @@ function deleteFile(filePath)
 {
     for(var i=0;i<filePath.length;i++)
     {
-    var Path=path.resolve('./public'+filePath[i]);
-    fs.unlink(Path,function (err)
-    {if(err) {console.log(err);}
-    else {console.log('Successfully deleted');}
-    });
+        var Path=path.resolve('./public'+filePath[i]);
+        fs.unlink(Path,function (err) {
+            //todo: do sth on error?
+        });
     }
 }
 
@@ -99,16 +100,15 @@ function  find_the_delete (new_files,old_file,index)
 
     //check if the file to be deleted may be a file being uploaded at the same time and avoid its delete then
     for(var i=0;i<new_files.length;i++)
-      {
-          new_url=new_files[i].toString().split("/");
-          new_name=new_url[new_url.length-1];
-          if(new_name==old_name && index!=i)
-          {
-              boolean=false;
-          }
-          else boolean=true;
-      }
-
+    {
+        new_url=new_files[i].toString().split("/");
+        new_name=new_url[new_url.length-1];
+        if(new_name==old_name && index!=i)
+        {
+            boolean=false;
+        }
+        else boolean=true;
+    }
     return boolean;
 }
 
@@ -123,7 +123,7 @@ function updateFile (prev_val,target_paths,delete_files,delete_on)
 
             var upload_path = path.resolve('./public')+target_paths[i].substring(0, target_paths[i].lastIndexOf("/") + 1);
             if (!fs.existsSync(upload_path)){
-                mkdir_recursive(path.resolve('./public'), target_paths[i]); //path did not exist, let's create it
+                mkdir_recursive(path.resolve('./public'), target_paths[i]);
             }
 
             full_name = target_paths[i].toString().split("/");
@@ -137,15 +137,19 @@ function updateFile (prev_val,target_paths,delete_files,delete_on)
             //check if directory tree where we want to upload exists. if not, we create it
             var upload_path = path.resolve('./public')+target_paths[i].substring(0, target_paths[i].lastIndexOf("/") + 1);
             if (!fs.existsSync(upload_path)){
-                mkdir_recursive(path.resolve('./public'), target_paths[i]); //path did not exist, let's create it
+                mkdir_recursive(path.resolve('./public'), target_paths[i]);
             }
             //check if the target path and new path the same, no upload happened
             if (prev_val[i].toString() != target_paths[i].toString())
-            {
+            {                                                         //for target_path[i]
                 full_name = target_paths[i].toString().split("/");
                 j++;
                 file_name[j] = full_name[full_name.length - 1];
                 changed_name[j] = target_paths[i];
+
+                if(find_the_delete(target_paths,delete_files[i],i)==true) {
+                    //todo: review this case?
+                }
             }
         }
     }
@@ -156,9 +160,8 @@ function updateFile (prev_val,target_paths,delete_files,delete_on)
         source_path=path.resolve('./public/files/tempfiles/'+ file_name[i]);
         target_path=path.resolve('./public'+changed_name[i]);
         copyOnUpdate(source_path, target_path,  function(err){
-        if (err) console.log(err);
-        else console.log("Successfully copied");
-    })
+            //todo: do sth on error?
+        })
     }
     //delete the old files of the new-updated ones
     deleteFile(file_delete);
@@ -166,7 +169,6 @@ function updateFile (prev_val,target_paths,delete_files,delete_on)
 
 
 function uploadFile (req, res){
-    console.log("@uploadfile")
 
     /* get request and upload file informations */
     var tomodel = req.params.model;
@@ -175,7 +177,6 @@ function uploadFile (req, res){
     var fileName= req.files.file.name;
      var fileExtension = get_file_extention(fileName);
     var tempPath = req.files.file.path;
-    console.log('------ upload file ------');
     var tempDirPath = path.resolve('./public/files/'+tomodel);
 
 
@@ -203,12 +204,11 @@ function uploadFile (req, res){
                         //an if is required req.app.locals.settings[tofield] = uploadLinkPath;
                         //delete existing file if available
                         fs.unlink(existingfile, function (err) {
-                            if (err) console.log('error deleting file ', existingfile);
+                            //todo: do sth on error?
                         });
                         //send response
                         res.json({err: 0, result: uploadLinkPath});
                     }).catch(function (error) {
-                        console.log(error);
                         res.send(response.DATABASE_ERROR); //request not executed
                     });
                 }
@@ -228,16 +228,13 @@ function uploadEpgFile (filepath){
     var tempDirPath = path.resolve('./public/files/tempfiles');
     var uploadLinkPath = tempDirPath +'/'+ fileName.replace(fileExtension, '')+Date.now()+fileExtension;// create unique filename
     fs.writeFile(uploadLinkPath, filepath, function (err) {
-        if(err) console.log(err)
-        else console.log("***** file successfully uploaded. path is "+uploadLinkPath)
+        //todo: do sth on error?
     });
 
 }
 
-
-
+//todo: review usage of this function?
 function uploadMultiFile(req, res){
-    console.log('---------upload multi files --------');
     var tempFileList = [];
     for (var key in req.files.file){
         tempFileList.push({tempPath: req.files.file[key].path, extension: get_file_extention(req.files.file[key].name)})
@@ -266,8 +263,7 @@ function uploadMultiFile(req, res){
             moveFiles(null, 0);
         })
     }
-    else
-        res.json({err: 1, result: 'empty files'});
+    else res.json({err: 1, result: 'empty files'});
 }
 
 function generateRandomId(count, cb) {
@@ -283,8 +279,8 @@ function get_file_extention(fileName){
     if (fileName.indexOf('.')>-1){
         var splitlist = fileName.split('.');
         return '.' + splitlist[splitlist.length -1];
-    } else
-        return '';
+    }
+    else return '';
 }
 
 

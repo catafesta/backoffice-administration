@@ -43,10 +43,19 @@ exports.update = function(req, res) {
     if(updateData.icon_url != req.body.icon_url) {
         var deletefile = path.resolve('./public'+updateData.icon_url);
     }
+    if(updateData.small_icon_url != req.body.small_icon_url) {
+        var deletesmallfile = path.resolve('./public'+updateData.small_icon_url);
+    }
+
     updateData.updateAttributes(req.body).then(function(result) {
         if(deletefile) {
             fs.unlink(deletefile, function (err) {
-                if (err) console.log('error deleting file ', deletefile, err);
+                //todo: display some warning
+            });
+        }
+        if(deletesmallfile) {
+            fs.unlink(deletesmallfile, function (err) {
+                //todo: display some warning
             });
         }
         res.json(result);

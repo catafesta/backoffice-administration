@@ -4,77 +4,74 @@
  * Module dependencies.
  */
 var path = require('path'),
-  errorHandler = require(path.resolve('./modules/core/server/controllers/errors.server.controller')),
-  db = require(path.resolve('./config/lib/sequelize')).models,
-  DBModel = db.combo_packages;
+    errorHandler = require(path.resolve('./modules/core/server/controllers/errors.server.controller')),
+    db = require(path.resolve('./config/lib/sequelize')).models,
+    DBModel = db.combo_packages;
 
 /**
  * Create
  */
 exports.create = function(req, res) {
-
-  DBModel.create(req.body).then(function(result) {
-    if (!result) {
-      return res.status(400).send({message: 'fail create data'});
-    } else {
-      return res.jsonp(result);
-    }
-  }).catch(function(err) {
-    return res.status(400).send({
-      message: errorHandler.getErrorMessage(err)
+    DBModel.create(req.body).then(function(result) {
+        if (!result) {
+            return res.status(400).send({message: 'fail create data'});
+        } else {
+            return res.jsonp(result);
+        }
+    }).catch(function(err) {
+        return res.status(400).send({
+            message: errorHandler.getErrorMessage(err)
+        });
     });
-  });
 };
 
 /**
  * Show current
  */
 exports.read = function(req, res) {
-  res.json(req.comboPackage);
+    res.json(req.comboPackage);
 };
 
 /**
  * Update
  */
 exports.update = function(req, res) {
-  var updateData = req.comboPackage;
+    var updateData = req.comboPackage;
 
-  updateData.updateAttributes(req.body).then(function(result) {
-    res.json(result);
-  }).catch(function(err) {
-    return res.status(400).send({
-      message: errorHandler.getErrorMessage(err)
+    updateData.updateAttributes(req.body).then(function(result) {
+        res.json(result);
+    }).catch(function(err) {
+        return res.status(400).send({
+            message: errorHandler.getErrorMessage(err)
+        });
     });
-  });
 };
 
 /**
  * Delete
  */
 exports.delete = function(req, res) {
-  var deleteData = req.comboPackage;
+    var deleteData = req.comboPackage;
 
-  DBModel.findById(deleteData.id).then(function(result) {
-    if (result) {
-
-      result.destroy().then(function() {
-        return res.json(result);
-      }).catch(function(err) {
+    DBModel.findById(deleteData.id).then(function(result) {
+        if (result) {
+            result.destroy().then(function() {
+                return res.json(result);
+            }).catch(function(err) {
+                return res.status(400).send({
+                    message: errorHandler.getErrorMessage(err)
+                });
+            });
+        } else {
+            return res.status(400).send({
+                message: 'Unable to find the Data'
+            });
+        }
+    }).catch(function(err) {
         return res.status(400).send({
-          message: errorHandler.getErrorMessage(err)
+            message: errorHandler.getErrorMessage(err)
         });
-      });
-    } else {
-      return res.status(400).send({
-        message: 'Unable to find the Data'
-      });
-    }
-  }).catch(function(err) {
-    return res.status(400).send({
-      message: errorHandler.getErrorMessage(err)
     });
-  });
-
 };
 
 /**
@@ -99,7 +96,6 @@ exports.list = function(req, res) {
         message: 'No data found'
       });
     } else {
-
       res.setHeader("X-Total-Count", results.count);      
       res.json(results.rows);
     }

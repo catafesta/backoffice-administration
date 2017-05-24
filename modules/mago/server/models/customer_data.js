@@ -8,11 +8,6 @@ module.exports = function(sequelize, DataTypes) {
             primaryKey: true,
             autoIncrement: true
         },
-        group_id: {
-            type: DataTypes.INTEGER(11),
-            allowNull: false,
-            default: '1'
-        },
         firstname: {
             type: DataTypes.STRING(64),
             allowNull: false,
@@ -24,7 +19,7 @@ module.exports = function(sequelize, DataTypes) {
             default: 'lastname'
         },
         email: {
-            type: DataTypes.STRING(255),
+            type: DataTypes.STRING(64),
             allowNull: false,
             unique: true
         },

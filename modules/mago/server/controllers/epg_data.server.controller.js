@@ -39,7 +39,6 @@ exports.save_epg_records = function(req, res){
             read_and_write_epg();
             return null;
         }).catch(function(error) {
-            console.log(error)
             return res.status(400).send({message: 'Unable to proceed with the action'}); //serverside filetype validation
         });
     }
@@ -59,7 +58,7 @@ exports.save_epg_records = function(req, res){
                     return data;
                 }
             }).on("data-invalid", function(data){
-                //TODO: warning (?)
+                //these data were filtered out
             }).on("data", function(data){
                 //TODO: handle error of malformed csv
                 DBModel.create({
@@ -73,14 +72,13 @@ exports.save_epg_records = function(req, res){
                     long_description: data.long_description,
                     duration_seconds: (Date.parse(data.program_end) - Date.parse(data.program_start))/1000 //parse strings as date timestamps, convert difference from milliseconds to seconds
                 }).then(function (result) {
-					
+                    //todo: return some response?
                 }).catch(function(error) {
-                    console.log(error)
                     return res.status(400).send({message: 'Unable to save the epg records'}); //serverside filetype validation
                 });
 
             });
-
+            //todo: move response to success case?
             return res.status(200).send({message: 'Epg records were saved'}); //serverside filetype validation
         }
         else if(fileHandler.get_extension(req.body.epg_file)=== '.xml'){
@@ -125,6 +123,7 @@ exports.epg_import = function(req, res) {
   final_where.include = [];
   //end build final where
 
+
   DBModel.findAndCountAll(
       final_where
   ).then(function(results) {
@@ -133,7 +132,6 @@ exports.epg_import = function(req, res) {
         message: 'No data found'
       });
     } else {
-
       res.setHeader("X-Total-Count", results.count);
       res.json(results.rows);
     }
@@ -174,7 +172,6 @@ exports.delete = function(req, res) {
 
   DBModel.findById(deleteData.id).then(function(result) {
     if (result) {
-
       result.destroy().then(function() {
         return res.json(result);
       }).catch(function(err) {
@@ -229,11 +226,7 @@ exports.list = function(req, res) {
   //end build final where
 
   DBModel.findAndCountAll(
-    
-
       final_where
-
-
   ).then(function(results) {
     if (!results) {
       return res.status(404).send({

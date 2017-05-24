@@ -7,39 +7,10 @@ var path = require('path'),
     dateFormat = require('dateformat'),
     errorHandler = require(path.resolve('./modules/core/server/controllers/errors.server.controller')),
     logHandler = require(path.resolve('./modules/mago/server/controllers/logs.server.controller')),
-    fileHandler = require(path.resolve('./modules/mago/server/controllers/common.controller')),
     db = require(path.resolve('./config/lib/sequelize')).models,
-    DBModel = db.settings,
-    refresh = require(path.resolve('./modules/mago/server/controllers/common.controller.js')),
-    vod_ts,menu_ts,live_ts,url_fields=[];
+    merge = require('merge'),
+    DBModel = db.settings;
 
-/**
- * Create
- */
-exports.create = function(req, res) {
-    //the paths of the current uploaded files
-    var prev_val=[req.body.mobile_logo_url,req.body.mobile_background_url,
-        req.body.box_logo_url,req.body.box_background_url,req.body.vod_background_url];
-    //the path where the current uploaded files will be copied
-    var target_paths=fileHandler.create_path(prev_val,"image");
-
-    req.body.mobile_logo_url=target_paths[0];req.body.mobile_background_url=target_paths[1];req.body.box_logo_url=target_paths[2];
-    req.body.box_background_url=target_paths[3];req.body.vod_background_url=target_paths[4];
-
-    req.body.menulastchange = Date.now(); //add refresh value for main menu
-    DBModel.create(req.body).then(function(result) {
-        if (!result) {
-            return res.status(400).send({message: 'fail create data'});
-        } else {
-            fileHandler.update_file(prev_val,target_paths,url_fields,false);//copy the files from the temporary folder to the right folder on update
-            return res.jsonp(result);
-        }
-    }).catch(function(err) {
-        return res.status(400).send({
-            message: errorHandler.getErrorMessage(err)
-        });
-    });
-};
 
 /**
  * Show current
@@ -55,38 +26,47 @@ exports.read = function(req, res) {
  */
 
 exports.update = function(req, res) {
+    var new_settings = {}; //final values of settings will be stored here
+    var new_setting = {}; //temporary timestamps will be stored here
 
     var updateData = req.settings;
-    console.log('req.token = ', req.token);
 
-    if(req.body.updatelivetvtimestamp)
-        req.body.livetvlastchange = Date.now()
-    else
+    //for each activity, if the checkbox was checked, store the current timestamp at the temporary object. Otherwise delete it so that it won't be updated
+    //LIVE TV
+    if(req.body.updatelivetvtimestamp === true){
         delete req.body.livetvlastchange;
-
-    if(req.body.updatemenulastchange)
-        req.body.menulastchange = Date.now()
-    else
+        new_setting.livetvlastchange = Date.now();
+    }
+    else delete req.body.livetvlastchange;
+    //MAIN MENU
+    if(req.body.updatemenulastchange){
         delete req.body.menulastchange;
+        new_setting.menulastchange = Date.now()
+    }
+    else delete req.body.menulastchange;
+    //VOD
+    if(req.body.updatevodtimestamp){
+        delete req.body.livetvlastchange
+        new_setting.vodlastchange = Date.now()
+    }
+    else delete req.body.vodlastchange
 
-    if(req.body.updatevodtimestamp)
-        req.body.vodlastchange = Date.now()
-    else
-        delete req.body.vodlastchange
+    new_settings = merge(req.body, new_setting); //merge values left @req.body with values stored @temp object into a new object
+    logHandler.add_log(req.token.uid, req.ip.replace('::ffff:', ''), 'created', JSON.stringify(new_settings)); //write new values in logs
 
-    logHandler.add_log(req.token.uid, req.ip.replace('::ffff:', ''), 'created', JSON.stringify(req.body));
+    updateData.updateAttributes(new_settings).then(function(result) {
 
-    updateData.updateAttributes(req.body).then(function(result) {
-        delete req.app.locals.settings; req.app.locals.settings = result; //refresh company settings in app memory
+        //refresh company settings in app memory
+        delete req.app.locals.settings;
+        req.app.locals.settings = result;
+
         return res.json(result);
     }).catch(function(err) {
-        console.log(err);
         return res.status(400).send({
             message: errorHandler.getErrorMessage(err)
         });
     });
 };
-
 
 
 /**

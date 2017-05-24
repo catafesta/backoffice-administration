@@ -98,9 +98,7 @@ exports.list = function(req, res) {
   if(query._orderBy) final_where.order = query._orderBy + ' ' + query._orderDir;
 
   DBModel.findAndCountAll(
-
-        final_where
-
+      final_where
   ).then(function(results) {
     if (!results) {
       return res.status(404).send({

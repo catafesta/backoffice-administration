@@ -37,6 +37,9 @@ module.exports = function(app) {
     app.route('/apiv2/credentials/logout')
         .all(authpolicy.isAllowed)
         .post(credentialsController.logout);
+    app.route('/apiv2/credentials/logout_user')
+        .all(authpolicy.isAllowed)
+        .post(credentialsController.logout_user);
 
     //channels
     app.route('/apiv2/channels/list')
@@ -50,10 +53,12 @@ module.exports = function(app) {
 
     app.route('/apiv2/channels/epg')
         .all(authpolicy.isAllowed)
+        .all(authpolicy.getthisuserdetails)
         .post(channelsController.epg);
 
     app.route('/apiv2/channels/event')
         .all(authpolicy.isAllowed)
+        .all(authpolicy.getthisuserdetails)
         .post(channelsController.event);
 
     app.route('/apiv2/channels/favorites')
@@ -112,6 +117,10 @@ module.exports = function(app) {
         .all(authpolicy.isAllowed)
         .all(authpolicy.getthisuserdetails)
         .post(authpolicy.isAllowed,vodController.searchvod);
+    app.route('/apiv2/vod/resume_movie')
+        .all(authpolicy.isAllowed)
+        .all(authpolicy.getthisuserdetails)
+        .post(authpolicy.isAllowed,vodController.resume_movie);
 
     //settings
     app.route('/apiv2/settings/settings')
@@ -201,9 +210,9 @@ module.exports = function(app) {
 
 
 	/* ===== websites ===== */
+    //todo: only one of the paths is in use
     app.route('/apiv2/sites_web/registration')
         .post(sitesController.createaccount);
-
     app.route('/apiv2/sites/registration')
         .post(sitesController.createaccount);
 

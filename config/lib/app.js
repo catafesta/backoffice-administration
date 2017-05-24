@@ -42,9 +42,6 @@ module.exports.start = function start(callback) {
 
       console.info(chalk.green('App URL:\t\t') + (process.env.NODE_HOST || 'localhost') + ":" + config.port);
 
-      console.log('--------------------------');
-
-
       if (!config.app.reCaptchaSecret) {
         winston.warn('Missing reCaptcha Secret in env!');
       }

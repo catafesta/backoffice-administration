@@ -46,7 +46,6 @@ exports.read = function(req, res) {
 exports.update = function(req, res) {
 
     var updateData = req.deviceMenu;
-
     if(updateData.icon_url != req.body.icon_url) {
         var deletefile = path.resolve('./public'+updateData.icon_url);
     }
@@ -54,7 +53,7 @@ exports.update = function(req, res) {
     updateData.updateAttributes(req.body).then(function(result){
         if(deletefile) {
             fs.unlink(deletefile, function (err) {
-                if (err) console.log('error deleting file ', deletefile, err);
+                //todo: do sth on error?
             });
         }
         res.json(result);
@@ -74,11 +73,8 @@ exports.delete = function(req, res) {
 
     DBModel.findById(deleteData.id).then(function(result) {
         if (result) {
-
             result.destroy().then(function() {
-
                 return res.json(result);
-
             }).catch(function(err) {
                 return res.status(400).send({
                     message: errorHandler.getErrorMessage(err)

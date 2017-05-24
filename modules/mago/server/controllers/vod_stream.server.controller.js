@@ -16,7 +16,7 @@ exports.create = function(req, res) {
         if (!result) {
             return res.status(400).send({message: 'fail create data'});
         } else {
-                       return res.jsonp(result);
+            return res.jsonp(result);
         }
     }).catch(function(err) {
         return res.status(400).send({
@@ -39,7 +39,7 @@ exports.update = function(req, res) {
     var updateData = req.vodStream;
 
     updateData.updateAttributes(req.body).then(function(result) {
-                res.json(result);
+        res.json(result);
     }).catch(function(err) {
         return res.status(400).send({
             message: errorHandler.getErrorMessage(err)
@@ -56,7 +56,6 @@ exports.delete = function(req, res) {
     DBModel.findById(deleteData.id).then(function(result) {
         if (result) {
             result.destroy().then(function() {
-
                 return res.json(result);
             }).catch(function(err) {
                 return res.status(400).send({

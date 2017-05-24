@@ -8,10 +8,8 @@
 'use strict';
 var path = require('path'),
     db = require(path.resolve('./config/lib/sequelize')),
-	winston = require(path.resolve('./config/lib/winston')),
     response = require(path.resolve("./config/responses.js")),
     querystring = require("querystring"),
-	//objectlength = require(path.resolve("./modules/core/server/controllers/functions.server.controller.js")),
     models = db.models;
 
 //makes a database call. returns database_error if connection failed, one genre_id otherwise
@@ -25,7 +23,6 @@ exports.dbtest = function(req, res) {
         clear_response.response_object = result;
         res.send(clear_response);
     }).catch(function(error) {
-        console.log(error);
         res.send(response.DATABASE_ERROR);
     });
 };
@@ -67,14 +64,12 @@ exports.dbtest = function(req, res) {
  *   }
  *
  */
- 
- //API saves the device record before login, performing an insert in the first activisation and update afterwards
 exports.gcm = function(req, res) {
 
 	if(req.auth_obj.boxid == undefined){
 		var clear_response = new response.OK();
-
 		var auth_obj = querystring.parse(req.body.auth,";","=");
+
 		models.devices.upsert({
 			googleappid           : decodeURIComponent(req.body.google_app_id),
 			device_id             : auth_obj.boxid,
@@ -96,7 +91,6 @@ exports.gcm = function(req, res) {
 			res.send(clear_response);
 			return null;
 		}).catch(function(error) {
-			console.log(error);
 			res.send(response.DATABASE_ERROR);
 		});
 
@@ -124,7 +118,6 @@ exports.gcm = function(req, res) {
 			res.send(clear_response);
 			return null;
 		}).catch(function(error) {
-			console.log(error);
 			res.send(response.DATABASE_ERROR);
 		});
 	}

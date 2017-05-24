@@ -33,9 +33,7 @@ exports.getErrorMessage = function(err) {
         message = 'Something went wrong';
     }
   } else {
-    console.log(err);
     message = err.name + ', ' + err.ReferenceError + ', '+err.message;
-
   }
 
   return message;

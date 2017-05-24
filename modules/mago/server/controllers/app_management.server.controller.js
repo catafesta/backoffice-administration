@@ -6,7 +6,6 @@
 var path = require('path'),
   errorHandler = require(path.resolve('./modules/core/server/controllers/errors.server.controller')),
   db = require(path.resolve('./config/lib/sequelize')).models,
-    fileHandler = require(path.resolve('./modules/mago/server/controllers/common.controller')),
   DBModel = db.app_management,
     fs = require('fs');
 
@@ -49,7 +48,7 @@ exports.update = function(req, res) {
   updateData.updateAttributes(req.body).then(function(result) {
       if(deletefile) {
           fs.unlink(deletefile, function (err) {
-              if (err) console.log('error deleting file ', deletefile, err);
+              //todo: return some response?
           });
       }
     res.json(result);

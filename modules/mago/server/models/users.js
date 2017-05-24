@@ -83,6 +83,10 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.STRING(45),
             allowNull: true
         },
+        userscol: {
+            type: DataTypes.STRING(45),
+            allowNull: true
+        },
         isavailable: {
             type: DataTypes.BOOLEAN,
             allowNull: true

@@ -38,7 +38,6 @@ exports.read = function(req, res) {
  */
 exports.update = function(req, res) {
     var updateData = req.channelStream;
-
     updateData.updateAttributes(req.body).then(function(result) {
         res.json(result);
     }).catch(function(err) {
@@ -57,7 +56,6 @@ exports.delete = function(req, res) {
     // Find the article
     DBModel.findById(deleteData.id).then(function(result) {
         if (result) {
-
             // Delete the article
             result.destroy().then(function() {
                 return res.json(result);

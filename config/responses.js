@@ -57,13 +57,13 @@ module.exports = {
         "extra_data": 'Attempt to login on another device',
         "response_object": [{}]
     },
-    DATABASE_ERROR: {
-        "status_code": 706,
-        "error_code": -1,
-        "timestamp": Date.now(),
-        "error_description": 'DATABASE_ERROR',
-        "extra_data": 'Error connecting to database',
-        "response_object": [{}]
+    DATABASE_ERROR: function() {
+        this.status_code = 706;
+        this.error_code = -1;
+        this.timestamp = Date.now();
+        this.error_description = 'DATABASE_ERROR';
+        this.extra_data = 'Error connecting to database';
+        this.response_object = [{}];
     },
     EMAIL_SENT: {
         "status_code": 200,

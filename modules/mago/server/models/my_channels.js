@@ -9,36 +9,41 @@ module.exports = function(sequelize, DataTypes) {
             autoIncrement: true
         },
         login_id: {
-            type: DataTypes.INTEGER(11),
+            type: DataTypes.STRING(128),
             allowNull: false
         },
         channel_number: {
+            type: DataTypes.INTEGER(2),
+            allowNull: false
+        },
+		genre_id: {
             type: DataTypes.INTEGER(11),
             allowNull: false
         },
         title: {
-            type: DataTypes.STRING(32),
+            type: DataTypes.STRING(2),
             allowNull: false
         },
         description: {
-            type: DataTypes.STRING(45),
+            type: DataTypes.STRING(128),
             allowNull: false
         },
         icon_url: {
-            type: DataTypes.INTEGER(255),
+            type: DataTypes.INTEGER(2),
             allowNull: false
         },
         stream_url: {
-            type: DataTypes.STRING(255),
+            type: DataTypes.STRING(2),
             allowNull: false
         },
         isavailable: {
-            type: DataTypes.BOOLEAN,
+            type: DataTypes.STRING(2),
             allowNull: false
         }
     }, {
         tableName: 'my_channels',
             associate: function(models) {
+                my_channels.belongsTo(models.genre, {foreignKey: 'genre_id'});
         }
 
     });

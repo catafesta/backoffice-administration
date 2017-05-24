@@ -18,7 +18,6 @@ exports.create = function(req, res) {
         if (!result) {
             return res.status(400).send({message: 'fail create data'});
         } else {
-
             return res.jsonp(result);
         }
     }).catch(function(err) {
@@ -39,7 +38,6 @@ function addLog(user_id, user_ip, action, details){
     }).then(function(result) {
         return null;
     }).catch(function(err) {
-        console.log(err)
         return null;
     });
 }

@@ -17,14 +17,22 @@ var path = require('path'),
     DBModel = db.users;
 
 /**
- * A module that says hello!
- * @module hello/world
+ * @api {post} /api/auth/login /api/auth/login
+ * @apiVersion 0.2.0
+ * @apiName System User Login
+ * @apiGroup Backoffice
+ * @apiParam {String} username  Mandatory username field.
+ * @apiParam {String} password  Mandatory password field.
+ * @apiSuccessExample {json} Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *       "token": "the.token.string"
+ *     }
+ * @apiError (40x) {String} message wrong username or password
  */
 
-/** Say hello. */
 exports.authenticate = function(req, res) {
     var authBody = req.body;
-
     DBModel.findOne(
         {
             where: {
@@ -38,8 +46,6 @@ exports.authenticate = function(req, res) {
                 message: 'UserName or Password does not match'
             });
         } else {
-
-            console.log('results '+result.username + ' ' + result.password + ' ' + req.body.password);
 
             if((authBody.password !== result.password) && (!result.authenticate(authBody.password)))
                 return res.status(401).send({
@@ -58,6 +64,7 @@ exports.authenticate = function(req, res) {
                     id: result.id,
                     iss: jwtIssuer,
                     sub: result.username,
+                    //username: result.username,
                     uid: result.id,
                     role: group
                 }, jwtSecret,{
@@ -84,7 +91,6 @@ exports.get_personal_details = function(req, res) {
             message: 'User not found'
         });
     });
-
 };
 
 /**
@@ -129,12 +135,8 @@ exports.changepassword1 = function(req, res, next) {
                 if (user) {
                     if (user.authenticate(passwordDetails.currentPassword)) {
                         if (passwordDetails.newPassword === passwordDetails.verifyPassword) {
-
-                            //todo: this line to be removed
                             user.password = passwordDetails.newPassword;
-
                             user.hashedpassword = user.encryptPassword(passwordDetails.newPassword,user.salt);
-
                             user.save()
                                 .then(function() {
                                     res.send({
@@ -197,7 +199,7 @@ exports.forgot = function(req, res, next) {
         // Generate random token
         function(done) {
             crypto.randomBytes(20, function(err, buffer) {
-                var token = new Buffer().toString('hex');
+                var token = Buffer.from('tokensample').toString('hex');
                 done(err, token);
             });
         },
@@ -251,14 +253,12 @@ exports.forgot = function(req, res, next) {
                 subject: 'Password Reset',
                 html: emailHTML
             };
-            console.log(config.mailer.from);
             smtpTransport.sendMail(mailOptions, function(err) {
                 if (!err) {
                     res.send({
                         message: 'An email has been sent to the provided email with further instructions.'
                     });
                 } else {
-                    console.log(err);
                     return res.status(400).send({
                         message: 'Failure sending email'
                     });

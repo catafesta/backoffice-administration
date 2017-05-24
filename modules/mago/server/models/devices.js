@@ -30,7 +30,7 @@ module.exports = function(sequelize, DataTypes) {
 			unique: true
         },
         device_ip: {
-            type: DataTypes.BOOLEAN,
+            type: DataTypes.STRING(15),
             allowNull: true
 		},
         device_mac_address: {

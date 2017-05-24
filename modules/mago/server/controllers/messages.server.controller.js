@@ -11,10 +11,11 @@ var path = require('path'),
     DBModel = db.messages,
     DBDevices = db.devices;
 
-//TODO: Consider appid 4 and 5
+	//TODO: Consider appid 4 and 5
 function sendiosnotification(obj,messagein,ttl) {
 
   // Set up apn with the APNs Auth Key
+
   var apnProvider = new apn.Provider({
     token: {
       key: path.resolve('config/sslcertificate/IOS_APNs_82X366YY8N.p8'), // Path to the key p8 file
@@ -43,7 +44,7 @@ function sendiosnotification(obj,messagein,ttl) {
   notification.sound = 'ping.aiff';
 
 // Display the following message (the actual notification text, supports emoji)
-  notification.alert = messagein; //req.body.message;
+  notification.alert = messagein;
 
 // Send any extra payload data with the notification which will be accessible to your app in didReceiveRemoteNotification
   notification.payload = {id: 123};
@@ -51,14 +52,10 @@ function sendiosnotification(obj,messagein,ttl) {
 // Actually send the notification
   apnProvider.send(notification, deviceToken).then(function(result) {
     // Check the result for any failed devices
-    console.log(result);
-    console.log(result.failed);
-    //console.log(result.response.status);
   });
 }
 
 function sendandoirdnotification(obj, messagein, ttl, action, callback) {
-
   if(action == 'softwareupdate') {
     var message = new gcm.Message({
       data: {
@@ -94,21 +91,36 @@ function sendandoirdnotification(obj, messagein, ttl, action, callback) {
 
   sender.send(message, { registrationTokens: regTokens }, function (err, response) {
     if(err) {
-      console.log(err);
       callback(false);
     }
     else 	{
-      console.log(response);
       callback(true);
     }
   });
+}
+
+function save_messages(obj, messagein, ttl, action, callback){
+    DBModel.bulkCreate([
+        { username: 'barfooz', googleappid: 'googleappid', message: 'panslab', action: 'action', title: 'title' },
+        { username: 'barfooz', googleappid: 'googleappid', message: 'panslab', action: 'action', title: 'title' },
+        { username: 'barfooz', googleappid: 'googleappid', message: 'panslab', action: 'action', title: 'title' }
+    ]).then(function(result) {
+        if (!result) {
+            return res.status(400).send({message: 'fail to create data'});
+        } else {
+            return res.status(200).send({message: 'Messages saved'});
+        }
+    }).catch(function(err) {
+        return res.status(400).send({
+            message: errorHandler.getErrorMessage(err)
+        });
+    });
 }
 
 /**
  * Create
  */
 exports.create = function(req, res) {
-
   var andcondition = {};
   var orcondition = [];
 
@@ -129,7 +141,6 @@ exports.create = function(req, res) {
     orcondition[2] = {};
     orcondition[2].appid  = 1;
   }
-
   DBDevices.findAll(
       {
         where: {
@@ -148,22 +159,20 @@ exports.create = function(req, res) {
         var obj = result[key];
 
         if(obj.appid == 1 ) {
-          sendandoirdnotification(obj,req.body.message,req.body.timetolive,req.body.message,function(result){}); // send message to appid 1 , android box
-
+          sendandoirdnotification(obj,req.body.message,req.body.timetolive,req.body.message,function(result){});
         }
         if(obj.appid == 2 ) {
-          sendandoirdnotification(obj,req.body.message,req.body.timetolive,req.body.message,function(result){}); // send message to appid 2 , android smart
-
+          sendandoirdnotification(obj,req.body.message,req.body.timetolive,req.body.message,function(result){});
         }
         if(obj.appid == 3 ) {
-          sendiosnotification(obj,req.body.message,req.body.timetolive); //send message to appid 3 , ios
+          sendiosnotification(obj,req.body.message,req.body.timetolive)
         }
       }
     }
-    return res.status(400).send({
-      message: 'messge send but not saved in database'
-    });
+
+
   });
+
 
 };
 
@@ -173,8 +182,6 @@ exports.create = function(req, res) {
  */
 
 exports.send_message_action = function(req, res) {
-
-  console.log(req.body);
 
   DBDevices.find(
       {

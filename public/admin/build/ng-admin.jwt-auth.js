@@ -16,7 +16,6 @@
             localStorage.userToken = response.data.token;
             localStorage.userRole = payload.role;
             localStorage.userName = payload.sub;
-            console.log(payload);
 
           successCallback(response);
 

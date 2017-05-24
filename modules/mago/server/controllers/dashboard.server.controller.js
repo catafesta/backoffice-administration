@@ -8,6 +8,8 @@ var path = require('path'),
     moment = require('moment'),
     db = require(path.resolve('./config/lib/sequelize'));
 
+//todo: convert queries to sequelize?
+
 exports.chartSalesReport = function(req, res) {
     db.sequelize.query(
         "SELECT COUNT(1) as 'count',DATE(DATE_FORMAT(saledate,'%Y-%m-%d')) as 'date' "+
@@ -80,7 +82,6 @@ exports.chartsgraph1 = function(req, res) {
     d.setDate(d.getDate() - 30); // last 30 days.
 
     var thequery = "select saledate as label, count(id) as value from salesreport WHERE saledate > '" + moment(d).format('YYYY-MM-DD hh:mm:ss') + "' group by label order by label asc ";
-
     db.sequelize.query(
         thequery,
         { type: db.sequelize.QueryTypes.SELECT})
@@ -130,7 +131,7 @@ exports.salesbyproduct = function(req, res) {
                 var alldata = [];
                 alldata[0] = {};
                 alldata[0].key = 'sales by product';
-                alldata[0].values = _.mapValues(result, _.partial(_.map, _, _.values));
+                alldata[0].values = _.mapValues(result, _.partial(_.map, _, _.values)); //,[function(o) { return o.key; }]); //_.map(result, 'y');
                 return res.json({mydata: alldata});
             }
         });

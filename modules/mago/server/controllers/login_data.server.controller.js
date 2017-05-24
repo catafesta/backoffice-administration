@@ -26,7 +26,6 @@ exports.create = function(req, res) {
         return res.jsonp(result);
       }
     }).catch(function(err) {
-      console.log(err)
       return res.status(400).send({
         message: errorHandler.getErrorMessage(err)
       });
@@ -67,7 +66,6 @@ exports.delete = function(req, res) {
 
   DBModel.findById(deleteData.id).then(function(result) {
     if (result) {
-
       result.destroy().then(function() {
         return res.json(result);
       }).catch(function(err) {
@@ -111,8 +109,6 @@ exports.list = function(req, res) {
   if(query._orderBy) final_where.order = [[query._orderBy, query._orderDir]];
   final_where.include = [{model:db.customer_data,required:true}];
   //end build final where
-
-  console.log(final_where);
 
   DBModel.findAndCountAll(
 

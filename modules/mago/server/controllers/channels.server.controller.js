@@ -42,7 +42,6 @@ exports.read = function(req, res) {
  */
 exports.update = function(req, res) {
     var updateData = req.channels;
-
     if(updateData.icon_url != req.body.icon_url) {
         var deletefile = path.resolve('./public'+updateData.icon_url);
     }
@@ -51,12 +50,11 @@ exports.update = function(req, res) {
         logHandler.add_log(req.token.uid, req.ip.replace('::ffff:', ''), 'created', JSON.stringify(req.body));
         if(deletefile) {
             fs.unlink(deletefile, function (err) {
-                if (err) console.log('error deleting file ', deletefile, err);
+                //todo: return some response?
             });
         }
         return res.json(result);
     }).catch(function(err) {
-        console.log(err);
         return res.status(400).send({
             message: errorHandler.getErrorMessage(err)
         });
@@ -68,11 +66,10 @@ exports.update = function(req, res) {
  */
 exports.delete = function(req, res) {
     var deleteData = req.channels;
+
     DBModel.findById(deleteData.id).then(function(result) {
         if (result) {
-
             result.destroy().then(function() {
-
                 return res.json(result);
             }).catch(function(err) {
                 return res.status(400).send({
@@ -123,9 +120,7 @@ exports.list = function(req, res) {
         final_where.include = [{model:db.genre,required:true},{model:db.packages_channels,attributes: ['package_id']}];
 
         DBModel.findAll(
-
             final_where
-
         ).then(function(results) {
             if (!results) {
                 return res.status(404).send({

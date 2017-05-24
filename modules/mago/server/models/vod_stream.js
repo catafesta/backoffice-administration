@@ -24,15 +24,11 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.BOOLEAN,
             allowNull: false
         },
-        token_url: {
-            type: DataTypes.STRING(255),
-            allowNull: false
-        },
         encryption: {
             type: DataTypes.BOOLEAN,
             allowNull: false
         },
-        encryption_url: {
+        token_url: {
             type: DataTypes.STRING(255),
             allowNull: false
         }

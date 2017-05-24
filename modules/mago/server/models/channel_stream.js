@@ -21,7 +21,7 @@ module.exports = function(sequelize, DataTypes) {
             allowNull: false
         },
         stream_url: {
-            type: DataTypes.STRING(255),
+            type: DataTypes.STRING(250),
             allowNull: false
         },
         stream_format: {
@@ -33,7 +33,7 @@ module.exports = function(sequelize, DataTypes) {
             allowNull: false
         },
         token_url: {
-            type: DataTypes.STRING(255),
+            type: DataTypes.STRING(250),
             allowNull: true
         },
         encryption: {
@@ -41,7 +41,7 @@ module.exports = function(sequelize, DataTypes) {
             allowNull: false
         },
         encryption_url: {
-            type: DataTypes.STRING(255),
+            type: DataTypes.STRING(250),
             allowNull: true
         },
         is_octoshape: {

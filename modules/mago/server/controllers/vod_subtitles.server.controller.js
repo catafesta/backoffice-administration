@@ -7,7 +7,6 @@ var path = require('path'),
     errorHandler = require(path.resolve('./modules/core/server/controllers/errors.server.controller')),
     db = require(path.resolve('./config/lib/sequelize')).models,
     DBModel = db.vod_subtitles,
-    settingsmodel = db.settings,
     refresh = require(path.resolve('./modules/mago/server/controllers/common.controller.js')),
     fs = require('fs');
 
@@ -51,7 +50,7 @@ exports.update = function(req, res) {
     updateData.updateAttributes(req.body).then(function(result) {
         if(deletefile) {
             fs.unlink(deletefile, function (err) {
-                if (err) console.log('error deleting file ', deletefile, err);
+                //todo: return ome warning
             });
         }
         res.json(result);
@@ -108,9 +107,6 @@ exports.list = function(req, res) {
     qwhere.$or.title = {};
     qwhere.$or.title.$like = '%'+query.q+'%';
   }
-
-   //console.log(qwhere);
-
 
   DBModel.findAndCountAll({
     where: qwhere,

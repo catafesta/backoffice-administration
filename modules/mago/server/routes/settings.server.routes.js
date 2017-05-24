@@ -13,8 +13,7 @@ module.exports = function(app) {
     /* ===== settings ===== */
     app.route('/api/settings')
         .all(policy.isAllowed)
-        .get(settings.list)
-        .post(settings.create);
+        .get(settings.list);
 
     app.route('/api/settings/:settingId')
         .all(policy.isAllowed)

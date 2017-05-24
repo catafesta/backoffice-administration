@@ -12,12 +12,10 @@ var path = require('path'),
 module.exports = function(app) {
     /* ===== device menus ===== */
     app.route('/api/appgroup')
-        //.all(policy.isAllowed)
         .get(appgr.list)
         .post(appgr.create);
 
     app.route('/api/appgroup/:appgroupID')
-        //.all(policy.isAllowed)
         .get(appgr.read)
         .put(appgr.update)
         .delete(appgr.delete);

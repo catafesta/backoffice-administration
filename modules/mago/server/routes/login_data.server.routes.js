@@ -12,15 +12,10 @@ var path = require('path'),
 
 
 module.exports = function(app) {
-
-
     //dashboard
-
     app.route('/api/dash/logins')
         .all(policy.isAllowed)
         .get(loginData.latest);
-
-
 
     /* ===== login data ===== */
     app.route('/api/logindata')

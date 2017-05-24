@@ -17,7 +17,7 @@ module.exports = function(sequelize, DataTypes) {
             allowNull: false
         },
         subtitle_url: {
-            type: DataTypes.STRING(255),
+            type: DataTypes.STRING(256),
             allowNull: false
         }
     }, {

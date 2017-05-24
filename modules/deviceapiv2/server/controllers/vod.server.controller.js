@@ -2,8 +2,7 @@
 var path = require('path'),
     db = require(path.resolve('./config/lib/sequelize')),
     response = require(path.resolve("./config/responses.js")),
-    models = db.models,
-    winston = require(path.resolve('./config/lib/winston'));
+    models = db.models;
 
 
 //RETURNS LIST OF VOD PROGRAMS
@@ -20,14 +19,18 @@ exports.list = function(req, res) {
 
     var clear_response = new response.OK();
     var allowed_content = (req.thisuser.show_adult === true) ? [0, 1] : [0];
+    var offset = (req.body.subset_number) ? ((parseInt(req.body.subset_number)-1)*200) : 0; //for older versions of vod, start query at first record
+    var limit = (req.body.subset_number) ? 200 : 99999999999; //for older versions of vod, set limit to 99999999999
 
     models.vod.findAll({
-        attributes: ['id', 'title', 'pin_protected', 'duration', 'description', 'category_id', 'createdAt', 'rate', 'year', 'icon_url', 'image_url'],
+        attributes: ['id', 'title', 'pin_protected', 'duration', 'description', 'director', 'starring', 'category_id', 'createdAt', 'rate', 'year', 'icon_url', 'image_url'],
         include: [
             {model: models.vod_stream, required: true, attributes: ['url', 'encryption']},
             {model: models.vod_category, required: true, attributes: [], where:{password:{in: allowed_content}, isavailable: true}}
         ],
-        where: {pin_protected:{in: allowed_content}, isavailable: true}
+        where: {pin_protected:{in: allowed_content}, isavailable: true},
+        offset: offset,
+        limit: limit
     }).then(function (result) {
         var raw_result = [];
         //flatten nested json array
@@ -42,7 +45,7 @@ exports.list = function(req, res) {
                         raw_obj.pin_protected = (obj.pin_protected === true) ? 1 : 0;
                         raw_obj.duration = obj.duration;
                         raw_obj.url = obj[k][j].url;
-                        raw_obj.description = obj.description;
+                        raw_obj.description = obj.description + ' Director: ' + obj.director + ' Starring: ' + obj.starring;
                         raw_obj.icon = req.app.locals.settings.assets_url+obj.icon_url;
                         raw_obj.largeimage = req.app.locals.settings.assets_url+obj.image_url;
                         raw_obj.categoryid = String(obj.category_id);
@@ -61,7 +64,6 @@ exports.list = function(req, res) {
         clear_response.response_object = raw_result;
         res.send(clear_response);
     }).catch(function(error) {
-        console.log(error);
         res.send(response.DATABASE_ERROR);
     });
 
@@ -96,7 +98,6 @@ exports.categories = function(req, res) {
         clear_response.response_object = result;
         res.send(clear_response);
     }).catch(function(error) {
-        console.log(error);
         res.send(response.DATABASE_ERROR);
     });
 };
@@ -134,7 +135,6 @@ exports.subtitles = function(req, res) {
         clear_response.response_object = result;
         res.send(clear_response);
     }).catch(function(error) {
-        console.log(error);
         res.send(response.DATABASE_ERROR);
     });
 };
@@ -172,12 +172,10 @@ exports.totalhits = function(req, res) {
             else{clear_response.response_object = result;}
             res.send(clear_response);
         }).catch(function(error) {
-            console.log(error);
             res.send(response.DATABASE_ERROR);
         });
     }
     //return hits for each vod movie
-    //TODO: consider pin protection and isavailable here?
     else{
         models.vod.findAll({
             attributes: [ ['id', 'id_vod'], ['clicks', 'hits'] ],
@@ -190,7 +188,6 @@ exports.totalhits = function(req, res) {
             clear_response.response_object = result;
             res.send(clear_response);
         }).catch(function(error) {
-            console.log(error);
             res.send(response.DATABASE_ERROR);
         });
     }
@@ -219,7 +216,6 @@ exports.mostwatched = function(req, res) {
         clear_response.response_object = result;
         res.send(clear_response);
     }).catch(function(error) {
-        console.log(error);
         res.send(response.DATABASE_ERROR);
     });
 
@@ -251,7 +247,6 @@ exports.mostrated = function(req, res) {
         clear_response.response_object = mostrated;
         res.send(clear_response);
     }).catch(function(error) {
-        console.log(error);
         res.send(response.DATABASE_ERROR);
     });
 
@@ -277,7 +272,6 @@ exports.related = function(req, res) {
         clear_response.response_object = result;
         res.send(clear_response);
     }).catch(function(error) {
-        console.log(error);
         res.send(response.DATABASE_ERROR);
     });
 
@@ -300,7 +294,6 @@ exports.suggestions = function(req, res) {
         clear_response.response_object = result;
         res.send(clear_response);
     }).catch(function(error) {
-        console.log(error);
         res.send(response.DATABASE_ERROR);
     });
 
@@ -323,14 +316,12 @@ exports.categoryfilms = function(req, res) {
         //flatten nested json array
         result.forEach(function(obj){
             var raw_obj = {};
-            console.log(obj.id)
             raw_obj.id = String(obj.id);
             raw_result.push(raw_obj);
         });
         clear_response.response_object = raw_result;
         res.send(clear_response);
     }).catch(function(error) {
-        console.log(error);
         res.send(response.DATABASE_ERROR);
     });
 
@@ -366,8 +357,50 @@ exports.searchvod = function(req, res) {
         clear_response.response_object = raw_result;
         res.send(clear_response);
     }).catch(function(error) {
-        console.log(error);
         res.send(response.DATABASE_ERROR);
     });
 
 };
+
+exports.resume_movie = function(req, res) {
+
+    //perdor upsert qe nje user te kete vetem 1 film. nese nuk ka asnje te shtohet, ne te kundert te ndryshohet
+    models.vod_resume.upsert(
+        {
+            login_id: req.thisuser.id,
+            vod_id: req.body.vod_id,
+            resume_position: req.body.resume_position,
+            device_id: req.auth_obj.boxid
+        }
+    ).then(function (result) {
+        var clear_response = new response.OK();
+        res.send(new response.OK());
+    }).catch(function(error) {
+        var error_executing = new response.DATABASE_ERROR();
+        if (error.message.split(': ')[0] === 'ER_NO_REFERENCED_ROW_2'){
+            error_executing.extra_data = 'Invalid input';
+        }
+        res.send(error_executing);
+    });
+
+};
+
+function delete_resume_movie(user_id, vod_id){
+
+    //perdor upsert qe nje user te kete vetem 1 film. nese nuk ka asnje te shtohet, ne te kundert te ndryshohet
+    models.vod_resume.destroy(
+        {
+            where: {
+                login_id: user_id,
+                vod_id: vod_id
+            }
+        }
+    ).then(function (result) {
+        return null;
+    }).catch(function(error) {
+       return null;
+    });
+
+};
+
+exports.delete_resume_movie = delete_resume_movie;

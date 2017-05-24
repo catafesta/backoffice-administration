@@ -9,11 +9,11 @@ module.exports = function(sequelize, DataTypes) {
             autoIncrement: true
         },
         app_group_name: {
-            type: DataTypes.STRING(45),
+            type: DataTypes.STRING(128),
             allowNull: false
         },
         app_group_id: {
-            type: DataTypes.INTEGER(11),
+            type: DataTypes.INTEGER(2),
             allowNull: false
         },
         createdAt: {

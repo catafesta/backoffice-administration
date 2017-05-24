@@ -111,17 +111,14 @@ exports.list = function(req, res) {
  * middleware
  */
 exports.dataByID = function(req, res, next, id) {
-
-  if ((id % 1 === 0) === false) { //check if it's integer
-    return res.status(404).send({
-      message: 'Data is invalid'
-    });
-  }
+    if ((id % 1 === 0) === false) { //check if it's integer
+        return res.status(404).send({ message: 'Data is invalid' });
+    }
 
   DBModel.find({
     where: {
       id: id
-    }
+    },
   }).then(function(result) {
     if (!result) {
       return res.status(404).send({

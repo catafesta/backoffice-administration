@@ -7,7 +7,6 @@ var path = require('path'),
     errorHandler = require(path.resolve('./modules/core/server/controllers/errors.server.controller')),
     logHandler = require(path.resolve('./modules/mago/server/controllers/logs.server.controller')),
     db = require(path.resolve('./config/lib/sequelize')).models,
-    fileHandler = require(path.resolve('./modules/mago/server/controllers/common.controller')),
     DBModel = db.vod,
     refresh = require(path.resolve('./modules/mago/server/controllers/common.controller.js')),
     fs = require('fs');
@@ -53,12 +52,12 @@ exports.update = function(req, res) {
     updateData.updateAttributes(req.body).then(function(result) {
         if(deletefile) {
             fs.unlink(deletefile, function (err) {
-                if (err) console.log('error deleting file ', deletefile, err);
+                //todo: return some warning
             });
         }
         if(deleteimage) {
             fs.unlink(deleteimage, function (err) {
-                if (err) console.log('error deleting image ', deleteimage, err);
+                //todo: return some warning
             });
         }
         logHandler.add_log(req.token.uid, req.ip.replace('::ffff:', ''), 'created', JSON.stringify(req.body));

@@ -17,11 +17,11 @@ module.exports = function(sequelize, DataTypes) {
             allowNull: false
         },
         customer_username: {
-            type: DataTypes.STRING(20),
+            type: DataTypes.STRING(15),
             allowNull: false
         },
         user_username: {
-            type: DataTypes.STRING(20),
+            type: DataTypes.STRING(15),
             allowNull: false
         },
         start_date: {

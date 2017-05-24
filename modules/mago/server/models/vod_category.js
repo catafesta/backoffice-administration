@@ -30,11 +30,11 @@ module.exports = function(sequelize, DataTypes) {
             allowNull: false
         },
         icon_url: {
-            type: DataTypes.STRING(255),
+            type: DataTypes.STRING(256),
             allowNull: true
         },
         small_icon_url: {
-            type: DataTypes.STRING(255),
+            type: DataTypes.STRING(256),
             allowNull: true
         },
         isavailable: {
