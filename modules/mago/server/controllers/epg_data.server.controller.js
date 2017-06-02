@@ -19,17 +19,17 @@ var path = require('path'),
  */
 exports.create = function(req, res) {
 
-    DBModel.create(req.body).then(function(result) {
-        if (!result) {
-            return res.status(400).send({message: 'fail create data'});
-        } else {
-            return res.jsonp(result);
-        }
-    }).catch(function(err) {
-        return res.status(400).send({
-            message: errorHandler.getErrorMessage(err)
-        });
+  DBModel.create(req.body).then(function(result) {
+    if (!result) {
+      return res.status(400).send({message: 'fail create data'});
+    } else {
+      return res.jsonp(result);
+    }
+  }).catch(function(err) {
+    return res.status(400).send({
+      message: errorHandler.getErrorMessage(err)
     });
+  });
 };
 
 exports.save_epg_records = function(req, res){
@@ -60,7 +60,7 @@ exports.save_epg_records = function(req, res){
             return res.status(400).send({message: 'Incorrect file type'}); //serverside filetype validation
         }
     }
-
+    
 }
 
 /**
@@ -68,48 +68,48 @@ exports.save_epg_records = function(req, res){
  */
 exports.epg_import = function(req, res) {
 
-    var qwhere = {},
-        final_where = {},
-        query = req.query;
+  var qwhere = {},
+      final_where = {},
+      query = req.query;
 
-    if(query.q) {
-        qwhere.$or = {};
-        qwhere.$or.channel_number = {};
-        qwhere.$or.channel_number.$like = '%'+query.q+'%';
-        qwhere.$or.title = {};
-        qwhere.$or.title.$like = '%'+query.q+'%';
-        qwhere.$or.short_name = {};
-        qwhere.$or.short_name.$like = '%'+query.q+'%';
-        qwhere.$or.short_description = {};
-        qwhere.$or.short_description.$like = '%'+query.q+'%';
-        qwhere.$or.long_description = {};
-        qwhere.$or.long_description.$like = '%'+query.q+'%';
+  if(query.q) {
+    qwhere.$or = {};
+    qwhere.$or.channel_number = {};
+    qwhere.$or.channel_number.$like = '%'+query.q+'%';
+    qwhere.$or.title = {};
+    qwhere.$or.title.$like = '%'+query.q+'%';
+    qwhere.$or.short_name = {};
+    qwhere.$or.short_name.$like = '%'+query.q+'%';
+    qwhere.$or.short_description = {};
+    qwhere.$or.short_description.$like = '%'+query.q+'%';
+    qwhere.$or.long_description = {};
+    qwhere.$or.long_description.$like = '%'+query.q+'%';
+  }
+
+
+  //start building where
+  final_where.where = qwhere;
+  if(parseInt(query._start)) final_where.offset = parseInt(query._start);
+  if(parseInt(query._end)) final_where.limit = parseInt(query._end)-parseInt(query._start);
+  if(query._orderBy) final_where.order = query._orderBy + ' ' + query._orderDir;
+  final_where.include = [];
+  //end build final where
+
+
+  DBModel.findAndCountAll(
+      final_where
+  ).then(function(results) {
+    if (!results) {
+      return res.status(404).send({
+        message: 'No data found'
+      });
+    } else {
+      res.setHeader("X-Total-Count", results.count);
+      res.json(results.rows);
     }
-
-
-    //start building where
-    final_where.where = qwhere;
-    if(parseInt(query._start)) final_where.offset = parseInt(query._start);
-    if(parseInt(query._end)) final_where.limit = parseInt(query._end)-parseInt(query._start);
-    if(query._orderBy) final_where.order = query._orderBy + ' ' + query._orderDir;
-    final_where.include = [];
-    //end build final where
-
-
-    DBModel.findAndCountAll(
-        final_where
-    ).then(function(results) {
-        if (!results) {
-            return res.status(404).send({
-                message: 'No data found'
-            });
-        } else {
-            res.setHeader("X-Total-Count", results.count);
-            res.json(results.rows);
-        }
-    }).catch(function(err) {
-        res.jsonp(err);
-    });
+  }).catch(function(err) {
+    res.jsonp(err);
+  });
 };
 
 
@@ -118,50 +118,50 @@ exports.epg_import = function(req, res) {
  * Show current
  */
 exports.read = function(req, res) {
-    res.json(req.epgData);
+  res.json(req.epgData);
 };
 
 /**
  * Update
  */
 exports.update = function(req, res) {
-    var updateData = req.epgData;
+  var updateData = req.epgData;
 
-    updateData.updateAttributes(req.body).then(function(result) {
-        res.json(result);
-    }).catch(function(err) {
-        return res.status(400).send({
-            message: errorHandler.getErrorMessage(err)
-        });
+  updateData.updateAttributes(req.body).then(function(result) {
+    res.json(result);
+  }).catch(function(err) {
+    return res.status(400).send({
+      message: errorHandler.getErrorMessage(err)
     });
+  });
 };
 
 /**
  * Delete
  */
 exports.delete = function(req, res) {
-    var deleteData = req.epgData;
+  var deleteData = req.epgData;
 
-    DBModel.findById(deleteData.id).then(function(result) {
-        if (result) {
-            result.destroy().then(function() {
-                return res.json(result);
-            }).catch(function(err) {
-                return res.status(400).send({
-                    message: errorHandler.getErrorMessage(err)
-                });
-            });
-        } else {
-            return res.status(400).send({
-                message: 'Unable to find the Data'
-            });
-        }
-        return null;
-    }).catch(function(err) {
+  DBModel.findById(deleteData.id).then(function(result) {
+    if (result) {
+      result.destroy().then(function() {
+        return res.json(result);
+      }).catch(function(err) {
         return res.status(400).send({
-            message: errorHandler.getErrorMessage(err)
+          message: errorHandler.getErrorMessage(err)
         });
+      });
+    } else {
+      return res.status(400).send({
+        message: 'Unable to find the Data'
+      });
+    }
+    return null;
+  }).catch(function(err) {
+    return res.status(400).send({
+      message: errorHandler.getErrorMessage(err)
     });
+  });
 
 };
 
@@ -169,48 +169,48 @@ exports.delete = function(req, res) {
  * List
  */
 exports.list = function(req, res) {
-
+    
     var qwhere = {},
-        final_where = {},
-        query = req.query;
+      final_where = {},
+      query = req.query;
 
-    if(query.q) {
-        qwhere.$or = {};
-        qwhere.$or.channel_number = {};
-        qwhere.$or.channel_number.$like = '%'+query.q+'%';
-        qwhere.$or.title = {};
-        qwhere.$or.title.$like = '%'+query.q+'%';
-        qwhere.$or.short_name = {};
-        qwhere.$or.short_name.$like = '%'+query.q+'%';
-        qwhere.$or.short_description = {};
-        qwhere.$or.short_description.$like = '%'+query.q+'%';
-        qwhere.$or.long_description = {};
-        qwhere.$or.long_description.$like = '%'+query.q+'%';
+  if(query.q) {
+    qwhere.$or = {};
+    qwhere.$or.channel_number = {};
+    qwhere.$or.channel_number.$like = '%'+query.q+'%';
+    qwhere.$or.title = {};
+    qwhere.$or.title.$like = '%'+query.q+'%';
+    qwhere.$or.short_name = {};
+    qwhere.$or.short_name.$like = '%'+query.q+'%';
+    qwhere.$or.short_description = {};
+    qwhere.$or.short_description.$like = '%'+query.q+'%';
+    qwhere.$or.long_description = {};
+    qwhere.$or.long_description.$like = '%'+query.q+'%';
+  }
+
+
+  //start building where
+  final_where.where = qwhere;
+  if(parseInt(query._start)) final_where.offset = parseInt(query._start);
+  if(parseInt(query._end)) final_where.limit = parseInt(query._end)-parseInt(query._start);
+  if(query._orderBy) final_where.order = query._orderBy + ' ' + query._orderDir;
+  final_where.include = [];
+  //end build final where
+
+  DBModel.findAndCountAll(
+      final_where
+  ).then(function(results) {
+    if (!results) {
+      return res.status(404).send({
+        message: 'No data found'
+      });
+    } else {
+      res.setHeader("X-Total-Count", results.count);      
+      res.json(results.rows);
     }
-
-
-    //start building where
-    final_where.where = qwhere;
-    if(parseInt(query._start)) final_where.offset = parseInt(query._start);
-    if(parseInt(query._end)) final_where.limit = parseInt(query._end)-parseInt(query._start);
-    if(query._orderBy) final_where.order = query._orderBy + ' ' + query._orderDir;
-    final_where.include = [];
-    //end build final where
-
-    DBModel.findAndCountAll(
-        final_where
-    ).then(function(results) {
-        if (!results) {
-            return res.status(404).send({
-                message: 'No data found'
-            });
-        } else {
-            res.setHeader("X-Total-Count", results.count);
-            res.json(results.rows);
-        }
-    }).catch(function(err) {
-        res.jsonp(err);
-    });
+  }).catch(function(err) {
+    res.jsonp(err);
+  });
 };
 
 /**
@@ -218,30 +218,30 @@ exports.list = function(req, res) {
  */
 exports.dataByID = function(req, res, next, id) {
 
-    if ((id % 1 === 0) === false) { //check if it's integer
-        return res.status(404).send({
-            message: 'Data is invalid'
-        });
-    }
-
-    DBModel.find({
-        where: {
-            id: id
-        },
-        include: []
-    }).then(function(result) {
-        if (!result) {
-            return res.send({
-                message: 'No data with that identifier has been found'
-            });
-        } else {
-            req.epgData = result;
-            next();
-            return null;
-        }
-    }).catch(function(err) {
-        return next(err);
+  if ((id % 1 === 0) === false) { //check if it's integer
+    return res.status(404).send({
+      message: 'Data is invalid'
     });
+  }
+
+  DBModel.find({
+    where: {
+      id: id
+    },
+    include: []
+  }).then(function(result) {
+    if (!result) {
+      return res.send({
+        message: 'No data with that identifier has been found'
+      });
+    } else {
+      req.epgData = result;
+      next();
+      return null;
+    }
+  }).catch(function(err) {
+    return next(err);
+  });
 
 };
 
@@ -333,15 +333,18 @@ function import_csv(req, res){
         }).then(function (result) {
             //todo: return some response?
         }).catch(function(error) {
+            console.log(error)
             return res.status(400).send({message: 'Unable to save the epg records'}); //serverside filetype validation
         });
 
     });
+    //todo: move response to success case?
     return res.status(200).send({message: 'Epg records were saved'}); //serverside filetype validation
 }
 
 function import_xml_dga(req, res){
     try{
+        console.log("@te importimi")
         var parser = new xml2js.Parser();
         fs.readFile(path.resolve('./public'+req.body.epg_file), function(err, data) {
             parser.parseString(data, function (err, result) {
@@ -375,6 +378,7 @@ function import_xml_dga(req, res){
                         return null;
                     }).catch(function(error) {
                         console.log("error te catch i search per kanale")//todo: error
+                        console.log(error)
                     });
                 });
             });
@@ -383,6 +387,7 @@ function import_xml_dga(req, res){
     }
     catch(error){
         console.log('error catch')
+        console.log(error)
     }
 }
 

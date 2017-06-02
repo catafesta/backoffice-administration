@@ -6,6 +6,7 @@ var path = require('path'),
     winston = require(path.resolve('./config/lib/winston')),
     dateFormat = require('dateformat'),
     async = require('async'),
+    schedule = require(path.resolve("./modules/deviceapiv2/server/controllers/schedule.server.controller.js")),
     models = db.models;
 
 exports.list = function(req, res) {
@@ -414,30 +415,37 @@ exports.schedule = function(req, res) {
     var clear_response = new response.OK();
 
     models.epg_data.findOne({
-        attributes: ['id'],
+        attributes: ['id', 'channel_number', 'program_start'],
         where: {id: req.body.program_id}
     }).then(function (epg_program) {
         if(epg_program){
             models.program_schedule.findOne({
                 attributes: ['id'], where: {login_id: req.thisuser.id, program_id: req.body.program_id},
             }).then(function (scheduled) {
+                //if this program is not already schedued for this user, create a scheduling event and store the info in the database
                 if(!scheduled){
                     models.program_schedule.create({
                         login_id: req.thisuser.id,
-                        program_id: req.body.program_id
+                        program_id: req.body.program_id,
+                        event_timer :  1
                     }).then(function (scheduled){
                         clear_response.response_object = [{
                             "action": 'created'
                         }];
+                        schedule.schedule_program(epg_program.program_start.getTime() - Date.now() - 300000, scheduled.id, req.thisuser.id, epg_program.channel_number, req.body.program_id); //timer set 5 minutes before the program starts, pass record id to be used as event id
                         res.send(clear_response);
                     }).catch(function(error) {
+                        console.log("error 1 ")
+                        console.log(error)
                         res.send(response.DATABASE_ERROR);
                     });
                 }
+                //this program : user pair is already scheduled, so this is an unschedule request. Cancel the event based on timer_id and delete the record
                 else{
                     models.program_schedule.destroy({
                         where: {login_id: req.thisuser.id, program_id: req.body.program_id}
                     }).then(function (scheduled){
+                        schedule.unschedule_program(scheduled.id); //after record is destroyed, delete task for this record
                         clear_response.response_object = [{
                             "action": 'destroyed'
                         }];
@@ -446,6 +454,7 @@ exports.schedule = function(req, res) {
                         res.send(response.DATABASE_ERROR);
                     });
                 }
+                return null;
             }).catch(function(error) {
                 res.send(response.DATABASE_ERROR);
             });

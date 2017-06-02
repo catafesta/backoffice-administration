@@ -7,6 +7,7 @@ var path = require('path'),
     authpolicy = require('../auth/apiv2.server.auth.js'),
     credentialsController = require(path.resolve('./modules/deviceapiv2/server/controllers/credentials.server.controller')),
     channelsController = require(path.resolve('./modules/deviceapiv2/server/controllers/channels.server.controller')),
+    scheduleController = require(path.resolve('./modules/deviceapiv2/server/controllers/schedule.server.controller')),
     vodController = require(path.resolve('./modules/deviceapiv2/server/controllers/vod.server.controller')),
     settingsController = require(path.resolve('./modules/deviceapiv2/server/controllers/settings.server.controller')),
     networkController = require(path.resolve('./modules/deviceapiv2/server/controllers/network.server.controller')),
@@ -20,6 +21,9 @@ var path = require('path'),
 
 
 module.exports = function(app) {
+
+    app.route('/apiv2/schedule/reload')
+        .get(scheduleController.reload_scheduled_programs);
 
     app.use('/apiv2',function (req, res, next) {
         winston.info(req.originalUrl +'  '+ JSON.stringify(req.body));
