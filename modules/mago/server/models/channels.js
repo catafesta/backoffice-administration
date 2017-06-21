@@ -6,7 +6,8 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.INTEGER(11),
             allowNull: false,
             primaryKey: true,
-            autoIncrement: true
+            autoIncrement: true,
+            unique: true
         },
         genre_id: {
             type: DataTypes.INTEGER(11),
@@ -18,7 +19,8 @@ module.exports = function(sequelize, DataTypes) {
         },
         channel_number: {
             type: DataTypes.INTEGER(11),
-            allowNull: false
+            allowNull: false,
+            unique: true
         },
         title: {
             type: DataTypes.STRING(32),
@@ -29,11 +31,11 @@ module.exports = function(sequelize, DataTypes) {
             allowNull: false
         },
         icon_url: {
-            type: DataTypes.STRING(250),
+            type: DataTypes.STRING(255),
             allowNull: false
         },
         channel_mode: {
-            type: DataTypes.STRING(128),
+            type: DataTypes.STRING(10),
             allowNull: false
         },
         pin_protected: {

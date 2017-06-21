@@ -6,7 +6,8 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.INTEGER(11),
             allowNull: false,
             primaryKey: true,
-            autoIncrement: true
+            autoIncrement: true,
+            unique: true
         },
         channel_id: {
             type: DataTypes.INTEGER(11),
@@ -21,11 +22,11 @@ module.exports = function(sequelize, DataTypes) {
             allowNull: false
         },
         stream_url: {
-            type: DataTypes.STRING(250),
+            type: DataTypes.STRING(255),
             allowNull: false
         },
         stream_format: {
-            type: DataTypes.STRING(16),
+            type: DataTypes.STRING(2),
             allowNull: false
         },
         token: {
@@ -33,7 +34,7 @@ module.exports = function(sequelize, DataTypes) {
             allowNull: false
         },
         token_url: {
-            type: DataTypes.STRING(250),
+            type: DataTypes.STRING(255),
             allowNull: true
         },
         encryption: {
@@ -41,13 +42,14 @@ module.exports = function(sequelize, DataTypes) {
             allowNull: false
         },
         encryption_url: {
-            type: DataTypes.STRING(250),
+            type: DataTypes.STRING(255),
             allowNull: true
         },
         is_octoshape: {
             type: DataTypes.BOOLEAN,
-            allowNull: false
-        },
+            allowNull: false,
+            defaultvalue: false
+        }
     }, {
         tableName: 'channel_stream',
         associate: function(models) {

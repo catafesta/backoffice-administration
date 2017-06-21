@@ -6,17 +6,23 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.INTEGER(11),
             allowNull: false,
             primaryKey: true,
-            autoIncrement: true
+            autoIncrement: true,
+            unique: true
+        },
+        group_id: {
+            type: DataTypes.INTEGER(11),
+            allowNull: false,
+            default: 1
         },
         firstname: {
             type: DataTypes.STRING(64),
             allowNull: false,
-            default: 'firstname'
+            defaultValue: 'firstname'
         },
         lastname: {
             type: DataTypes.STRING(64),
             allowNull: false,
-            default: 'lastname'
+            defaultValue: 'lastname'
         },
         email: {
             type: DataTypes.STRING(64),
@@ -26,28 +32,31 @@ module.exports = function(sequelize, DataTypes) {
         address: {
             type: DataTypes.STRING(128),
             allowNull: true,
-            default: 'address'
+            defaultValue: 'address'
         },
         city: {
             type: DataTypes.STRING(64),
             allowNull: true,
-            default: 'city'
+            defaultValue: 'city'
         },
         country: {
             type: DataTypes.STRING(64),
             allowNull: true,
-            default: 'country'
+            defaultValue: 'country'
         },
         telephone: {
             type: DataTypes.STRING(64),
             allowNull: true,
-            default: '0'
+            defaultValue: '0'
         }
     }, {
         tableName: 'customer_data',
         associate: function(models) {
             if (models.login_data){
                 customerData.hasMany(models.login_data, {foreignKey: 'customer_id'});
+            }
+            if (models.customer_group) {
+                customerData.belongsTo(models.customer_group, {foreignKey: 'group_id'});
             }
         }
     });

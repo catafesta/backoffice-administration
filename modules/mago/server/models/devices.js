@@ -6,10 +6,11 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.INTEGER(11),
             allowNull: false,
             primaryKey: true,
-            autoIncrement: true
+            autoIncrement: true,
+            unique: true
         },
         username: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(30),
             allowNull: true
         },
         login_data_id: {
@@ -17,15 +18,16 @@ module.exports = function(sequelize, DataTypes) {
             allowNull: true
         },
         googleappid: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(255),
             allowNull: true
         },
         device_active: {
             type: DataTypes.BOOLEAN,
-            allowNull: true
+            allowNull: false,
+            defaultValue: false
         },
         device_id: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(40),
             allowNull: false,
 			unique: true
         },
@@ -34,56 +36,57 @@ module.exports = function(sequelize, DataTypes) {
             allowNull: true
 		},
         device_mac_address: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(15),
             allowNull: true
         },
         device_wifimac_address: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(15),
             allowNull: true
         },
 		ntype: {
-            type: DataTypes.STRING,
-            allowNull: true
+            type: DataTypes.STRING(2),
+            allowNull: false,
+            defaultValue: '1'
         },
         appid: {
             type: DataTypes.INTEGER(11),
             allowNull: false
         },
         app_name: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(45),
             allowNull: false
         },
         app_version: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(20),
             allowNull: false
         },
         device_brand: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(45),
             allowNull: true
         },
         os: {
             type: DataTypes.STRING,
             allowNull: true
         },
-		
 		screen_resolution: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(10),
             allowNull: true
         },
 		hdmi: {
             type: DataTypes.STRING,
-            allowNull: true
+            allowNull: false,
+            defaultValue: false
         },
 		api_version: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(16),
             allowNull: true
         },
 		firmware: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(128),
             allowNull: true
         },
 		language: {
-            type: DataTypes.STRING,
+            type: DataTypes.STRING(10),
             allowNull: true
         },
         createdAt: {

@@ -6,15 +6,18 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.INTEGER(11),
             allowNull: false,
             primaryKey: true,
-            autoIncrement: true
+            autoIncrement: true,
+            unique: true
         },
         package_id: {
             type: DataTypes.INTEGER(11),
-            allowNull: false
+            allowNull: false,
+            unique: 'packagecombo'
         },
         combo_id: {
             type: DataTypes.INTEGER(11),
-            allowNull: false
+            allowNull: false,
+            unique: 'packagecombo'
         }
     }, {
         tableName: 'combo_packages',

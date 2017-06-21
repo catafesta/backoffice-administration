@@ -6,10 +6,11 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.INTEGER(11),
             allowNull: false, 
 			primaryKey: true,
-            autoIncrement: true
+            autoIncrement: true,
+            unique: true
         },
         description: {
-            type: DataTypes.STRING(128),
+            type: DataTypes.STRING(45),
             allowNull: false
         }
     }, {

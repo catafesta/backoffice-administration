@@ -6,7 +6,8 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.INTEGER(11),
             allowNull: false,
             primaryKey: true,
-            autoIncrement: true
+            autoIncrement: true,
+            unique: true
         },
         name: {
             type: DataTypes.STRING(50),
@@ -18,7 +19,7 @@ module.exports = function(sequelize, DataTypes) {
         },
         pay: {
             type: DataTypes.STRING(50),
-            default: 0,
+            defaultValue: 0,
             allowNull: true
         },
         password: {

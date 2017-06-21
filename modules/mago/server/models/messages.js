@@ -6,26 +6,27 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.INTEGER(11),
             allowNull: false,
             primaryKey: true,
-            autoIncrement: true
+            autoIncrement: true,
+            unique: true
         },
         username: {
-            type: DataTypes.STRING(10),
+            type: DataTypes.STRING(32),
             allowNull: false
         },
         googleappid: {
-            type: DataTypes.STRING(128),
+            type: DataTypes.STRING(255),
             allowNull: false
         },
         message: {
-            type: DataTypes.STRING(250),
+            type: DataTypes.STRING(128),
             allowNull: false
         },
         action: {
-            type: DataTypes.STRING(250),
+            type: DataTypes.STRING(64),
             allowNull: false
         },
         title: {
-            type: DataTypes.STRING(250),
+            type: DataTypes.STRING(64),
             allowNull: false
         },
     }, {

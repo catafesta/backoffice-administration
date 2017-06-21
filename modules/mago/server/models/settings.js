@@ -5,7 +5,7 @@ module.exports = function(sequelize, DataTypes) {
         id: {
             type: DataTypes.INTEGER(11),
             allowNull: false,
-            primaryKey: true,
+            primaryKey: true
         },
         locale: {
             type: DataTypes.STRING,
@@ -18,18 +18,28 @@ module.exports = function(sequelize, DataTypes) {
         },
         mobile_background_url: {
             type: DataTypes.STRING,
+            allowNull: false,
+            defaultValue: 'mobile_background_url'
         },
         mobile_logo_url: {
             type: DataTypes.STRING,
+            allowNull: false,
+            defaultValue: 'mobile_logo_url'
         },
         box_logo_url: {
             type: DataTypes.STRING,
+            allowNull: false,
+            defaultValue: 'box_logo_url'
         },
         box_background_url: {
             type: DataTypes.STRING,
+            allowNull: false,
+            defaultValue: 'box_background_url'
         },
         vod_background_url: {
             type: DataTypes.STRING,
+            allowNull: false,
+            defaultValue: 'vod_background_url'
         },
         assets_url: {
             type: DataTypes.STRING,
@@ -110,5 +120,13 @@ module.exports = function(sequelize, DataTypes) {
         associate: function(models) {
         }
     });
+
+    Settings.beforeUpdate(function(settings, options) {
+        if (settings.changed('new_encryption_key')) {
+            settings.set('old_encryption_key', settings['_previousDataValues'].new_encryption_key); //save previous key to to old key, before the value is lost
+            settings.set('key_transition', true); //since keys were exchanged, set key transition to true regardless of user input
+        }
+    })
+
     return Settings;
 };

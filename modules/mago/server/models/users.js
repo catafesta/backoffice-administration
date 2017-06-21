@@ -8,7 +8,8 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.INTEGER(11),
             allowNull: false,
             primaryKey: true,
-            autoIncrement: true
+            autoIncrement: true,
+            unique: true
         },
         username: {
             type: DataTypes.STRING(45),
@@ -41,7 +42,7 @@ module.exports = function(sequelize, DataTypes) {
         },
         hashedpassword: {
             type: DataTypes.STRING,
-            default: '',
+            defaultValue: '',
             validate: {
                 //isValid: validateLocalStrategyPassword
             }
@@ -80,10 +81,6 @@ module.exports = function(sequelize, DataTypes) {
             allowNull: true
         },
         address: {
-            type: DataTypes.STRING(45),
-            allowNull: true
-        },
-        userscol: {
             type: DataTypes.STRING(45),
             allowNull: true
         },

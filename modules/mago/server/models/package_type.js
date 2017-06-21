@@ -6,10 +6,19 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.INTEGER(11),
             allowNull: false,
             primaryKey: true,
-            autoIncrement: true
+            autoIncrement: true,
+            unique: true
         },
         description: {
-            type: DataTypes.STRING(250),
+            type: DataTypes.STRING(32),
+            allowNull: false
+        },
+        activity_id: {
+            type: DataTypes.INTEGER(11),
+            allowNull: false
+        },
+        app_group_id: {
+            type: DataTypes.INTEGER(11),
             allowNull: false
         }
     }, {

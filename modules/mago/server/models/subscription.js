@@ -6,15 +6,18 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.INTEGER(11),
             allowNull: false,
             primaryKey: true,
-            autoIncrement: true
+            autoIncrement: true,
+            unique: true
         },
         login_id: {
             type: DataTypes.INTEGER(11),
-            allowNull: false
+            allowNull: false,
+            unique: 'client_package'
         },
         package_id: {
             type: DataTypes.INTEGER(11),
-            allowNull: false
+            allowNull: false,
+            unique: 'client_package'
         },
         customer_username: {
             type: DataTypes.STRING(15),

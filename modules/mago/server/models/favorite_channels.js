@@ -6,15 +6,18 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.INTEGER(11),
             allowNull: false, 
 			primaryKey: true,
-            autoIncrement: true
+            autoIncrement: true,
+            unique: true
         },
         channel_id: {
             type: DataTypes.INTEGER(11),
-            allowNull: false
+            allowNull: false,
+            unique: 'channel_user'
         },
         user_id: {
             type: DataTypes.INTEGER(11),
-            allowNull: false
+            allowNull: false,
+            unique: 'channel_user'
         }
     }, {
         tableName: 'favorite_channels',

@@ -6,15 +6,18 @@ module.exports = function(sequelize, DataTypes) {
                 type: DataTypes.INTEGER(11),
                 allowNull: false,
                 primaryKey: true,
-                autoIncrement: true
+                autoIncrement: true,
+                unique: true
             },
             login_id: {
                 type: DataTypes.INTEGER(11),
-                allowNull: false
+                allowNull: false,
+                unique: 'user_program'
             },
             program_id: {
-                type: DataTypes.INTEGER(11),
-                allowNull: false
+                type: DataTypes.BIGINT(20),
+                allowNull: false,
+                unique: 'user_program'
             }
         }, {
             tableName: 'program_schedule',

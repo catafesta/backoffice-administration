@@ -6,14 +6,15 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.INTEGER(11),
             allowNull: false,
             primaryKey: true,
-            autoIncrement: true
+            autoIncrement: true,
+            unique: true
         },
         login_id: {
-            type: DataTypes.STRING(128),
+            type: DataTypes.INTEGER(11),
             allowNull: false
         },
         channel_number: {
-            type: DataTypes.INTEGER(2),
+            type: DataTypes.INTEGER(11),
             allowNull: false
         },
 		genre_id: {
@@ -21,23 +22,19 @@ module.exports = function(sequelize, DataTypes) {
             allowNull: false
         },
         title: {
-            type: DataTypes.STRING(2),
+            type: DataTypes.STRING(32),
             allowNull: false
         },
         description: {
             type: DataTypes.STRING(128),
             allowNull: false
         },
-        icon_url: {
-            type: DataTypes.INTEGER(2),
-            allowNull: false
-        },
         stream_url: {
-            type: DataTypes.STRING(2),
+            type: DataTypes.STRING(255),
             allowNull: false
         },
         isavailable: {
-            type: DataTypes.STRING(2),
+            type: DataTypes.BOOLEAN,
             allowNull: false
         }
     }, {

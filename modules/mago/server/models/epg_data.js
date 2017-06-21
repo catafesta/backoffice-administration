@@ -3,10 +3,11 @@
 module.exports = function(sequelize, DataTypes) {
     var epgData = sequelize.define('epg_data', {
         id: {
-            type: DataTypes.INTEGER(11),
+            type: DataTypes.BIGINT(20),
             allowNull: false,
             primaryKey: true,
-            autoIncrement: true
+            autoIncrement: true,
+            unique: true
         },
         channel_number: {
             type: DataTypes.INTEGER(11),

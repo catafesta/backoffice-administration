@@ -1,0 +1,17 @@
+<div class="row dashboard-starter"></div>
+<dashboard-summary></dashboard-summary>
+<graph></graph>
+<div class="row dashboard-content">
+
+    <div class="container-fluid">
+        <div class="panel panel-green">
+            <ma-dashboard-panel collection="dashboardController.collections.login_accounts" entries="dashboardController.entries.login_accounts" datastore="dashboardController.datastore"></ma-dashboard-panel>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="panel panel-yellow">
+            <ma-dashboard-panel collection="dashboardController.collections.sales_report" entries="dashboardController.entries.sales_report" datastore="dashboardController.datastore"></ma-dashboard-panel>
+        </div>
+    </div>
+</div>

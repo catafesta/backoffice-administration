@@ -6,14 +6,19 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.INTEGER(11),
             allowNull: false,
             primaryKey: true,
-            autoIncrement: true
+            autoIncrement: true,
+            unique: true
         },
         app_group_name: {
-            type: DataTypes.STRING(128),
+            type: DataTypes.STRING(45),
             allowNull: false
         },
         app_group_id: {
-            type: DataTypes.INTEGER(2),
+            type: DataTypes.INTEGER(11),
+            allowNull: false
+        },
+        app_id: {
+            type: DataTypes.INTEGER(11),
             allowNull: false
         },
         createdAt: {
@@ -23,10 +28,6 @@ module.exports = function(sequelize, DataTypes) {
         updatedAt: {
             type: DataTypes.DATE,
             allowNull: true
-        },
-        app_id: {
-            type: DataTypes.INTEGER(11),
-            allowNull: false
         }
     }, {
         tableName: 'app_group',

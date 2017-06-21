@@ -6,18 +6,19 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.INTEGER(11),
             allowNull: false,
             primaryKey: true,
-            autoIncrement: true
+            autoIncrement: true,
+            unique: true
         },
         title: {
-            type: DataTypes.STRING(10),
+            type: DataTypes.STRING(20),
             allowNull: false
         },
         url: {
-            type: DataTypes.STRING(128),
+            type: DataTypes.STRING(255),
             allowNull: true
         },
         icon_url: {
-            type: DataTypes.STRING(250),
+            type: DataTypes.STRING(255),
             allowNull: false
         },
         appid: {
@@ -34,7 +35,8 @@ module.exports = function(sequelize, DataTypes) {
         },
         locale: {
             type: DataTypes.STRING(16),
-            allowNull: true
+            allowNull: false,
+            defaultValue: 'en'
         },
         isavailable: {
             type: DataTypes.BOOLEAN,

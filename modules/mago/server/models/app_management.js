@@ -19,7 +19,7 @@ module.exports = function(sequelize, DataTypes) {
         },
 
         title: {
-            type: DataTypes.STRING(10),
+            type: DataTypes.STRING(45),
             allowNull: false
         },
 
@@ -29,7 +29,7 @@ module.exports = function(sequelize, DataTypes) {
         },
 
         url: {
-            type: DataTypes.STRING(128),
+            type: DataTypes.STRING(255),
             allowNull: false
         },
 
@@ -44,7 +44,8 @@ module.exports = function(sequelize, DataTypes) {
         },
         beta_version: {
             type: DataTypes.BOOLEAN,
-            allowNull: false
+            allowNull: false,
+            defaultValue: 0
         },
         isavailable: {
             type: DataTypes.BOOLEAN,
