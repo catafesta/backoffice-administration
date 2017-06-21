@@ -11,7 +11,6 @@ var path = require('path'),
     DBModel = db.messages,
     DBDevices = db.devices;
 
-	//TODO: Consider appid 4 and 5
 function sendiosnotification(obj,messagein,ttl) {
 
   // Set up apn with the APNs Auth Key
@@ -94,27 +93,30 @@ function sendandoirdnotification(obj, messagein, ttl, action, callback) {
       callback(false);
     }
     else 	{
+      save_messages(obj, messagein, ttl, action)
       callback(true);
     }
   });
 }
 
 function save_messages(obj, messagein, ttl, action, callback){
-    DBModel.bulkCreate([
-        { username: 'barfooz', googleappid: 'googleappid', message: 'panslab', action: 'action', title: 'title' },
-        { username: 'barfooz', googleappid: 'googleappid', message: 'panslab', action: 'action', title: 'title' },
-        { username: 'barfooz', googleappid: 'googleappid', message: 'panslab', action: 'action', title: 'title' }
-    ]).then(function(result) {
-        if (!result) {
-            return res.status(400).send({message: 'fail to create data'});
-        } else {
-            return res.status(200).send({message: 'Messages saved'});
-        }
-    }).catch(function(err) {
-        return res.status(400).send({
-            message: errorHandler.getErrorMessage(err)
-        });
-    });
+
+  DBModel.create({
+    username: obj.username,
+    googleappid: obj.googleappid,
+    title: messagein,
+    message: messagein,
+    action: action
+  }).then(function(result) {
+    if (!result) {
+      console.log('Fail to create data')
+    } else {
+      console.log('Messages saved')
+    }
+  }).catch(function(err) {
+
+  });
+
 }
 
 /**
@@ -168,6 +170,9 @@ exports.create = function(req, res) {
           sendiosnotification(obj,req.body.message,req.body.timetolive)
         }
       }
+      return res.status(200).send({
+        message: 'Message sent'
+      });
     }
 
 
@@ -270,6 +275,7 @@ exports.delete = function(req, res) {
  */
 exports.list = function(req, res) {
 
+  console.log("--------------- List ------------------")
   var qwhere = {},
       final_where = {},
       query = req.query;
@@ -291,7 +297,6 @@ exports.list = function(req, res) {
         message: 'No data found'
       });
     } else {
-
       res.setHeader("X-Total-Count", results.count);
       res.json(results.rows);
     }
@@ -304,12 +309,6 @@ exports.list = function(req, res) {
  * middleware
  */
 exports.dataByID = function(req, res, next, id) {
-
-  if ((id % 1 === 0) === false) { //check if it's integer
-    return res.status(404).send({
-      message: 'Data is invalid'
-    });
-  }
 
   DBModel.find({
     where: {

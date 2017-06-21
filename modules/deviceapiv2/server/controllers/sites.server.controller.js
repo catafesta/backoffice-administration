@@ -88,22 +88,22 @@ exports.createaccount = function(req,res) {
 					telephone:	req.body.telephone
 				}).then(function(new_customer){
 					login_data.create({
-						customer_id:			new_customer.id,
-						username:				req.body.username,
-						salt:                   salt,
-						password:				password,
-						channel_stream_source: 	1,
-						vod_stream_source:		1,
-						pin:					1234,
-						show_adult:				0,
-						auto_timezone:			1,
-						player:					'default',
-						activity_timeout:		900,
-						get_messages:			0,
-						force_upgrade:			0,
-						account_lock:			0,
-						resetPasswordToken:		token,
-						resetPasswordExpires:   Date.now() + 3600000 // 1 hour
+						customer_id:			 new_customer.id,
+						username:				 req.body.username,
+						salt:                     salt,
+						password:				  password,
+						channel_stream_source_id: 1,
+						vod_stream_source:		  1,
+						pin:					  1234,
+						show_adult:				  0,
+						auto_timezone:			  1,
+						player:					  'default',
+						activity_timeout:		  900,
+						get_messages:			  0,
+						force_upgrade:			  0,
+						account_lock:			  0,
+						resetPasswordToken:		  token,
+						resetPasswordExpires:     Date.now() + 3600000 // 1 hour
 					}).then(function(new_login){
 						done(null,token, new_customer);
 						return null;

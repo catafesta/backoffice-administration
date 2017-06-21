@@ -16,6 +16,7 @@ var path = require('path'),
 exports.device_menu = function(req, res) {
 
     var clear_response = new response.OK();
+    var database_error = new response.DATABASE_ERROR();
     models.device_menu.findAll({
         attributes: ['id', 'title', 'url', 'icon_url', [db.sequelize.fn('concat', req.app.locals.settings.assets_url, db.sequelize.col('icon_url')), 'icon'], 'menu_code', 'position', ['menu_code','menucode']],
         where: {appid: req.auth_obj.appid, isavailable:true},
@@ -27,6 +28,6 @@ exports.device_menu = function(req, res) {
         clear_response.response_object = result;
         res.send(clear_response);
     }).catch(function(error) {
-        res.send(response.DATABASE_ERROR);
+        res.send(database_error);
     });
 };

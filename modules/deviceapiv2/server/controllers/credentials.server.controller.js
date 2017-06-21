@@ -28,8 +28,8 @@ var path = require('path'),
  * @apiDescription If token is not present, plain text values are used to login
  */
 exports.login = function(req, res) {
-
     var clear_response = new response.OK();
+    var database_error = new response.DATABASE_ERROR();
     var appids = [];
 
     models.app_group.findOne({
@@ -89,7 +89,7 @@ exports.login = function(req, res) {
                                     res.send(clear_response);
                                     return null;
                                 }).catch(function(error) {
-                                    res.send(response.DATABASE_ERROR);
+                                    res.send(database_error);
                                 });
                             }
                             else {
@@ -124,27 +124,27 @@ exports.login = function(req, res) {
                                 res.send(clear_response);
                                 return null;
                             }).catch(function(error) {
-                                res.send(response.DATABASE_ERROR);
+                                res.send(database_error);
                             });
 
                         }
                         return null;
                     }).catch(function(error) {
-                        res.send(response.DATABASE_ERROR);
+                        res.send(database_error);
                     });
                 }
                 return null;
             }).catch(function(error) {
-                res.send(response.DATABASE_ERROR);
+                res.send(database_error);
             });
             //login end
             return null;
         }).catch(function(error) {
-            res.send(response.DATABASE_ERROR);
+            res.send(database_error);
         });
         return null;
     }).catch(function(error) {
-        res.send(response.DATABASE_ERROR);
+        res.send(database_error);
     });
 
 
@@ -162,6 +162,7 @@ exports.login = function(req, res) {
  */
 exports.logout = function(req, res) {
     var clear_response = new response.OK();
+    var database_error = new response.DATABASE_ERROR();
     models.devices.update(
         {
             device_active: false
@@ -171,12 +172,13 @@ exports.logout = function(req, res) {
         }).then(function (result) {
         res.send(clear_response);
     }).catch(function(error) {
-        res.send(response.DATABASE_ERROR);
+        res.send(database_error);
     });
 };
 
 exports.logout_user = function(req, res) {
     var clear_response = new response.OK();
+    var database_error = new response.DATABASE_ERROR();
     var appids = []; //will store appids of devices of the same type
 
     //find type of device
@@ -200,18 +202,18 @@ exports.logout_user = function(req, res) {
                 {
                     where: { username : req.auth_obj.username, appid : {in: appids}}
                 }).then(function (result) {
-                clear_response.extra_data = "You have been loged out of other devices";
+                clear_response.extra_data = "You have been logged out of other devices";
                 res.send(clear_response);
             }).catch(function(error) {
-                res.send(response.DATABASE_ERROR);
+                res.send(database_error);
             });
             return null;
         }).catch(function(error) {
-            res.send(response.DATABASE_ERROR);
+            res.send(database_error);
         });
         return null;
     }).catch(function(error) {
-        res.send(response.DATABASE_ERROR);
+        res.send(database_error);
     });
 
 };

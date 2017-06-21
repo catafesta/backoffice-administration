@@ -5,24 +5,18 @@
  */
 var config = require('../config'),
   express = require('express'),
-  //morgan = require('morgan'),
   bodyParser = require('body-parser'),
   session = require('express-session'),
   RedisStore = require('connect-redis')(session),
   favicon = require('serve-favicon'),
-  //compress = require('compression'),
-  //methodOverride = require('method-override'),
   cookieParser = require('cookie-parser'),
   helmet = require('helmet'),
-  //flash = require('connect-flash'),
   consolidate = require('consolidate'),
   path = require('path'),
   http = require('http'),
   https = require('https'),
   fs = require('fs'),
   winston = require('./winston'),
-  //multer = require('multer'),
-  //const multeri
 
   //documentation
   docs = require("express-mongoose-docs");
@@ -41,9 +35,7 @@ module.exports.initLocalVariables = function(app) {
   }
   app.locals.keywords = config.app.keywords;
   app.locals.googleAnalyticsTrackingID = config.app.googleAnalyticsTrackingID;
-  //app.locals.facebookAppId = config.facebook.clientID;
-  //app.locals.jsFiles = config.files.client.js;
-  //app.locals.cssFiles = config.files.client.css;
+
   app.locals.logo = config.logo;
   app.locals.favicon = config.favicon;
   app.locals.usersProfileDir = config.app.usersProfileDir;
@@ -71,19 +63,6 @@ module.exports.initMiddleware = function(app) {
   // Enable jsonp
   app.enable('jsonp callback');
 
-  // Should be placed before express.static
-  /*
-  app.use(compress({
-    filter: function(req, res) {
-      return (/json|text|javascript|css|font|svg/).test(res.getHeader('Content-Type'));
-    },
-    level: 9
-  }));
-  */
-
-  // Initialize favicon middleware
-  //app.use(favicon('./modules/core/client/img/brand/favicon.ico'));
-
   // Environment dependent middleware
   if (process.env.NODE_ENV === 'development') {
     // Enable logger (morgan)
@@ -101,43 +80,12 @@ module.exports.initMiddleware = function(app) {
     extended: true
   }));
   app.use(bodyParser.json());
- // app.use(methodOverride());
 
   // Add the cookie parser and flash middleware
   app.use(cookieParser());
-  //app.use(flash());
 
   //docs api
   docs(app);
-
-  /**
-   * This part of code is for Multer
-   * Disabled by XaeroZero @ 01.07.16 due to multiple upload handlers
-   * To enable Multer - disable multiparty
-   * */
-  // Add multipart handling middleware
-  //var storage = multer.diskStorage({
-  //  storage: multer.MemoryStorage,
-  //  limits: {
-  //    fileSize: 5 * 1024 * 1024 // no larger than 5mb
-  //  }
-  //});
-
-  /*
-  const storage = multer({
-    storage: multer.MemoryStorage,
-    limits: {
-      fileSize: 5 * 1024 * 1024 // no larger than 5mb
-    }
-  });
-
-  app.use(multer({
-    storage: storage
-  }).single('file'));
-  */
-
-  //app.use(multer().single('file'));
-
 
 };
 
@@ -217,10 +165,6 @@ module.exports.initModulesClientRoutes = function(app) {
   // Setting the app router and static folder
   app.use('/', express.static(path.resolve('./public')));
 
-  // Globbing static routing
-  //config.folders.client.forEach(function(staticPath) {
-   // app.use(staticPath, express.static(path.resolve('./' + staticPath)));
-  //});
 };
 
 /**
@@ -321,21 +265,22 @@ module.exports.init = function(db) {
   this.configureSocketIO(app, db);
   //app =  http.createServer(app);
 
-  
+
   if (config.secure && config.secure.ssl === true) {
     var options = {
-      key:    fs.readFileSync(path.resolve(config.secure.privateKey)), 
-      cert:   fs.readFileSync(path.resolve(config.secure.certificate)), 
+      key:    fs.readFileSync(path.resolve(config.secure.privateKey)), //read certificate key file
+      cert:   fs.readFileSync(path.resolve(config.secure.certificate)), // read certificate file
+      ca:     fs.readFileSync(path.resolve(config.secure.ca)), //reads list of intermediate certificates
       requestCert:        false,
       rejectUnauthorized: false
     };
 
     app = https.createServer(options, app);
-    console.log('running https');
+    console.log('Running HTTPS');
   }
   else {
     app =  http.createServer(app);
-    console.log('running http');
+    console.log('Running HTTP');
   }
 
 

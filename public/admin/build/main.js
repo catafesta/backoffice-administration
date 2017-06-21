@@ -45,7 +45,7 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	__webpack_require__(1);
-	module.exports = __webpack_require__(163);
+	module.exports = __webpack_require__(165);
 
 
 /***/ },
@@ -149,10 +149,11 @@
 	myApp.directive('dashboardSummary', __webpack_require__(3));
 	myApp.directive('graph', __webpack_require__(116));
 	myApp.directive('sendpush', __webpack_require__(118));
+	myApp.directive('approveReview', __webpack_require__(119));
 
 	// personal config
-	myApp.config(['$stateProvider', __webpack_require__(119)]);
-	myApp.config(['$stateProvider', __webpack_require__(121)]);
+	myApp.config(['$stateProvider', __webpack_require__(120)]);
+	myApp.config(['$stateProvider', __webpack_require__(122)]);
 
 	myApp.config(['NgAdminConfigurationProvider', function (nga) {
 
@@ -191,6 +192,7 @@
 	    admin.addEntity(nga.entity('Subscriptions'));
 	    admin.addEntity(nga.entity('Users'));
 	    admin.addEntity(nga.entity('Groups'));
+	    admin.addEntity(nga.entity('Grouprights'));
 	    admin.addEntity(nga.entity('Vods'));
 	    admin.addEntity(nga.entity('appmanagement'));
 	    admin.addEntity(nga.entity('messages'));
@@ -204,8 +206,7 @@
 
 	    //Config
 
-	    __webpack_require__(123)(nga, admin);
-	    __webpack_require__(125)(nga, admin);
+	    __webpack_require__(124)(nga, admin);
 	    __webpack_require__(126)(nga, admin);
 	    __webpack_require__(127)(nga, admin);
 	    __webpack_require__(128)(nga, admin);
@@ -216,9 +217,9 @@
 	    __webpack_require__(133)(nga, admin);
 	    __webpack_require__(134)(nga, admin);
 	    __webpack_require__(135)(nga, admin);
-	    __webpack_require__(137)(nga, admin);
+	    __webpack_require__(136)(nga, admin);
 	    __webpack_require__(138)(nga, admin);
-	    __webpack_require__(140)(nga, admin);
+	    __webpack_require__(139)(nga, admin);
 	    __webpack_require__(141)(nga, admin);
 	    __webpack_require__(142)(nga, admin);
 	    __webpack_require__(143)(nga, admin);
@@ -237,12 +238,14 @@
 	    __webpack_require__(156)(nga, admin);
 	    __webpack_require__(157)(nga, admin);
 	    __webpack_require__(158)(nga, admin);
+	    __webpack_require__(159)(nga, admin);
+	    __webpack_require__(160)(nga, admin);
 
 	    // Menu / Header / Dashboard / Layout
 
-	    admin.dashboard(__webpack_require__(159)(nga, admin));
-	    admin.header(__webpack_require__(161));
-	    admin.menu(__webpack_require__(162)(nga, admin));
+	    admin.dashboard(__webpack_require__(161)(nga, admin));
+	    admin.header(__webpack_require__(163));
+	    admin.menu(__webpack_require__(164)(nga, admin));
 
 	    // App
 
@@ -15518,6 +15521,71 @@
 
 /***/ },
 /* 119 */
+/***/ function(module, exports) {
+
+	//todo: change function name
+	'use strict';
+
+	Object.defineProperty(exports, '__esModule', {
+	    value: true
+	});
+	function approveReview(Restangular, $state, notification) {
+	    'use strict';
+
+	    return {
+	        restrict: 'E',
+	        scope: {
+	            review: "&",
+	            size: "@"
+	        },
+	        link: function link(scope, element, attrs) {
+	            //console.log(scope.$parent.datastore._entries.Groups_22["0"]._identifierValue);
+	            //console.log(scope);
+	            scope.review = scope.review();
+	            scope.type = attrs.type;
+	            scope.approve = function (method, value) {
+
+	                if (!value) value = true;else value = !value;
+
+	                var theobj = {};
+	                //todo: user better method
+	                theobj.group_id = scope.$parent.datastore._entries.Groups_22["0"]._identifierValue;
+	                theobj.api_id = scope.review.values.id;
+
+	                if (method == 'read') theobj.read = value;
+	                if (method == 'edit') theobj.edit = value;
+	                if (method == 'create') theobj.create = value;
+
+	                Restangular.one('grouprights').customPUT(theobj)
+	                //.then(() => $state.reload())
+
+	                .then(function successCallback(response) {
+	                    console.log(scope);
+	                    notification.log(response.message, { addnCls: 'humane-flatty-success' });
+	                }, function errorCallback(response) {});
+
+	                //Restangular
+	                //    .one('reviews', scope.review.values.id).get()
+	                //    .then(review => {
+	                //    review.data.status = status;
+	                //return review.data.put();
+	                //})
+	                //.then(() => $state.reload())
+	                //.then(() => notification.log('Review ' + status, { addnCls: 'humane-flatty-success' }) )
+	                //.catch(e => notification.log('A problem occurred, please try again', { addnCls: 'humane-flatty-error' }) && console.error(e) )
+	            };
+	        },
+	        template: '\n                <label class="btn btn-default">Read<input type="checkbox" ng-checked="review.values[\'grouprights.read\'] == 1" ng-click="approve(\'read\',review.values[\'grouprights.read\'])" id="default" class="badgebox"><span class="badge">&check;</span></label>\n                <label class="btn btn-default">Edit<input type="checkbox" ng-checked="review.values[\'grouprights.edit\'] == 1" ng-click="approve(\'edit\',review.values[\'grouprights.edit\'])" id="default" class="badgebox"><span class="badge">&check;</span></label>\n                <label class="btn btn-default">Create<input type="checkbox" ng-checked="review.values[\'grouprights.create\'] == 1" ng-click="approve(\'create\',review.values[\'grouprights.create\'])" id="default" class="badgebox"><span class="badge">&check;</span></label>\n            '
+	    };
+	}
+
+	approveReview.$inject = ['Restangular', '$state', 'notification'];
+
+	exports['default'] = approveReview;
+	module.exports = exports['default'];
+
+/***/ },
+/* 120 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -15528,7 +15596,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _userDetailsHtml = __webpack_require__(120);
+	var _userDetailsHtml = __webpack_require__(121);
 
 	var _userDetailsHtml2 = _interopRequireDefault(_userDetailsHtml);
 
@@ -15565,13 +15633,13 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 120 */
+/* 121 */
 /***/ function(module, exports) {
 
 	module.exports = "<head>\r\n  <style type=\"text/css\">\r\n    @media screen and ( max-width: 1600px ) {\r\n      .frm {\r\n        margin-left: 150px;\r\n        margin-right: 150px;\r\n      }\r\n    }\r\n\r\n    @media screen and ( max-width: 989px ) {\r\n      .frm {\r\n        margin-left: auto;\r\n        margin-right: auto;\r\n      }\r\n    }\r\n\r\n    @media screen and ( max-width: 767px ) {\r\n      .frm {\r\n        margin-left: auto;\r\n        margin-right: auto;\r\n      }\r\n    }\r\n\r\n    @media screen and ( max-width: 600px ) {\r\n      .frm {\r\n        margin-left: auto;\r\n        margin-right: auto;\r\n      }\r\n    }\r\n\r\n    @media screen and ( max-width: 540px ) {\r\n      .frm {\r\n        margin-left: auto;\r\n        margin-right: auto;\r\n      }\r\n    }\r\n\r\n    @media screen and ( max-width: 480px ) {\r\n      .frm {\r\n        margin-left: auto;\r\n        margin-right: auto;\r\n      }\r\n    }\r\n\r\n    @media screen and ( max-width: 380px ) {\r\n      .frm {\r\n        margin-left: auto;\r\n        margin-right: auto;\r\n      }\r\n    }\r\n  </style>\r\n</head>\r\n\r\n<div class=\"row list-header\">\r\n    <div class=\"col-lg-12\">\r\n\r\n        <div class=\"page-header\">\r\n            <h4>Personal Details</h4>\r\n        </div>\r\n\r\n    </div>\r\n</div>\r\n\r\n    <div class=\"row frm\">\r\n\r\n              <form ng-controller=\"updateDetails\" ng-submit=\"updateDetails()\" ng-controller=\"main\">\r\n\r\n                <div class=\"form-group\">\r\n                  <label for=\"exampleInputEmail1\">Group</label>\r\n                  <input type=\"input\" class=\"form-control\" id=\"exampleInputEmail1\" value=\"{{user.role}}\" aria-describedby=\"emailHelp\" placeholder=\"\" disabled=\"disabled\">\r\n                </div>\r\n\r\n                <div class=\"form-group\">\r\n                  <label for=\"exampleInputEmail1\">Username</label>\r\n                  <input type=\"input\" class=\"form-control\" id=\"exampleInputEmail1\" value=\"{{user.username}}\" aria-describedby=\"emailHelp\" placeholder=\"\" disabled=\"disabled\">\r\n                </div>\r\n\r\n\r\n                <div class=\"form-group\">\r\n                  <label for=\"exampleInputEmail1\">Email</label>\r\n                  <input type=\"email\" class=\"form-control\" id=\"exampleInputEmail1\" ng-model=\"user.email\" value=\"user.email\" aria-describedby=\"emailHelp\" placeholder=\"\">\r\n                </div>\r\n\r\n                <div class=\"form-group\">\r\n                  <label for=\"exampleInputEmail1\">Telephone</label>\r\n                  <input type=\"input\" class=\"form-control\" id=\"exampleInputEmail1\" ng-model=\"user.telephone\" value=\"user.telephone\" aria-describedby=\"emailHelp\" placeholder=\"\">\r\n                </div>\r\n\r\n                  <hr>\r\n                <button type=\"submit\" class=\"btn btn-default pull-right\">Submit</button>\r\n              </form>\r\n\r\n    \r\n    </div>";
 
 /***/ },
-/* 121 */
+/* 122 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -15582,7 +15650,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _changePasswordHtml = __webpack_require__(122);
+	var _changePasswordHtml = __webpack_require__(123);
 
 	var _changePasswordHtml2 = _interopRequireDefault(_changePasswordHtml);
 
@@ -15617,13 +15685,13 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 122 */
+/* 123 */
 /***/ function(module, exports) {
 
 	module.exports = "<head>\r\n  <style type=\"text/css\">\r\n    @media screen and ( max-width: 1600px ) {\r\n      .frm {\r\n        margin-left: 150px;\r\n        margin-right: 150px;\r\n      }\r\n    }\r\n\r\n    @media screen and ( max-width: 989px ) {\r\n      .frm {\r\n        margin-left: auto;\r\n        margin-right: auto;\r\n      }\r\n    }\r\n\r\n    @media screen and ( max-width: 767px ) {\r\n      .frm {\r\n        margin-left: auto;\r\n        margin-right: auto;\r\n      }\r\n    }\r\n\r\n    @media screen and ( max-width: 600px ) {\r\n      .frm {\r\n        margin-left: auto;\r\n        margin-right: auto;\r\n      }\r\n    }\r\n\r\n    @media screen and ( max-width: 540px ) {\r\n      .frm {\r\n        margin-left: auto;\r\n        margin-right: auto;\r\n      }\r\n    }\r\n\r\n    @media screen and ( max-width: 480px ) {\r\n      .frm {\r\n        margin-left: auto;\r\n        margin-right: auto;\r\n      }\r\n    }\r\n\r\n    @media screen and ( max-width: 380px ) {\r\n      .frm {\r\n        margin-left: auto;\r\n        margin-right: auto;\r\n      }\r\n    }\r\n  </style>\r\n</head>\r\n\r\n<div class=\"row list-header\">\r\n    <div class=\"col-lg-12\">\r\n\r\n        <div class=\"page-header\">\r\n            <h4>Change Password</h4>\r\n        </div>\r\n\r\n    </div>\r\n</div>\r\n\r\n    <div class=\"row frm\">\r\n\r\n              <form ng-submit=\"createPost()\">\r\n\r\n                <div class=\"form-group\">\r\n                  <label for=\"currentPassword\">Old Password</label>\r\n                  <input type=\"password\" class=\"form-control\" id=\"currentPassword\" ng-model=\"pwdata.currentPassword\" aria-describedby=\"emailHelp\" placeholder=\"\">\r\n                </div>\r\n\r\n                <div class=\"form-group\">\r\n                  <label for=\"newPassword\">New Password</label>\r\n                  <input type=\"password\" class=\"form-control\" id=\"newPassword\" ng-model=\"pwdata.newPassword\" aria-describedby=\"emailHelp\" placeholder=\"\">\r\n                </div>\r\n\r\n                <div class=\"form-group\">\r\n                  <label for=\"verifyPassword\">Repeat Password</label>\r\n                  <input type=\"password\" class=\"form-control\" id=\"verifyPassword\" ng-model=\"pwdata.verifyPassword\" aria-describedby=\"emailHelp\" placeholder=\"\">\r\n                </div>\r\n\r\n                <button type=\"submit\" class=\"btn btn-default pull-right\">Submit</button>\r\n              </form>\r\n\r\n    \r\n    </div>";
 
 /***/ },
-/* 123 */
+/* 124 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -15634,7 +15702,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _edit_buttonHtml = __webpack_require__(124);
+	var _edit_buttonHtml = __webpack_require__(125);
 
 	var _edit_buttonHtml2 = _interopRequireDefault(_edit_buttonHtml);
 
@@ -15668,7 +15736,7 @@
 	        notification.log('This channel number exists', { addnCls: 'humane-flatty-error' });
 	        // cancel the default action (default error messages)
 	        return false;
-	    }]).fields([nga.field('title', 'string').attributes({ placeholder: 'Title' }).validation({ required: true }).label('Title'), nga.field('channel_number', 'string').attributes({ placeholder: 'Channel Number' }).validation({ required: true }).label('Channel Number'), nga.field('genre_id', 'reference').targetEntity(admin.getEntity('Genres')).targetField(nga.field('description')).validation({ required: true }).attributes({ placeholder: 'Select Genre' }).label('Genre'), nga.field('channel_mode', 'choice').attributes({ placeholder: 'Stream Format' }).choices([{ value: 'live', label: 'Live TV channel' }, { value: 'catchup', label: 'Catchup  channel' }]).validation({ required: true }).attributes({ placeholder: 'Description' }).validation({ required: true }).label('Channel mode'), nga.field('description', 'text').attributes({ placeholder: 'Description' }).validation({ required: true }).label('Description'), nga.field('isavailable', 'boolean').attributes({ placeholder: 'Is Available' }).validation({ required: true }).label('Is Available'), nga.field('pin_protected', 'boolean').validation({ required: true }).label('Pin Protected'), nga.field('icon_url', 'file').uploadInformation({ 'url': '/file-upload/single-file/channels/icon_url', 'apifilename': 'result' }).template('<div class="row">' + '<div class="col-xs-12 col-sm-1"><img src="{{ entry.values.icon_url }}" height="40" width="40" /></div>' + '<div class="col-xs-12 col-sm-8"><ma-file-field field="field" value="entry.values.icon_url"></ma-file-field></div>' + '</div>').validation({
+	    }]).fields([nga.field('title', 'string').attributes({ placeholder: 'Title' }).validation({ required: true }).label('Title'), nga.field('genre_id', 'reference').targetEntity(admin.getEntity('Genres')).targetField(nga.field('description')).validation({ required: true }).attributes({ placeholder: 'Select Genre' }).label('Genre'), nga.field('channel_mode', 'choice').attributes({ placeholder: 'Stream Format' }).choices([{ value: 'live', label: 'Live TV channel' }, { value: 'catchup', label: 'Catchup  channel' }]).validation({ required: true }).attributes({ placeholder: 'Description' }).validation({ required: true }).label('Channel mode'), nga.field('description', 'text').attributes({ placeholder: 'Description' }).validation({ required: true }).label('Description'), nga.field('isavailable', 'boolean').attributes({ placeholder: 'Is Available' }).validation({ required: true }).label('Is Available'), nga.field('pin_protected', 'boolean').validation({ required: true }).label('Pin Protected'), nga.field('icon_url', 'file').uploadInformation({ 'url': '/file-upload/single-file/channels/icon_url', 'apifilename': 'result' }).template('<div class="row">' + '<div class="col-xs-12 col-sm-1"><img src="{{ entry.values.icon_url }}" height="40" width="40" /></div>' + '<div class="col-xs-12 col-sm-8"><ma-file-field field="field" value="entry.values.icon_url"></ma-file-field></div>' + '</div>').validation({
 	        validator: function validator(value) {
 	            if (value == null) {
 	                throw new Error('Please, choose icon');
@@ -15689,13 +15757,13 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 124 */
+/* 125 */
 /***/ function(module, exports) {
 
 	module.exports = "<div class=\"row\">\r\n    <div class=\"btn-group inline pull-right\"> \r\n      <div class=\"btn btn-small\"><ma-submit-button class=\"pull-right\" label=\"Submit\"></ma-submit-button></div> \r\n      <div class=\"btn btn-small\"><ma-back-button class=\"pull-right\" label=\"Cancel\"></ma-back-button></div> \r\n    </div>\r\n</div>\r\n\r\n<hr>";
 
 /***/ },
-/* 125 */
+/* 126 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -15706,7 +15774,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _edit_buttonHtml = __webpack_require__(124);
+	var _edit_buttonHtml = __webpack_require__(125);
 
 	var _edit_buttonHtml2 = _interopRequireDefault(_edit_buttonHtml);
 
@@ -15740,7 +15808,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 126 */
+/* 127 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -15751,7 +15819,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _edit_buttonHtml = __webpack_require__(124);
+	var _edit_buttonHtml = __webpack_require__(125);
 
 	var _edit_buttonHtml2 = _interopRequireDefault(_edit_buttonHtml);
 
@@ -15774,7 +15842,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 127 */
+/* 128 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -15785,7 +15853,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _edit_buttonHtml = __webpack_require__(124);
+	var _edit_buttonHtml = __webpack_require__(125);
 
 	var _edit_buttonHtml2 = _interopRequireDefault(_edit_buttonHtml);
 
@@ -15809,7 +15877,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 128 */
+/* 129 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -15820,7 +15888,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _edit_buttonHtml = __webpack_require__(124);
+	var _edit_buttonHtml = __webpack_require__(125);
 
 	var _edit_buttonHtml2 = _interopRequireDefault(_edit_buttonHtml);
 
@@ -15850,7 +15918,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 129 */
+/* 130 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -15861,7 +15929,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _edit_buttonHtml = __webpack_require__(124);
+	var _edit_buttonHtml = __webpack_require__(125);
 
 	var _edit_buttonHtml2 = _interopRequireDefault(_edit_buttonHtml);
 
@@ -15888,7 +15956,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 130 */
+/* 131 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -15899,7 +15967,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _edit_buttonHtml = __webpack_require__(124);
+	var _edit_buttonHtml = __webpack_require__(125);
 
 	var _edit_buttonHtml2 = _interopRequireDefault(_edit_buttonHtml);
 
@@ -15917,7 +15985,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 131 */
+/* 132 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -15928,7 +15996,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _edit_buttonHtml = __webpack_require__(124);
+	var _edit_buttonHtml = __webpack_require__(125);
 
 	var _edit_buttonHtml2 = _interopRequireDefault(_edit_buttonHtml);
 
@@ -15962,7 +16030,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 132 */
+/* 133 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -15973,7 +16041,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _edit_buttonHtml = __webpack_require__(124);
+	var _edit_buttonHtml = __webpack_require__(125);
 
 	var _edit_buttonHtml2 = _interopRequireDefault(_edit_buttonHtml);
 
@@ -16021,7 +16089,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 133 */
+/* 134 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -16032,7 +16100,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _edit_buttonHtml = __webpack_require__(124);
+	var _edit_buttonHtml = __webpack_require__(125);
 
 	var _edit_buttonHtml2 = _interopRequireDefault(_edit_buttonHtml);
 
@@ -16059,7 +16127,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 134 */
+/* 135 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -16070,7 +16138,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _edit_buttonHtml = __webpack_require__(124);
+	var _edit_buttonHtml = __webpack_require__(125);
 
 	var _edit_buttonHtml2 = _interopRequireDefault(_edit_buttonHtml);
 
@@ -16096,7 +16164,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 135 */
+/* 136 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -16107,11 +16175,11 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _edit_buttonHtml = __webpack_require__(124);
+	var _edit_buttonHtml = __webpack_require__(125);
 
 	var _edit_buttonHtml2 = _interopRequireDefault(_edit_buttonHtml);
 
-	var _filter_genre_btnHtml = __webpack_require__(136);
+	var _filter_genre_btnHtml = __webpack_require__(137);
 
 	var _filter_genre_btnHtml2 = _interopRequireDefault(_filter_genre_btnHtml);
 
@@ -16143,13 +16211,13 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 136 */
+/* 137 */
 /***/ function(module, exports) {
 
 	module.exports = "<div class=\"row\">\r\n    <div class=\"btn-group inline pull-right\"> \r\n      <div class=\"btn btn-small\"><ma-filtered-list-button entity-name=\"Channels\" class=\"pull-right\" label=\"SEE ALL CHANNELS\" filter=\"{ genre_id: entry.values.id }\"></ma-filtered-list-button></div> \r\n    </div>\r\n</div>\r\n\r\n<hr>";
 
 /***/ },
-/* 137 */
+/* 138 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -16160,21 +16228,21 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _edit_buttonHtml = __webpack_require__(124);
+	var _edit_buttonHtml = __webpack_require__(125);
 
 	var _edit_buttonHtml2 = _interopRequireDefault(_edit_buttonHtml);
 
 	exports['default'] = function (nga, admin) {
 	    var logindata = admin.getEntity('LoginData');
-	    logindata.listView().title('<h4>Login Accounts <i class="fa fa-angle-right" aria-hidden="true"></i> List</h4>').batchActions([]).fields([nga.field('customer_id', 'reference').targetEntity(admin.getEntity('CustomerData')).targetField(nga.field('firstname')).targetField(nga.field('firstname')).cssClasses('hidden-xs').label('Customer'), nga.field('username').isDetailLink(true).label('Username'), nga.field('channel_stream_source', 'reference').targetEntity(admin.getEntity('ChannelStreamSources')).targetField(nga.field('stream_source')).cssClasses('hidden-xs').label('Channel Stream Source'), nga.field('vod_stream_source', 'reference').targetEntity(admin.getEntity('VodStreamSources')).targetField(nga.field('description')).cssClasses('hidden-xs').label('VOD Stream Source'), nga.field('pin', 'string').cssClasses('hidden-xs').label('Pin'), nga.field('activity_timeout').cssClasses('hidden-xs').label('Activity Time Out'), nga.field('timezone', 'number').cssClasses('hidden-xs').label('Timezone'), nga.field('account_lock', 'boolean').cssClasses('hidden-xs').label('Account Lock'), nga.field('get_messages', 'boolean').label('Get messages'), nga.field('auto_timezone', 'boolean').cssClasses('hidden-xs').label('Auto Timezone')]).filters([nga.field('q').label('').template('<div class="input-group"><input type="text" ng-model="value" placeholder="Search" class="form-control"></input><span class="input-group-addon"><i class="glyphicon glyphicon-search"></i></span></div>').pinned(true)]).listActions(['edit']);
+	    logindata.listView().title('<h4>Login Accounts <i class="fa fa-angle-right" aria-hidden="true"></i> List</h4>').batchActions([]).fields([nga.field('customer_id', 'reference').targetEntity(admin.getEntity('CustomerData')).targetField(nga.field('firstname')).targetField(nga.field('firstname')).cssClasses('hidden-xs').label('Customer'), nga.field('username').isDetailLink(true).label('Username'), nga.field('channel_stream_source_id', 'reference').targetEntity(admin.getEntity('ChannelStreamSources')).targetField(nga.field('stream_source')).cssClasses('hidden-xs').label('Channel Stream Source'), nga.field('vod_stream_source', 'reference').targetEntity(admin.getEntity('VodStreamSources')).targetField(nga.field('description')).cssClasses('hidden-xs').label('VOD Stream Source'), nga.field('pin', 'string').cssClasses('hidden-xs').label('Pin'), nga.field('activity_timeout').cssClasses('hidden-xs').label('Activity Time Out'), nga.field('timezone', 'number').cssClasses('hidden-xs').label('Timezone'), nga.field('account_lock', 'boolean').cssClasses('hidden-xs').label('Account Lock'), nga.field('get_messages', 'boolean').label('Get messages'), nga.field('auto_timezone', 'boolean').cssClasses('hidden-xs').label('Auto Timezone')]).filters([nga.field('q').label('').template('<div class="input-group"><input type="text" ng-model="value" placeholder="Search" class="form-control"></input><span class="input-group-addon"><i class="glyphicon glyphicon-search"></i></span></div>').pinned(true)]).listActions(['edit']);
 
 	    logindata.creationView().title('<h4>Login Accounts <i class="fa fa-angle-right" aria-hidden="true"></i> Create: Login Account</h4>').fields([nga.field('customer_id', 'reference').targetEntity(admin.getEntity('CustomerData')).targetField(nga.field('firstnmae', 'template').map(function (v, e) {
 	        return e.firstname + ' ' + e.lastname;
-	    })).attributes({ placeholder: 'Select Customer' }).label('Customer').perPage(1000).validation({ required: true }), nga.field('username', 'string').attributes({ placeholder: 'Username' }).label('Username').validation({ required: true }), nga.field('password', 'password').attributes({ placeholder: 'Password' }).label('Password').validation({ required: true }), nga.field('channel_stream_source', 'reference').targetEntity(admin.getEntity('ChannelStreamSources')).targetField(nga.field('stream_source')).attributes({ placeholder: 'Select Channel Stream Source' }).label('Channel Stream Source').validation({ required: true }), nga.field('vod_stream_source', 'reference').targetEntity(admin.getEntity('VodStreamSources')).targetField(nga.field('description')).attributes({ placeholder: 'Select Vod Stream Source' }).label('VOD Stream Source').validation({ required: true }), nga.field('pin', 'string').attributes({ placeholder: 'Pin' }).validation({ required: true }).label('Pin'), nga.field('activity_timeout', 'string').attributes({ placeholder: 'Activity time out' }).validation({ required: true }).defaultValue(300).label('Activity Time Out'), nga.field('timezone', 'choice').choices([{ value: -12, label: '(UTC-12:00) International Date Line West' }, { value: -11, label: '(UTC-11:00) Samoa' }, { value: -10, label: '(UTC-10:00) Hawaii' }, { value: -9, label: '(UTC-9:00) Alaska' }, { value: -8, label: '(UTC-8:00) Pacific Time (US & Canada)' }, { value: -7, label: '(UTC-7:00) Arizona, La Paz, Mazatlan' }, { value: -6, label: '(UTC-6:00) Central America, Monterrey, Mexico City ' }, { value: -5, label: '(UTC-5:00) Bogota, Lima, Quito, Indiana' }, { value: -4, label: '(UTC-4:00) Atlantic Time (Canada), Manaus ' }, { value: -3, label: '(UTC-3:00) Brasilia, Buenos Aires, Cayenne' }, { value: -2, label: '(UTC-2:00) Mid-Atlantic' }, { value: -1, label: '(UTC-1:00) Azores, Cape Verde Is.' }, { value: 0, label: '(UTC 0:00) Dublin, Lisbon, London, Reykjavik' }, { value: +1, label: '(UTC+1:00) Amsterdam, Berlin, Rome, Paris, Prague, Skopje ' }, { value: +2, label: '(UTC+2:00) Athens, Istanbul, Cairo, Helsinki, Kyiv, Vilnius ' }, { value: +3, label: '(UTC+3:00) Baghdad, Kuwait, Moscow, St. Petersburg, Nairobi' }, { value: +4, label: '(UTC+4:00) Abu Dhabi, Baku, Muscat' }, { value: +5, label: '(UTC+5:00) Ekaterinburg, Karachi, Tashkent' }, { value: +6, label: '(UTC+6:00) Astana, Dhaka, Novosibirsk' }, { value: +7, label: '(UTC+7:00) Bangkok, Hanoi, Jakarta' }, { value: +8, label: '(UTC+8:00) Beijing, Hong Kong, Kuala Lumpur, Perth, Taipei' }, { value: +9, label: '(UTC+9:00) Sapporo, Tokyo, Seoul' }, { value: +10, label: '(UTC+10:00) Brisbane, Melbourne, Sydney' }, { value: +11, label: '(UTC+11:00) Magadan, Solomon Is.' }, { value: +12, label: '(UTC+12:00) Auckland, Fiji' }]).attributes({ placeholder: 'Select Timezone' }).validation({ required: true }).label('Timezone'), nga.field('get_messages', 'boolean').attributes({ placeholder: 'Auto Timezone' }).validation({ required: true }).label('Get messages'), nga.field('auto_timezone', 'boolean').attributes({ placeholder: 'Auto Timezone' }).validation({ required: true }).label('Auto Timezone'), nga.field('account_lock', 'boolean').attributes({ placeholder: 'Account Lock' }).label('Account Lock').validation({ required: true }), nga.field('template').label('').template(_edit_buttonHtml2['default'])]);
+	    })).attributes({ placeholder: 'Select Customer' }).label('Customer').perPage(1000).validation({ required: true }), nga.field('username', 'string').attributes({ placeholder: 'Username' }).label('Username').validation({ required: true }), nga.field('password', 'password').attributes({ placeholder: 'Password' }).label('Password').validation({ required: true }), nga.field('channel_stream_source_id', 'reference').targetEntity(admin.getEntity('ChannelStreamSources')).targetField(nga.field('stream_source')).attributes({ placeholder: 'Select Channel Stream Source' }).label('Channel Stream Source').validation({ required: true }), nga.field('vod_stream_source', 'reference').targetEntity(admin.getEntity('VodStreamSources')).targetField(nga.field('description')).attributes({ placeholder: 'Select Vod Stream Source' }).label('VOD Stream Source').validation({ required: true }), nga.field('pin', 'string').attributes({ placeholder: 'Pin' }).validation({ required: true }).label('Pin'), nga.field('activity_timeout', 'string').attributes({ placeholder: 'Activity time out' }).validation({ required: true }).defaultValue(300).label('Activity Time Out'), nga.field('timezone', 'choice').choices([{ value: -12, label: '(UTC-12:00) International Date Line West' }, { value: -11, label: '(UTC-11:00) Samoa' }, { value: -10, label: '(UTC-10:00) Hawaii' }, { value: -9, label: '(UTC-9:00) Alaska' }, { value: -8, label: '(UTC-8:00) Pacific Time (US & Canada)' }, { value: -7, label: '(UTC-7:00) Arizona, La Paz, Mazatlan' }, { value: -6, label: '(UTC-6:00) Central America, Monterrey, Mexico City ' }, { value: -5, label: '(UTC-5:00) Bogota, Lima, Quito, Indiana' }, { value: -4, label: '(UTC-4:00) Atlantic Time (Canada), Manaus ' }, { value: -3, label: '(UTC-3:00) Brasilia, Buenos Aires, Cayenne' }, { value: -2, label: '(UTC-2:00) Mid-Atlantic' }, { value: -1, label: '(UTC-1:00) Azores, Cape Verde Is.' }, { value: 0, label: '(UTC 0:00) Dublin, Lisbon, London, Reykjavik' }, { value: +1, label: '(UTC+1:00) Amsterdam, Berlin, Rome, Paris, Prague, Skopje ' }, { value: +2, label: '(UTC+2:00) Athens, Istanbul, Cairo, Helsinki, Kyiv, Vilnius ' }, { value: +3, label: '(UTC+3:00) Baghdad, Kuwait, Moscow, St. Petersburg, Nairobi' }, { value: +4, label: '(UTC+4:00) Abu Dhabi, Baku, Muscat' }, { value: +5, label: '(UTC+5:00) Ekaterinburg, Karachi, Tashkent' }, { value: +6, label: '(UTC+6:00) Astana, Dhaka, Novosibirsk' }, { value: +7, label: '(UTC+7:00) Bangkok, Hanoi, Jakarta' }, { value: +8, label: '(UTC+8:00) Beijing, Hong Kong, Kuala Lumpur, Perth, Taipei' }, { value: +9, label: '(UTC+9:00) Sapporo, Tokyo, Seoul' }, { value: +10, label: '(UTC+10:00) Brisbane, Melbourne, Sydney' }, { value: +11, label: '(UTC+11:00) Magadan, Solomon Is.' }, { value: +12, label: '(UTC+12:00) Auckland, Fiji' }]).attributes({ placeholder: 'Select Timezone' }).validation({ required: true }).label('Timezone'), nga.field('get_messages', 'boolean').attributes({ placeholder: 'Auto Timezone' }).validation({ required: true }).label('Get messages'), nga.field('auto_timezone', 'boolean').attributes({ placeholder: 'Auto Timezone' }).validation({ required: true }).label('Auto Timezone'), nga.field('account_lock', 'boolean').attributes({ placeholder: 'Account Lock' }).label('Account Lock').validation({ required: true }), nga.field('template').label('').template(_edit_buttonHtml2['default'])]);
 
 	    logindata.editionView().title('<h4>Login Accounts <i class="fa fa-angle-right" aria-hidden="true"></i> Edit: {{ entry.values.username }}</h4>').actions(['list']).fields([nga.field('customer_id', 'reference').targetEntity(admin.getEntity('CustomerData')).targetField(nga.field('firstnmae', 'template').map(function (v, e) {
 	        return e.firstname + ' ' + e.lastname;
-	    })).attributes({ placeholder: 'Select Customer' }).label('Customer').perPage(1000).validation({ required: true }), nga.field('username', 'string').attributes({ placeholder: 'Username' }).label('Username').validation({ required: true }), nga.field('password', 'password').attributes({ placeholder: 'Password' }).label('Password').validation({ required: true }), nga.field('pin', 'string').attributes({ placeholder: 'Pin' }).validation({ required: true }).label('Pin'), nga.field('channel_stream_source', 'reference').targetEntity(admin.getEntity('ChannelStreamSources')).targetField(nga.field('stream_source')).attributes({ placeholder: 'Select Channel Stream Source' }).label('Channel Stream Source').validation({ required: true }), nga.field('vod_stream_source', 'reference').targetEntity(admin.getEntity('VodStreamSources')).targetField(nga.field('description')).attributes({ placeholder: 'Select Vod Stream Source' }).label('VOD Stream Source').validation({ required: true }), nga.field('activity_timeout', 'string').attributes({ placeholder: 'Activity time out' }).validation({ required: true }).defaultValue(300).label('Activity Time Out'), nga.field('timezone', 'choice').choices([{ value: -12, label: '(UTC-12:00) International Date Line West' }, { value: -11, label: '(UTC-11:00) Samoa' }, { value: -10, label: '(UTC-10:00) Hawaii' }, { value: -9, label: '(UTC-9:00) Alaska' }, { value: -8, label: '(UTC-8:00) Pacific Time (US & Canada)' }, { value: -7, label: '(UTC-7:00) Arizona, La Paz, Mazatlan' }, { value: -6, label: '(UTC-6:00) Central America, Monterrey, Mexico City ' }, { value: -5, label: '(UTC-5:00) Bogota, Lima, Quito, Indiana' }, { value: -4, label: '(UTC-4:00) Atlantic Time (Canada), Manaus ' }, { value: -3, label: '(UTC-3:00) Brasilia, Buenos Aires, Cayenne' }, { value: -2, label: '(UTC-2:00) Mid-Atlantic' }, { value: -1, label: '(UTC-1:00) Azores, Cape Verde Is.' }, { value: 0, label: '(UTC 0:00) Dublin, Lisbon, London, Reykjavik' }, { value: +1, label: '(UTC+1:00) Amsterdam, Berlin, Rome, Paris, Prague, Skopje ' }, { value: +2, label: '(UTC+2:00) Athens, Istanbul, Cairo, Helsinki, Kyiv, Vilnius ' }, { value: +3, label: '(UTC+3:00) Baghdad, Kuwait, Moscow, St. Petersburg, Nairobi' }, { value: +4, label: '(UTC+4:00) Abu Dhabi, Baku, Muscat' }, { value: +5, label: '(UTC+5:00) Ekaterinburg, Karachi, Tashkent' }, { value: +6, label: '(UTC+6:00) Astana, Dhaka, Novosibirsk' }, { value: +7, label: '(UTC+7:00) Bangkok, Hanoi, Jakarta' }, { value: +8, label: '(UTC+8:00) Beijing, Hong Kong, Kuala Lumpur, Perth, Taipei' }, { value: +9, label: '(UTC+9:00) Sapporo, Tokyo, Seoul' }, { value: +10, label: '(UTC+10:00) Brisbane, Melbourne, Sydney' }, { value: +11, label: '(UTC+11:00) Magadan, Solomon Is.' }, { value: +12, label: '(UTC+12:00) Auckland, Fiji' }]).attributes({ placeholder: 'Select Timezone' }).validation({ required: true }).label('Timezone'), nga.field('livetvlastchange', 'datetime').editable(false).label('Live TV Last Change'), nga.field('updatelivetvtimestamp', 'boolean').editable(true).validation({ required: true }).label('Update Live TV Data'), nga.field('vodlastchange', 'datetime').editable(false).label('VOD Last Change'), nga.field('updatevodtimestamp', 'boolean').editable(true).validation({ required: true }).label('Update VOD data'), nga.field('get_messages', 'boolean').attributes({ placeholder: 'Auto Timezone' }).validation({ required: true }).label('Get messages'), nga.field('auto_timezone', 'boolean').attributes({ placeholder: 'Auto Timezone' }).validation({ required: true }).label('Auto Timezone'), nga.field('account_lock', 'boolean').attributes({ placeholder: 'Account Lock' }).label('Account Lock').validation({ required: true }), nga.field('template').label('').template(_edit_buttonHtml2['default']), nga.field('Subscriptions', 'referenced_list').label('Subscription').targetEntity(admin.getEntity('Subscriptions')).targetReferenceField('login_id').targetFields([nga.field('package_id', 'reference').targetEntity(admin.getEntity('Packages')).targetField(nga.field('package_name')).label('Package'), nga.field('package_id', 'reference').targetEntity(admin.getEntity('Packages')).targetField(nga.field('package_type_id').map(function truncate(value) {
+	    })).attributes({ placeholder: 'Select Customer' }).label('Customer').perPage(1000).validation({ required: true }), nga.field('username', 'string').attributes({ placeholder: 'Username' }).label('Username').validation({ required: true }), nga.field('password', 'password').attributes({ placeholder: 'Password' }).label('Password').validation({ required: true }), nga.field('pin', 'string').attributes({ placeholder: 'Pin' }).validation({ required: true }).label('Pin'), nga.field('channel_stream_source_id', 'reference').targetEntity(admin.getEntity('ChannelStreamSources')).targetField(nga.field('stream_source')).attributes({ placeholder: 'Select Channel Stream Source' }).label('Channel Stream Source').validation({ required: true }), nga.field('vod_stream_source', 'reference').targetEntity(admin.getEntity('VodStreamSources')).targetField(nga.field('description')).attributes({ placeholder: 'Select Vod Stream Source' }).label('VOD Stream Source').validation({ required: true }), nga.field('activity_timeout', 'string').attributes({ placeholder: 'Activity time out' }).validation({ required: true }).defaultValue(300).label('Activity Time Out'), nga.field('timezone', 'choice').choices([{ value: -12, label: '(UTC-12:00) International Date Line West' }, { value: -11, label: '(UTC-11:00) Samoa' }, { value: -10, label: '(UTC-10:00) Hawaii' }, { value: -9, label: '(UTC-9:00) Alaska' }, { value: -8, label: '(UTC-8:00) Pacific Time (US & Canada)' }, { value: -7, label: '(UTC-7:00) Arizona, La Paz, Mazatlan' }, { value: -6, label: '(UTC-6:00) Central America, Monterrey, Mexico City ' }, { value: -5, label: '(UTC-5:00) Bogota, Lima, Quito, Indiana' }, { value: -4, label: '(UTC-4:00) Atlantic Time (Canada), Manaus ' }, { value: -3, label: '(UTC-3:00) Brasilia, Buenos Aires, Cayenne' }, { value: -2, label: '(UTC-2:00) Mid-Atlantic' }, { value: -1, label: '(UTC-1:00) Azores, Cape Verde Is.' }, { value: 0, label: '(UTC 0:00) Dublin, Lisbon, London, Reykjavik' }, { value: +1, label: '(UTC+1:00) Amsterdam, Berlin, Rome, Paris, Prague, Skopje ' }, { value: +2, label: '(UTC+2:00) Athens, Istanbul, Cairo, Helsinki, Kyiv, Vilnius ' }, { value: +3, label: '(UTC+3:00) Baghdad, Kuwait, Moscow, St. Petersburg, Nairobi' }, { value: +4, label: '(UTC+4:00) Abu Dhabi, Baku, Muscat' }, { value: +5, label: '(UTC+5:00) Ekaterinburg, Karachi, Tashkent' }, { value: +6, label: '(UTC+6:00) Astana, Dhaka, Novosibirsk' }, { value: +7, label: '(UTC+7:00) Bangkok, Hanoi, Jakarta' }, { value: +8, label: '(UTC+8:00) Beijing, Hong Kong, Kuala Lumpur, Perth, Taipei' }, { value: +9, label: '(UTC+9:00) Sapporo, Tokyo, Seoul' }, { value: +10, label: '(UTC+10:00) Brisbane, Melbourne, Sydney' }, { value: +11, label: '(UTC+11:00) Magadan, Solomon Is.' }, { value: +12, label: '(UTC+12:00) Auckland, Fiji' }]).attributes({ placeholder: 'Select Timezone' }).validation({ required: true }).label('Timezone'), nga.field('livetvlastchange', 'datetime').editable(false).label('Live TV Last Change'), nga.field('updatelivetvtimestamp', 'boolean').editable(true).validation({ required: true }).label('Update Live TV Data'), nga.field('vodlastchange', 'datetime').editable(false).label('VOD Last Change'), nga.field('updatevodtimestamp', 'boolean').editable(true).validation({ required: true }).label('Update VOD data'), nga.field('get_messages', 'boolean').attributes({ placeholder: 'Auto Timezone' }).validation({ required: true }).label('Get messages'), nga.field('auto_timezone', 'boolean').attributes({ placeholder: 'Auto Timezone' }).validation({ required: true }).label('Auto Timezone'), nga.field('account_lock', 'boolean').attributes({ placeholder: 'Account Lock' }).label('Account Lock').validation({ required: true }), nga.field('template').label('').template(_edit_buttonHtml2['default']), nga.field('Subscriptions', 'referenced_list').label('Subscription').targetEntity(admin.getEntity('Subscriptions')).targetReferenceField('login_id').targetFields([nga.field('package_id', 'reference').targetEntity(admin.getEntity('Packages')).targetField(nga.field('package_name')).label('Package'), nga.field('package_id', 'reference').targetEntity(admin.getEntity('Packages')).targetField(nga.field('package_type_id').map(function truncate(value) {
 	        if (value === 1) {
 	            return 'Mobile Package';
 	        } else if (value === 2) {
@@ -16208,7 +16276,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 138 */
+/* 139 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -16219,11 +16287,11 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _edit_buttonHtml = __webpack_require__(124);
+	var _edit_buttonHtml = __webpack_require__(125);
 
 	var _edit_buttonHtml2 = _interopRequireDefault(_edit_buttonHtml);
 
-	var _filter_package_btnHtml = __webpack_require__(139);
+	var _filter_package_btnHtml = __webpack_require__(140);
 
 	var _filter_package_btnHtml2 = _interopRequireDefault(_filter_package_btnHtml);
 
@@ -16242,13 +16310,13 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 139 */
+/* 140 */
 /***/ function(module, exports) {
 
 	module.exports = "<div class=\"row\">\r\n    <div class=\"btn-group inline pull-right\"> \r\n      <div class=\"btn btn-small\"><ma-filtered-list-button entity-name=\"packagechannels\" class=\"pull-right\" label=\"SEE ALL CHANNELS\" filter=\"{ package_id: entry.values.id }\"></ma-filtered-list-button></div> \r\n      <div class=\"btn btn-small\"><ma-create-button entity-name=\"packagechannels\" class=\"pull-right\" label=\"ADD CHANNEL\" default-values=\"{ package_id: entry.values.id }\"></ma-create-button></div> \r\n    </div>\r\n</div>\r\n\r\n<hr>";
 
 /***/ },
-/* 140 */
+/* 141 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -16259,11 +16327,11 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _edit_buttonHtml = __webpack_require__(124);
+	var _edit_buttonHtml = __webpack_require__(125);
 
 	var _edit_buttonHtml2 = _interopRequireDefault(_edit_buttonHtml);
 
-	var _filter_package_btnHtml = __webpack_require__(139);
+	var _filter_package_btnHtml = __webpack_require__(140);
 
 	var _filter_package_btnHtml2 = _interopRequireDefault(_filter_package_btnHtml);
 
@@ -16282,7 +16350,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 141 */
+/* 142 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -16293,11 +16361,11 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _edit_buttonHtml = __webpack_require__(124);
+	var _edit_buttonHtml = __webpack_require__(125);
 
 	var _edit_buttonHtml2 = _interopRequireDefault(_edit_buttonHtml);
 
-	var _filter_genre_btnHtml = __webpack_require__(136);
+	var _filter_genre_btnHtml = __webpack_require__(137);
 
 	var _filter_genre_btnHtml2 = _interopRequireDefault(_filter_genre_btnHtml);
 
@@ -16317,7 +16385,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 142 */
+/* 143 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -16328,7 +16396,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _edit_buttonHtml = __webpack_require__(124);
+	var _edit_buttonHtml = __webpack_require__(125);
 
 	var _edit_buttonHtml2 = _interopRequireDefault(_edit_buttonHtml);
 
@@ -16360,7 +16428,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 143 */
+/* 144 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -16371,7 +16439,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _edit_buttonHtml = __webpack_require__(124);
+	var _edit_buttonHtml = __webpack_require__(125);
 
 	var _edit_buttonHtml2 = _interopRequireDefault(_edit_buttonHtml);
 
@@ -16389,7 +16457,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 144 */
+/* 145 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -16408,7 +16476,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 145 */
+/* 146 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -16419,7 +16487,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _edit_buttonHtml = __webpack_require__(124);
+	var _edit_buttonHtml = __webpack_require__(125);
 
 	var _edit_buttonHtml2 = _interopRequireDefault(_edit_buttonHtml);
 
@@ -16446,7 +16514,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 146 */
+/* 147 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -16457,7 +16525,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _edit_buttonHtml = __webpack_require__(124);
+	var _edit_buttonHtml = __webpack_require__(125);
 
 	var _edit_buttonHtml2 = _interopRequireDefault(_edit_buttonHtml);
 
@@ -16498,7 +16566,9 @@
 			progression.done();
 			$state.go($state.get('edit'), { entity: 'LoginData', id: entry.values.login_id });
 			return false;
-		}]).fields([nga.field('login_id', 'reference').targetEntity(admin.getEntity('LoginData')).targetField(nga.field('username')).attributes({ placeholder: 'Select Account' }).validation({ required: true }).label('Username'), nga.field('combo_id', 'reference').targetEntity(admin.getEntity('Combos')).targetField(nga.field('name')).attributes({ placeholder: 'Select Product' }).validation({ required: true }).label('Combo'), nga.field('start_date', 'date').attributes({ placeholder: 'Start Date' }).validation({ required: true }).defaultValue(new Date()).label('Start Date'), nga.field('template').label('').template(_edit_buttonHtml2['default'])]);
+		}]).fields([nga.field('login_id', 'reference').targetEntity(admin.getEntity('LoginData')).targetField(nga.field('username')).attributes({ placeholder: 'Select Account' }).validation({ required: true }).singleApiCall(function (login_id) {
+			return { 'login_id[]': login_id };
+		}).label('Username'), nga.field('combo_id', 'reference').targetEntity(admin.getEntity('Combos')).targetField(nga.field('name')).attributes({ placeholder: 'Select Product' }).validation({ required: true }).label('Combo'), nga.field('start_date', 'date').attributes({ placeholder: 'Start Date' }).validation({ required: true }).defaultValue(new Date()).label('Start Date'), nga.field('template').label('').template(_edit_buttonHtml2['default'])]);
 
 		subscription.editionView().title('<h4>Subscriptions <i class="fa fa-angle-right" aria-hidden="true"></i></h4>').fields([subscription.creationView().fields()]);
 
@@ -16508,7 +16578,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 147 */
+/* 148 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -16519,7 +16589,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _edit_buttonHtml = __webpack_require__(124);
+	var _edit_buttonHtml = __webpack_require__(125);
 
 	var _edit_buttonHtml2 = _interopRequireDefault(_edit_buttonHtml);
 
@@ -16537,43 +16607,68 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 148 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, '__esModule', {
-		value: true
-	});
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-	var _edit_buttonHtml = __webpack_require__(124);
-
-	var _edit_buttonHtml2 = _interopRequireDefault(_edit_buttonHtml);
-
-	exports['default'] = function (nga, admin) {
-		var groups = admin.getEntity('Groups');
-		groups.listView().title('<h4>User Groups <i class="fa fa-angle-right" aria-hidden="true"></i> List</h4>').actions([]).batchActions([]).fields([nga.field('name', 'string').label('Name'), nga.field('code', 'string').label('Role'), nga.field('isavailable', 'boolean').label('Available')]);
-
-		return groups;
-	};
-
-	module.exports = exports['default'];
-
-/***/ },
 /* 149 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	Object.defineProperty(exports, '__esModule', {
+			value: true
+	});
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	var _edit_buttonHtml = __webpack_require__(125);
+
+	var _edit_buttonHtml2 = _interopRequireDefault(_edit_buttonHtml);
+
+	exports['default'] = function (nga, admin) {
+			var groups = admin.getEntity('Groups');
+			groups.listView().title('<h4>User Groups <i class="fa fa-angle-right" aria-hidden="true"></i> List</h4>').actions([]).batchActions([]).fields([nga.field('name', 'string').label('Name'), nga.field('code', 'string').label('Role'), nga.field('isavailable', 'boolean').validation({ required: true }).label('Available')]).listActions(['edit']);
+
+			groups.editionView().title('<h4>Genres <i class="fa fa-angle-right" aria-hidden="true"></i> Edit: {{ entry.values.description }}</h4>').actions(['list']).fields([groups.listView().fields(), nga.field('template').label('').template(_edit_buttonHtml2['default']), nga.field('', 'referenced_list').label('Test').targetEntity(admin.getEntity('Grouprights')).targetReferenceField('group_id').targetFields([nga.field('id', 'number').label('ID'), nga.field('api_url', 'string').label('Api Url'), nga.field('description', 'string').label('Description'), nga.field('grouprights.id', 'template')
+			//.map(function truncate(value) {
+			//	console.log('vlera = ',value);
+			//})
+			.label('Permitions ').template('<approve-review size="xs" review="entry"></approve-review>')])]);
+
+			return groups;
+	};
+
+	module.exports = exports['default'];
+
+/***/ },
+/* 150 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, '__esModule', {
+			value: true
+	});
+
+	exports['default'] = function (nga, admin) {
+			var grouprights = admin.getEntity('Grouprights');
+			grouprights.listView().title('<h4>User Groups <i class="fa fa-angle-right" aria-hidden="true"></i> List</h4>').actions([]).batchActions([]).fields([nga.field('api_url', 'string').label('Api Name'), nga.field('description', 'string').label('Description'), nga.field('permitions', 'string').label('Permitions')]);
+
+			return grouprights;
+	};
+
+	module.exports = exports['default'];
+
+/***/ },
+/* 151 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, '__esModule', {
 		value: true
 	});
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _edit_buttonHtml = __webpack_require__(124);
+	var _edit_buttonHtml = __webpack_require__(125);
 
 	var _edit_buttonHtml2 = _interopRequireDefault(_edit_buttonHtml);
 
@@ -16603,7 +16698,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 150 */
+/* 152 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -16614,11 +16709,11 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _edit_buttonHtml = __webpack_require__(124);
+	var _edit_buttonHtml = __webpack_require__(125);
 
 	var _edit_buttonHtml2 = _interopRequireDefault(_edit_buttonHtml);
 
-	var _filter_genre_btnHtml = __webpack_require__(136);
+	var _filter_genre_btnHtml = __webpack_require__(137);
 
 	var _filter_genre_btnHtml2 = _interopRequireDefault(_filter_genre_btnHtml);
 
@@ -16629,19 +16724,7 @@
 				return '';
 			}
 			return value.length > 14 ? value.substr(0, 14) + '...' : value;
-		}).label('Messages'), nga.field('action').label('Action'), nga.field('username', 'reference').targetEntity(admin.getEntity('Devices')).targetField(nga.field('appid').map(function app(value) {
-			if (value === 1) {
-				return 'Box';
-			} else if (value === 2) {
-				return 'Android';
-			} else if (value === 3) {
-				return 'Ios';
-			} else if (value === 4) {
-				return 'Stv';
-			} else if (value === 5) {
-				return 'Samsung';
-			}
-		})).label('App ID'), nga.field('createdat', 'datetime').label('Created')]).listActions(['edit']).exportFields([message.listView().fields()]);
+		}).label('Messages'), nga.field('action').label('Action'), nga.field('createdAt', 'datetime').label('Created')]).listActions(['edit']).exportFields([message.listView().fields()]);
 
 		message.creationView().title('<h4>Messages <i class="fa fa-angle-right" aria-hidden="true"></i> Create: Messages</h4>').fields([nga.field('type', 'choice').choices(function (entry) {
 			var types = [{ value: 'one', label: 'One User' }, { value: 'all', label: 'All User' }];
@@ -16654,19 +16737,7 @@
 			}
 		})), nga.field('toandroidsmartphone', 'boolean').validation({ required: true }).label('Android Smartphone'), nga.field('toios', 'boolean').validation({ required: true }).label('IOS'), nga.field('toandroidbox', 'boolean').validation({ required: true }).label('Android Box'), nga.field('timetolive', 'number').attributes({ placeholder: 'ttl' }).validation({ required: true }).label('Time to live in sec'), nga.field('message', 'text').attributes({ placeholder: 'Message' }).validation({ required: true }).label('Messages'), nga.field('sendtoactivedevices', 'boolean').validation({ required: true }).defaultValue(true).label('Send only to active devices'), nga.field('template').label('').template(_edit_buttonHtml2['default'])]);
 
-		message.editionView().title('<h4>Messages <i class="fa fa-angle-right" aria-hidden="true"></i></h4>').actions(['list']).fields([nga.field('username').validation({ required: true }).label('Username'), nga.field('googleappid').attributes({ placeholder: 'Google app id' }).label('Google App ID'), nga.field('title').label('Title'), nga.field('action').label('Action'), nga.field('username', 'reference').targetEntity(admin.getEntity('Devices')).targetField(nga.field('appid').map(function app(value) {
-			if (value === 1) {
-				return 'Box';
-			} else if (value === 2) {
-				return 'Android';
-			} else if (value === 3) {
-				return 'Ios';
-			} else if (value === 4) {
-				return 'Stv';
-			} else if (value === 5) {
-				return 'Samsung';
-			}
-		})).editable(false).label('App ID'), nga.field('message', 'text').attributes({ placeholder: 'Message' }).validation({ required: true }).label('Messages')]);
+		message.editionView().title('<h4>Messages <i class="fa fa-angle-right" aria-hidden="true"></i></h4>').actions(['list']).fields([nga.field('username').validation({ required: true }).label('Username'), nga.field('googleappid').attributes({ placeholder: 'Google app id' }).label('Google App ID'), nga.field('title').label('Title'), nga.field('action').label('Action'), nga.field('message', 'text').attributes({ placeholder: 'Message' }).validation({ required: true }).label('Messages')]);
 
 		return message;
 	};
@@ -16674,7 +16745,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 151 */
+/* 153 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -16685,7 +16756,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _edit_buttonHtml = __webpack_require__(124);
+	var _edit_buttonHtml = __webpack_require__(125);
 
 	var _edit_buttonHtml2 = _interopRequireDefault(_edit_buttonHtml);
 
@@ -16703,7 +16774,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 152 */
+/* 154 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -16714,7 +16785,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _edit_buttonHtml = __webpack_require__(124);
+	var _edit_buttonHtml = __webpack_require__(125);
 
 	var _edit_buttonHtml2 = _interopRequireDefault(_edit_buttonHtml);
 
@@ -16732,7 +16803,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 153 */
+/* 155 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -16743,7 +16814,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _edit_buttonHtml = __webpack_require__(124);
+	var _edit_buttonHtml = __webpack_require__(125);
 
 	var _edit_buttonHtml2 = _interopRequireDefault(_edit_buttonHtml);
 
@@ -16761,7 +16832,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 154 */
+/* 156 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -16772,7 +16843,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _edit_buttonHtml = __webpack_require__(124);
+	var _edit_buttonHtml = __webpack_require__(125);
 
 	var _edit_buttonHtml2 = _interopRequireDefault(_edit_buttonHtml);
 
@@ -16815,7 +16886,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 155 */
+/* 157 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -16826,7 +16897,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _edit_buttonHtml = __webpack_require__(124);
+	var _edit_buttonHtml = __webpack_require__(125);
 
 	var _edit_buttonHtml2 = _interopRequireDefault(_edit_buttonHtml);
 
@@ -16858,7 +16929,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 156 */
+/* 158 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -16869,7 +16940,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _edit_buttonHtml = __webpack_require__(124);
+	var _edit_buttonHtml = __webpack_require__(125);
 
 	var _edit_buttonHtml2 = _interopRequireDefault(_edit_buttonHtml);
 
@@ -16894,7 +16965,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 157 */
+/* 159 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -16905,7 +16976,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _edit_buttonHtml = __webpack_require__(124);
+	var _edit_buttonHtml = __webpack_require__(125);
 
 	var _edit_buttonHtml2 = _interopRequireDefault(_edit_buttonHtml);
 
@@ -16923,7 +16994,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 158 */
+/* 160 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -16934,7 +17005,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _edit_buttonHtml = __webpack_require__(124);
+	var _edit_buttonHtml = __webpack_require__(125);
 
 	var _edit_buttonHtml2 = _interopRequireDefault(_edit_buttonHtml);
 
@@ -16964,7 +17035,7 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 159 */
+/* 161 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -16975,7 +17046,7 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	var _dashboardHtml = __webpack_require__(160);
+	var _dashboardHtml = __webpack_require__(162);
 
 	var _dashboardHtml2 = _interopRequireDefault(_dashboardHtml);
 
@@ -16994,19 +17065,19 @@
 	module.exports = exports['default'];
 
 /***/ },
-/* 160 */
+/* 162 */
 /***/ function(module, exports) {
 
 	module.exports = "<div class=\"row dashboard-starter\"></div>\r\n<dashboard-summary></dashboard-summary>\r\n<graph></graph>\r\n<div class=\"row dashboard-content\">\r\n\r\n    <div class=\"container-fluid\">\r\n        <div class=\"panel panel-green\">\r\n            <ma-dashboard-panel collection=\"dashboardController.collections.login_accounts\" entries=\"dashboardController.entries.login_accounts\" datastore=\"dashboardController.datastore\"></ma-dashboard-panel>\r\n        </div>\r\n    </div>\r\n\r\n    <div class=\"col-lg-6\">\r\n        <div class=\"panel panel-yellow\">\r\n            <ma-dashboard-panel collection=\"dashboardController.collections.sales_report\" entries=\"dashboardController.entries.sales_report\" datastore=\"dashboardController.datastore\"></ma-dashboard-panel>\r\n        </div>\r\n    </div>\r\n</div>";
 
 /***/ },
-/* 161 */
+/* 163 */
 /***/ function(module, exports) {
 
 	module.exports = "<div class=\"navbar-header\">\r\n    <button type=\"button\" class=\"navbar-toggle\" ng-click=\"isCollapsed = !isCollapsed\">\r\n        <span class=\"icon-bar\"></span>\r\n        <span class=\"icon-bar\"></span>\r\n        <span class=\"icon-bar\"></span>\r\n    </button>\r\n    <a class=\"navbar-brand\" href=\"#\" ng-click=\"appController.displayHome()\">MAGOWARE - Administration System</a>\r\n</div>\r\n\r\n<ul class=\"nav navbar-top-links navbar-right hidden-xs\">\r\n    <li uib-dropdown>\r\n        <a uib-dropdown-toggle href=\"#\" aria-expanded=\"true\" ng-controller=\"username\">\r\n            <i class=\"fa fa-user fa-lg\"></i>&nbsp; {{ username }}&nbsp;<i class=\"fa fa-caret-down\"></i>\r\n        </a>\r\n        <ul class=\"dropdown-menu dropdown-user\" role=\"menu\">\r\n            <li><a href=\"#/personal\" onClick=\"window.location.reload()\"><i class=\"fa fa-user fa-fw\"></i> Personal Details</a></li>\r\n            <li><a href=\"#/change-password\"><i class=\"fa fa-cog fa-fw\"></i> Change Password</a></li>\r\n            <li><a href=\"#\" onclick=\"logout()\"><i class=\"fa fa-sign-out fa-fw\"></i> Logout</a></li>\r\n        </ul>\r\n    </li>\r\n</ul>";
 
 /***/ },
-/* 162 */
+/* 164 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -17024,14 +17095,14 @@
 
 	    if ((Role() === 'admin', 'guest')) {
 
-	        return nga.menu().addChild(nga.menu().title('Dashboard').icon('<span class="fa fa-tachometer fa-fw"></span>')).addChild(nga.menu().title('Customers').icon('<span class="fa fa-user fa-fw"></span>').addChild(nga.menu(admin.getEntity('CustomerGroups')).title('Customer Group').icon('<span class="fa fa-users fa-fw"></span>')).addChild(nga.menu(admin.getEntity('CustomerData')).title('Customer').icon('<span class="fa fa-user fa-fw"></span>')).addChild(nga.menu(admin.getEntity('LoginData')).title('Login Accounts').icon('<span class="fa fa-user-plus fa-fw"></span>')).addChild(nga.menu(admin.getEntity('Devices')).title('Devices').icon('<span class="fa fa-outdent fa-fw"></span>'))).addChild(nga.menu(admin.getEntity('Subscriptions')).title('Subscriptions').icon('<span class="fa fa-calendar-check-o fa-fw"></span>')).addChild(nga.menu().title('Sales').icon('<span class="fa fa-list fa-fw"></span>').addChild(nga.menu(admin.getEntity('Salesreports')).title('Exports').icon('<span class="fa fa-list fa-fw"></span>'))).addChild(nga.menu(admin.getEntity('Combos')).title('Products / Plans').icon('<span class="fa fa-tags fa-fw"></span>')).addChild(nga.menu().template('<div class="menu_space">Settings</div>')).addChild(nga.menu(admin.getEntity('Settings')).title('Company Settings').link('/Settings/edit/1').icon('<span class="fa fa-cog fa-fw"></span>')).addChild(nga.menu(admin.getEntity('DeviceMenus')).title('Main Menu').icon('<span class="fa fa-align-justify fa-fw"></span>')).addChild(nga.menu().title('TV Channels').icon('<span class="fa fa-television fa-fw"></span>').addChild(nga.menu(admin.getEntity('Genres')).title('Categories / Genre').icon('<span class="fa fa-folder-open fa-fw"></span>')).addChild(nga.menu(admin.getEntity('Channels')).title('Channels / Streams').icon('<span class="fa fa-television fa-fw"></span>')).addChild(nga.menu(admin.getEntity('ChannelStreamSources')).title('Live TV Stream Source').icon('<span class="fa fa-signal fa-fw"></span>')).addChild(nga.menu(admin.getEntity('Packages')).title('Channel Packages').icon('<span class="fa fa-th fa-fw"></span>'))).addChild(nga.menu().title('VOD').icon('<span class="fa fa-film fa-fw"></span>').addChild(nga.menu(admin.getEntity('VodCategories')).title('VOD Categories').icon('<span class="fa fa-folder-open fa-fw"></span>')).addChild(nga.menu(admin.getEntity('Vods')).title('VOD Movies').icon('<span class="fa fa-film fa-fw"></span>')).addChild(nga.menu(admin.getEntity('VodStreamSources')).title('VOD Stream Source').icon('<span class="fa fa-signal fa-fw"></span>')).addChild(nga.menu(admin.getEntity('vodPackages')).title('VOD Packages').icon('<span class="fa fa-th fa-fw"></span>'))).addChild(nga.menu().title('EPG').icon('<span class="fa fa-film fa-fw"></span>').addChild(nga.menu(admin.getEntity('epgimport')).title('EPG Import').icon('<span class="fa fa-film fa-fw"></span>')).addChild(nga.menu(admin.getEntity('EpgData')).title('EPG Data').icon('<span class="fa fa-folder-open fa-fw"></span>'))).addChild(nga.menu(admin.getEntity('appgroup')).title('APP Group').icon('<span class="fa fa-file fa-fw"></span>')).addChild(nga.menu().title('System Users').icon('<span class="fa fa-users fa-fw"></span>').addChild(nga.menu(admin.getEntity('Groups')).title('User Groups').icon('<span class="fa fa-users fa-fw"></span>')).addChild(nga.menu(admin.getEntity('Users')).title('Users').icon('<span class="fa fa-user fa-fw"></span>'))).addChild(nga.menu().template('<div class="menu_space">Other</div>')).addChild(nga.menu(admin.getEntity('appmanagement')).title('APP Management').icon('<span class="fa fa-sign-in fa-fw"></span>')).addChild(nga.menu(admin.getEntity('mychannels')).title('My Channels').icon('<span class="fa fa-sign-in fa-fw"></span>')).addChild(nga.menu(admin.getEntity('logs')).title('Logs').icon('<span class="fa fa-sign-in fa-fw"></span>')).addChild(nga.menu().title('HELP').icon('<span class="fa fa-question-circle fa-fw"></span>'));
+	        return nga.menu().addChild(nga.menu().title('Dashboard').icon('<span class="fa fa-tachometer fa-fw"></span>')).addChild(nga.menu().title('Customers').icon('<span class="fa fa-user fa-fw"></span>').addChild(nga.menu(admin.getEntity('CustomerGroups')).title('Customer Group').icon('<span class="fa fa-users fa-fw"></span>')).addChild(nga.menu(admin.getEntity('CustomerData')).title('Customer').icon('<span class="fa fa-user fa-fw"></span>')).addChild(nga.menu(admin.getEntity('LoginData')).title('Login Accounts').icon('<span class="fa fa-user-plus fa-fw"></span>')).addChild(nga.menu(admin.getEntity('Devices')).title('Devices').icon('<span class="fa fa-outdent fa-fw"></span>'))).addChild(nga.menu(admin.getEntity('Subscriptions')).title('Subscriptions').icon('<span class="fa fa-calendar-check-o fa-fw"></span>')).addChild(nga.menu().title('Sales').icon('<span class="fa fa-list fa-fw"></span>').addChild(nga.menu(admin.getEntity('Salesreports')).title('Exports').icon('<span class="fa fa-list fa-fw"></span>'))).addChild(nga.menu(admin.getEntity('Combos')).title('Products / Plans').icon('<span class="fa fa-tags fa-fw"></span>')).addChild(nga.menu().template('<div class="menu_space">Settings</div>')).addChild(nga.menu(admin.getEntity('Settings')).title('Company Settings').link('/Settings/edit/1').icon('<span class="fa fa-cog fa-fw"></span>')).addChild(nga.menu(admin.getEntity('DeviceMenus')).title('Main Menu').icon('<span class="fa fa-align-justify fa-fw"></span>')).addChild(nga.menu().title('TV Channels').icon('<span class="fa fa-television fa-fw"></span>').addChild(nga.menu(admin.getEntity('Genres')).title('Categories / Genre').icon('<span class="fa fa-folder-open fa-fw"></span>')).addChild(nga.menu(admin.getEntity('Channels')).title('Channels / Streams').icon('<span class="fa fa-television fa-fw"></span>')).addChild(nga.menu(admin.getEntity('ChannelStreamSources')).title('Live TV Stream Source').icon('<span class="fa fa-signal fa-fw"></span>')).addChild(nga.menu(admin.getEntity('Packages')).title('Channel Packages').icon('<span class="fa fa-th fa-fw"></span>'))).addChild(nga.menu().title('VOD').icon('<span class="fa fa-film fa-fw"></span>').addChild(nga.menu(admin.getEntity('VodCategories')).title('VOD Categories').icon('<span class="fa fa-folder-open fa-fw"></span>')).addChild(nga.menu(admin.getEntity('Vods')).title('VOD Movies').icon('<span class="fa fa-film fa-fw"></span>')).addChild(nga.menu(admin.getEntity('VodStreamSources')).title('VOD Stream Source').icon('<span class="fa fa-signal fa-fw"></span>')).addChild(nga.menu(admin.getEntity('vodPackages')).title('VOD Packages').icon('<span class="fa fa-th fa-fw"></span>'))).addChild(nga.menu().title('EPG').icon('<span class="fa fa-film fa-fw"></span>').addChild(nga.menu(admin.getEntity('epgimport')).title('EPG Import').icon('<span class="fa fa-film fa-fw"></span>')).addChild(nga.menu(admin.getEntity('EpgData')).title('EPG Data').icon('<span class="fa fa-folder-open fa-fw"></span>'))).addChild(nga.menu(admin.getEntity('appgroup')).title('APP Group').icon('<span class="fa fa-file fa-fw"></span>')).addChild(nga.menu().title('System Users').icon('<span class="fa fa-users fa-fw"></span>').addChild(nga.menu(admin.getEntity('Groups')).title('User Groups').icon('<span class="fa fa-users fa-fw"></span>')).addChild(nga.menu(admin.getEntity('Users')).title('Users').icon('<span class="fa fa-user fa-fw"></span>'))).addChild(nga.menu().template('<div class="menu_space">Other</div>')).addChild(nga.menu(admin.getEntity('appmanagement')).title('APP Management').icon('<span class="fa fa-sign-in fa-fw"></span>')).addChild(nga.menu(admin.getEntity('mychannels')).title('My Channels').icon('<span class="fa fa-sign-in fa-fw"></span>')).addChild(nga.menu(admin.getEntity('logs')).title('Logs').icon('<span class="fa fa-sign-in fa-fw"></span>')).addChild(nga.menu(admin.getEntity('messages')).title('Push notifications').icon('<span class="fa fa-sign-in fa-fw"></span>')).addChild(nga.menu().title('HELP').icon('<span class="fa fa-question-circle fa-fw"></span>'));
 	    }
 	};
 
 	module.exports = exports['default'];
 
 /***/ },
-/* 163 */
+/* 165 */
 /***/ function(module, exports) {
 
 	// removed by extract-text-webpack-plugin

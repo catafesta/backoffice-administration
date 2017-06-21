@@ -73,8 +73,6 @@ exports.getthisuserdetails = function(req,res,next) {
 };
 
 exports.isAllowed = function(req, res, next) {
-    var key_new = req.app.locals.settings.old_encryption_key;
-    var key = req.app.locals.settings.new_encryption_key;
 
     if(req.body.auth){
         var auth = decodeURIComponent(req.body.auth);
@@ -90,14 +88,19 @@ exports.isAllowed = function(req, res, next) {
         var auth_obj = querystring.parse(auth,";","=");
     }
     else {
-        var auth_obj = querystring.parse(auth_decrypt(auth,key),";","=");
+        var auth_obj = querystring.parse(auth_decrypt(auth,req.app.locals.settings.new_encryption_key),";","=");
     }
 
     if(Object.keys(auth_obj).length > 1) {
         if(auth_obj.appid == 1 || auth_obj.appid == 4 || auth_obj.appid == 5) auth_obj.screensize = 1
         else auth_obj.screensize = 2
 
-    } else {
+    } else if(req.app.locals.settings.key_transition === true){
+        auth_obj = querystring.parse(auth_decrypt(auth,req.app.locals.settings.old_encryption_key),";","=");
+        if(auth_obj.appid == 1 || auth_obj.appid == 4 || auth_obj.appid == 5) auth_obj.screensize = 1
+        else auth_obj.screensize = 2
+    }
+    else {
         return res.send(response.BAD_TOKEN);
     }
 

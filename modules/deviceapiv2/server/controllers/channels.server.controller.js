@@ -6,12 +6,12 @@ var path = require('path'),
     winston = require(path.resolve('./config/lib/winston')),
     dateFormat = require('dateformat'),
     async = require('async'),
-    schedule = require(path.resolve("./modules/deviceapiv2/server/controllers/schedule.server.controller.js")),
     models = db.models;
 
 exports.list = function(req, res) {
 
     var clear_response = new response.OK();
+    var database_error = new response.DATABASE_ERROR();
 
     var qwhere = {};
     if(req.thisuser.show_adult == 0) qwhere.pin_protected = 0; //show adults filter
@@ -33,7 +33,7 @@ exports.list = function(req, res) {
                 {model: models.channel_stream,
                     required: true,
                     attributes: ['stream_source_id','stream_url','stream_format','token','token_url','is_octoshape','encryption','encryption_url'],
-                    where: {stream_source_id: req.thisuser.channel_stream_source}
+                    where: {stream_source_id: req.thisuser.channel_stream_source_id}
                 },
                 { model: models.genre, required: true, attributes: [], where: {is_available: true} },
                 {model: models.packages_channels,
@@ -101,11 +101,11 @@ exports.list = function(req, res) {
             res.send(clear_response);
 
         }).catch(function(error) {
-            res.send(response.DATABASE_ERROR);
+            res.send(database_error);
         });
         return null;
     }).catch(function(error) {
-        res.send(response.DATABASE_ERROR);
+        res.send(database_error);
     });
 
 };
@@ -113,6 +113,7 @@ exports.list = function(req, res) {
 // returns list of genres
 exports.genre = function(req, res) {
     var clear_response = new response.OK();
+    var database_error = new response.DATABASE_ERROR();
     models.genre.findAll({
         attributes: ['id',['description', 'name']],
         where: {is_available: true}
@@ -120,169 +121,189 @@ exports.genre = function(req, res) {
         clear_response.response_object = result;
         res.send(clear_response);
     }).catch(function(error) {
-        res.send(response.DATABASE_ERROR);
+        res.send(database_error);
     });
 };
 
 // returns list of all epg data
-
 exports.epg = function(req, res) {
     var clear_response = new response.OK();
-    var client_timezone = 0;
+    var database_error = new response.DATABASE_ERROR();
+    var client_timezone = req.body.device_timezone;
     //request parameters: list of channel numbers for the epg, timeshift
     var channel_number = req.body.number.toString().split(',');
     var timeshift = req.body.timeshift;
 
-    models.login_data.findAll({
-        attributes: ['timezone'],
-        where:{username: req.auth_obj.username},
-        limit: 1
-    }).then(function (result) {
-        client_timezone = result[0].timezone;
-        var starttime = dateFormat((Date.now() + (parseInt(timeshift) + 2) * 3600000), "yyyy-mm-dd HH:MM:ss");
-        var endtime   = dateFormat((Date.now() + (parseInt(timeshift) - 2) * 3600000), "yyyy-mm-dd HH:MM:ss");
+    var starttime = dateFormat((Date.now() + (parseInt(timeshift) + 2) * 3600000), "yyyy-mm-dd HH:MM:ss");
+    var endtime   = dateFormat((Date.now() + (parseInt(timeshift) - 2) * 3600000), "yyyy-mm-dd HH:MM:ss");
 
-        //gets epg of the channels from the list for the next 4 hours starting from timeshift
-        models.epg_data.findAll({
-            attributes: [ 'id', 'title', 'short_description', 'short_name', 'duration_seconds', 'program_start', 'program_end' ],
-            include: [
-                {
-                    model: models.channels, required: true, attributes: ['title', 'channel_number'],
-                    where: {channel_number: {in: channel_number}} //limit data only for this list of channels
-                },
-                {model: models.program_schedule,
-                    required: false, //left join
-                    attributes: ['id'],
-                    where: {login_id: req.thisuser.id}
-                }
-            ],
-            where: Sequelize.and(
-                Sequelize.or(
-                    {program_start:{between:[starttime, endtime]}},
-                    {program_end: {between:[starttime, endtime]}},
-                    Sequelize.and(
-                        {program_start: {lte:starttime}},
-                        {program_end:{gte:endtime}}
-                    )
+    //gets epg of the channels from the list for the next 4 hours starting from timeshift
+    models.epg_data.findAll({
+        attributes: [ 'id', 'title', 'short_description', 'short_name', 'duration_seconds', 'program_start', 'program_end' ],
+        include: [
+            {
+                model: models.channels, required: true, attributes: ['title', 'channel_number'],
+                where: {channel_number: {in: channel_number}} //limit data only for this list of channels
+            },
+            {model: models.program_schedule,
+                required: false, //left join
+                attributes: ['id'],	where: {login_id: req.thisuser.id}
+            }
+        ],
+        where: Sequelize.and(
+            Sequelize.or(
+                {program_start:{between:[starttime, endtime]}},
+                {program_end: {between:[starttime, endtime]}},
+                Sequelize.and(
+                    {program_start: {lte:starttime}},
+                    {program_end:{gte:endtime}}
                 )
             )
-        }).then(function (result) {
-            var raw_result = [];
-            //flatten nested json array
-            result.forEach(function(obj){
-                var raw_obj = {};
-                Object.keys(obj.toJSON()).forEach(function(k) {
-                    if (typeof obj[k] == 'object') {
-                        Object.keys(obj[k]).forEach(function(j) {
-                            if(j === 'dataValues'){
-                                raw_obj.channelName = obj[k].title;
-                                raw_obj.number = obj[k].channel_number;
-                                raw_obj.id = obj.id;
-                                raw_obj.scheduled = (obj.program_schedules[0]) ? true : false;
-                                raw_obj.title = obj.title;
-                                raw_obj.description = obj.short_description;
-                                raw_obj.shortname = obj.short_name;
-                                raw_obj.programstart = dateFormat((obj.program_start.getTime() + client_timezone * 3600000), 'mm/dd/yyyy HH:MM:ss'); //add timezone offset to program_start timestamp, format it as Y-M-D h:m:s
-                                raw_obj.programend = dateFormat((obj.program_end.getTime() + client_timezone * 3600000), 'mm/dd/yyyy HH:MM:ss'); //add timezone offset to program_start timestamp, format it as Y-M-D h:m:s
-                                raw_obj.duration = obj.duration_seconds;
-                            }
-                        });
-                    }
-                });
-                raw_result.push(raw_obj);
-            });
+        )
+    }).then(function (result) {
+        var raw_result = [];
+        //flatten nested json array
+        result.forEach(function(obj){
+            var raw_obj = {};
+            Object.keys(obj.toJSON()).forEach(function(k) {
+                if (typeof obj[k] == 'object') {
+                    Object.keys(obj[k]).forEach(function(j) {
+                        if(j === 'dataValues'){
+                            var programstart = parseInt(obj.program_start.getTime()) +  parseInt(client_timezone * 3600000);
+                            var programend = parseInt(obj.program_end.getTime()) +  parseInt(client_timezone * 3600000);
 
-            clear_response.response_object = raw_result;
-            res.send(clear_response);
-        }).catch(function(error) {
-            res.send(response.DATABASE_ERROR);
+                            raw_obj.channelName = obj[k].title;
+                            raw_obj.number = obj[k].channel_number;
+                            raw_obj.id = obj.id;
+                            raw_obj.scheduled = (obj.program_schedules[0]) ? true : false;
+                            raw_obj.title = obj.title;
+                            raw_obj.description = obj.short_description;
+                            raw_obj.shortname = obj.short_name;
+                            raw_obj.programstart = dateFormat(programstart, 'mm/dd/yyyy HH:MM:ss'); //add timezone offset to program_start timestamp, format it as M/D/Y H:m:s
+                            raw_obj.programend = dateFormat(programend, 'mm/dd/yyyy HH:MM:ss'); //add timezone offset to program_start timestamp, format it as M/D/Y H:m:s
+                            raw_obj.duration = obj.duration_seconds;
+                        }
+                    });
+                }
+            });
+            raw_result.push(raw_obj);
         });
-        return null;
+
+        clear_response.response_object = raw_result;
+        res.send(clear_response);
     }).catch(function(error) {
-        res.send(response.DATABASE_ERROR);
+        res.send(database_error);
     });
 
 };
 
 // returns list of epg data for the given channel
 exports.event =  function(req, res) {
-
     var clear_response = new response.OK();
-    //epg window is set between now and 12 hours later
+    var database_error = new response.DATABASE_ERROR();
+    var client_timezone = req.body.device_timezone; //offset of the client will be added to time - related info
     var current_human_time = dateFormat(Date.now(), "yyyy-mm-dd HH:MM:ss"); //get current time to compare with enddate
     var interval_end_human = dateFormat((Date.now() + 43200000), "yyyy-mm-dd HH:MM:ss"); //get current time to compare with enddate, in the interval of 12 hours
-    var client_timezone = 0;
+    var channel_title = '';
 
-    models.login_data.findOne({
-        attributes: ['timezone'],
-        where: {username: req.auth_obj.username}
-    }).then(function (result) {
-        client_timezone = result.timezone; //offset of the client will be added to time - related info
-        models.epg_data.findAll({
-            attributes: [ 'id', 'title', 'short_description', 'short_name', 'duration_seconds', 'program_start', 'program_end' ],
-            include: [
-                {
-                    model: models.channels, required: true, attributes: ['title', 'channel_number'],
-                    where: {channel_number: req.body.channelNumber} //limit data only for this channel
-                },
-                {model: models.program_schedule,
-                    required: false, //left join
-                    attributes: ['id'],
-                    where: {login_id: req.thisuser.id}
-                }
-            ],
-            where: Sequelize.and(
-                {program_start: {lte: interval_end_human}},
-                Sequelize.or(
-                    Sequelize.and(
-                        {program_start:{lte:current_human_time}},
-                        {program_end:{gte:current_human_time}}
-                    ),
-                    Sequelize.and(
-                        {program_start: {gte:current_human_time}},
-                        {program_end:{lte:interval_end_human}}
+    models.channels.findOne({
+        attributes: ['title'],
+        where: {channel_number: req.body.channelNumber}
+    }).then(function (thischannel) {
+        if(thischannel) channel_title = thischannel.title;
+        models.my_channels.findOne({
+            attributes: ['title'],
+            where: {channel_number: req.body.channelNumber}
+        }).then(function (user_channel) {
+            if(user_channel) channel_title = user_channel.title;
+            models.epg_data.findAll({
+                attributes: [ 'id', 'title', 'short_description', 'short_name', 'duration_seconds', 'program_start', 'program_end' ],
+                order: [['program_start', 'ASC']],
+                limit: 3,
+                include: [
+                    {
+                        model: models.channels, required: true, attributes: ['title', 'channel_number'],
+                        where: {channel_number: req.body.channelNumber} //limit data only for this channel
+                    },
+                    {model: models.program_schedule,
+                        required: false, //left join
+                        attributes: ['id'],
+                        where: {login_id: req.thisuser.id}
+                    }
+                ],
+                where: Sequelize.and(
+                    {program_start: {lte: interval_end_human}},
+                    Sequelize.or(
+                        Sequelize.and(
+                            {program_start:{lte:current_human_time}},
+                            {program_end:{gte:current_human_time}}
+                        ),
+                        Sequelize.and(
+                            {program_start: {gte:current_human_time}},
+                            {program_end:{lte:interval_end_human}}
+                        )
                     )
                 )
-            )
-        }).then(function (result) {
-            var raw_result = [];
-            //flatten nested json array
-            result.forEach(function(obj){
-                var raw_obj = {};
-                Object.keys(obj.toJSON()).forEach(function(k) {
-                    if (typeof obj[k] == 'object') {
-                        Object.keys(obj[k]).forEach(function(j) {
-                            raw_obj.channelName = obj[k].title;
-                            raw_obj.id = obj.id;
-                            raw_obj.number = obj[k].channel_number;
-                            raw_obj.title = obj.title;
-                            raw_obj.scheduled = (obj.program_schedules[0]) ? true : false;
-                            raw_obj.description = obj.short_description;
-                            raw_obj.shortname = obj.short_name;
-                            raw_obj.programstart = dateFormat((obj.program_start.getTime() + client_timezone * 3600000), 'dd/mm/yyyy hh:MM:ss'); //add timezone offset to program_start timestamp, format it as Y-M-D h:m:s
-                            raw_obj.programend = dateFormat((obj.program_end.getTime() + client_timezone * 3600000), 'dd/mm/yyyy hh:MM:ss'); //add timezone offset to program_start timestamp, format it as Y-M-D h:m:s
-                            raw_obj.duration = obj.duration_seconds;
-                            raw_obj.progress = Math.round((Date.now() - obj.program_start.getTime() ) * 100 / (obj.program_end.getTime() - obj.program_start.getTime()));
+            }).then(function (result) {
+                //todo: what if channel number is invalid and it finds no title???
+                var raw_result = [];
+                var default_programs = [];
+                //flatten nested json array
+                result.forEach(function(obj){
+                    var raw_obj = {};
 
-                        });
-                    }
+                    Object.keys(obj.toJSON()).forEach(function(k) {
+                        if (typeof obj[k] == 'object') {
+                            Object.keys(obj[k]).forEach(function(j) {
+                                var programstart = parseInt(obj.program_start.getTime()) +  parseInt((client_timezone) * 3600000);
+                                var programend = parseInt(obj.program_end.getTime()) +  parseInt((client_timezone) * 3600000);
+
+                                raw_obj.channelName = obj[k].title;
+                                raw_obj.id = obj.id;
+                                raw_obj.number = obj[k].channel_number;
+                                raw_obj.title = obj.title;
+                                raw_obj.scheduled = (obj.program_schedules[0]) ? true : false;
+                                raw_obj.description = obj.short_description;
+                                raw_obj.shortname = obj.short_name;
+                                raw_obj.programstart = dateFormat(programstart, 'mm/dd/yyyy HH:MM:ss'); //add timezone offset to program_start timestamp, format it as M/D/Y H:m:s
+                                raw_obj.programend = dateFormat(programend, 'mm/dd/yyyy HH:MM:ss'); //add timezone offset to program_start timestamp, format it as M/D/Y H:m:s
+                                raw_obj.duration = obj.duration_seconds;
+                                raw_obj.progress = Math.round((Date.now() - obj.program_start.getTime() ) * 100 / (obj.program_end.getTime() - obj.program_start.getTime()));
+                            });
+                        }
+                    });
+                    raw_result.push(raw_obj);
                 });
-                raw_result.push(raw_obj);
-            });
 
-            if(raw_result.length > 1){
+                if(result.length <3){
+                    for(var i=0; i<3-result.length; i++){
+                        var temp_obj = {};
+                        temp_obj.channelName = channel_title;
+                        temp_obj.id = -1;
+                        temp_obj.number = req.body.channelNumber;
+                        temp_obj.title = "Program of "+channel_title;
+                        temp_obj.scheduled = false;
+                        temp_obj.description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit";
+                        temp_obj.shortname = "Program of "+channel_title;
+                        temp_obj.programstart = '01/01/1970 00:00:00';
+                        temp_obj.programend = '01/01/1970 00:00:00';
+                        temp_obj.duration = 0;
+                        temp_obj.progress = 0;
+                        raw_result.push(temp_obj);
+                    }
+                }
                 clear_response.response_object = raw_result;
-            }
-            else {
-                clear_response.response_object = require(path.resolve("./config/epg_default.json")); //no programs for this channel. send default program data
-            }
-            res.send(clear_response);
+                res.send(clear_response);
+            }).catch(function(error) {
+                res.send(database_error);
+            });
+            return null;
         }).catch(function(error) {
-            res.send(response.DATABASE_ERROR);
+            res.send(database_error);
         });
         return null;
     }).catch(function(error) {
-        res.send(response.DATABASE_ERROR);
+        res.send(database_error);
     });
 
 };
@@ -291,6 +312,7 @@ exports.event =  function(req, res) {
 exports.favorites = function(req, res) {
 
     var clear_response = new response.OK();
+    var database_error = new response.DATABASE_ERROR();
 
     async.waterfall([
         //GETTING USER DATA
@@ -301,7 +323,7 @@ exports.favorites = function(req, res) {
                 callback(null, user.id);
                 return null;
             }).catch(function(error) {
-                res.send(response.DATABASE_ERROR);
+                res.send(database_error);
             });
         },
         function(user_id, callback) {
@@ -311,7 +333,7 @@ exports.favorites = function(req, res) {
                 callback(null, user_id, channel.id);
                 return null;
             }).catch(function(error) {
-                res.send(response.DATABASE_ERROR);
+                res.send(database_error);
             });
         },
         function(user_id, channel_id) {
@@ -324,7 +346,7 @@ exports.favorites = function(req, res) {
                     res.send(clear_response);
                 }).catch(function(error) {
                     //TODO: separate unique_key_violation from generic or connection errors
-                    res.send(response.DATABASE_ERROR);
+                    res.send(database_error);
                 });
             }
             else if(req.body.action == "0"){
@@ -337,12 +359,12 @@ exports.favorites = function(req, res) {
                     clear_response.extra_data = "user "+req.auth_obj.username+" action "+req.body.action+" channel "+req.body.channelNumber;
                     res.send(clear_response);
                 }).catch(function(error) {
-                    res.send(response.DATABASE_ERROR);
+                    res.send(database_error);
                 });
             }
         }
     ], function (err) {
-        res.send(response.DATABASE_ERROR);
+        res.send(database_error);
     });
 };
 
@@ -350,7 +372,7 @@ exports.favorites = function(req, res) {
 exports.program_info = function(req, res) {
 
     var clear_response = new response.OK();
-
+    var database_error = new response.DATABASE_ERROR();
     models.epg_data.findOne({
         attributes: ['title', 'long_description', 'program_start', 'program_end'],
         where: {id: req.body.program_id},
@@ -368,7 +390,6 @@ exports.program_info = function(req, res) {
             }
         ]
     }).then(function (epg_program) {
-        //TODO: handle cases when programid has no match
         if(!epg_program){
             clear_response.response_object = [{
                 "genre": '',
@@ -404,7 +425,7 @@ exports.program_info = function(req, res) {
         }
         res.send(clear_response)
     }).catch(function(error) {
-        res.send(response.DATABASE_ERROR);
+        res.send(database_error);
     });
 
 };
@@ -413,50 +434,42 @@ exports.program_info = function(req, res) {
 exports.schedule = function(req, res) {
 
     var clear_response = new response.OK();
-
+    var database_error = new response.DATABASE_ERROR();
     models.epg_data.findOne({
-        attributes: ['id', 'channel_number', 'program_start'],
+        attributes: ['id'],
         where: {id: req.body.program_id}
     }).then(function (epg_program) {
         if(epg_program){
             models.program_schedule.findOne({
                 attributes: ['id'], where: {login_id: req.thisuser.id, program_id: req.body.program_id},
             }).then(function (scheduled) {
-                //if this program is not already schedued for this user, create a scheduling event and store the info in the database
                 if(!scheduled){
                     models.program_schedule.create({
                         login_id: req.thisuser.id,
-                        program_id: req.body.program_id,
-                        event_timer :  1
+                        program_id: req.body.program_id
                     }).then(function (scheduled){
                         clear_response.response_object = [{
                             "action": 'created'
                         }];
-                        schedule.schedule_program(epg_program.program_start.getTime() - Date.now() - 300000, scheduled.id, req.thisuser.id, epg_program.channel_number, req.body.program_id); //timer set 5 minutes before the program starts, pass record id to be used as event id
                         res.send(clear_response);
                     }).catch(function(error) {
-                        console.log("error 1 ")
-                        console.log(error)
-                        res.send(response.DATABASE_ERROR);
+                        res.send(database_error);
                     });
                 }
-                //this program : user pair is already scheduled, so this is an unschedule request. Cancel the event based on timer_id and delete the record
                 else{
                     models.program_schedule.destroy({
                         where: {login_id: req.thisuser.id, program_id: req.body.program_id}
                     }).then(function (scheduled){
-                        schedule.unschedule_program(scheduled.id); //after record is destroyed, delete task for this record
                         clear_response.response_object = [{
                             "action": 'destroyed'
                         }];
                         res.send(clear_response);
                     }).catch(function(error) {
-                        res.send(response.DATABASE_ERROR);
+                        res.send(database_error);
                     });
                 }
-                return null;
             }).catch(function(error) {
-                res.send(response.DATABASE_ERROR);
+                res.send(database_error);
             });
         }
         else{
@@ -467,7 +480,7 @@ exports.schedule = function(req, res) {
         }
         return null;
     }).catch(function(error) {
-        res.send(response.DATABASE_ERROR);
+        res.send(database_error);
     });
 
 };

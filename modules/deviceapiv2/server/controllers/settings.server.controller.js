@@ -34,6 +34,7 @@ var activated = 0;
 exports.settings = function(req, res) {
 
     var settings_response = new response.OK();
+    var database_error = new response.DATABASE_ERROR();
 
     var current_timestamp = Date.now(); //server timestamp in milliseconds
     var client_timestamp = req.auth_obj.timestamp; //request timestamp in milliseconds
@@ -42,7 +43,7 @@ exports.settings = function(req, res) {
         //GETTING USER DATA
         function(callback) {
             models.login_data.findOne({
-                attributes: ['id', 'player', 'pin', 'show_adult', 'timezone', 'auto_timezone', 'beta_user'], where: {username: req.auth_obj.username}
+                attributes: ['id', 'player', 'pin', 'show_adult', 'timezone', 'auto_timezone', 'beta_user', 'activity_timeout'], where: {username: req.auth_obj.username}
             }).then(function (login_data) {
                 callback(null, login_data);
                 return null;
@@ -152,20 +153,24 @@ exports.settings = function(req, res) {
         },
         //get client offset from the ip_timezone service
         function(login_data, daysleft, refresh, available_upgrade, callback) {
+            if(req.body.activity === 'login' && req.auth_obj.screensize === 1 && login_data.auto_timezone === true){
+                var client_ip = (req.headers['x-forwarded-for']) ? req.headers['x-forwarded-for'].split(',').pop().replace('::ffff:', '').replace(' ', '') : req.ip.replace('::ffff:', '');
+                var apiurl = req.app.locals.settings.ip_service_url+req.app.locals.settings.ip_service_key+'/'+client_ip;
 
-            var client_ip = (req.headers['x-forwarded-for']) ? req.headers['x-forwarded-for'].split(',').pop().replace('::ffff:', '').replace(' ', '') : req.ip.replace('::ffff:', '');
-            var apiurl = req.app.locals.settings.ip_service_url+req.app.locals.settings.ip_service_key+'/'+client_ip;
-
-            try {
-                http.get(apiurl, function(resp){
-                    resp.on('data', function(ip_info){
-                        callback(null, login_data, daysleft, refresh, available_upgrade, JSON.parse(ip_info).gmtOffset);
+                try {
+                    http.get(apiurl, function(resp){
+                        resp.on('data', function(ip_info){
+                            callback(null, login_data, daysleft, refresh, available_upgrade, JSON.parse(ip_info).gmtOffset); //iptimezone calculated only for large screen devices, after login, for autotimezone true
+                        });
+                    }).on("error", function(e){
+                        callback(null, login_data, daysleft, refresh, available_upgrade, login_data.timezone); //return client timezone on error
                     });
-                }).on("error", function(e){
-                    callback(null, login_data, daysleft, refresh, available_upgrade, 0); //return offset 0 to avoid errors
-                });
-            } catch(e) {
-                callback(null, login_data, daysleft, refresh, available_upgrade, 0); //catch error 'Unable to determine domain name' when url is invalid / key+service are invalid
+                } catch(e) {
+                    callback(null, login_data, daysleft, refresh, available_upgrade, login_data.timezone); //url or key+service are invalid, return client timezone
+                }
+            }
+            else{
+                callback(null, login_data, daysleft, refresh, available_upgrade, login_data.timezone); //device does not request timezone from ip
             }
         },
         function(login_data, daysleft, refresh, available_upgrade, offset, callback){
@@ -252,7 +257,7 @@ exports.settings = function(req, res) {
                 "company_url": req.app.locals.settings.company_url,
                 "log_event_interval":  req.app.locals.settings.log_event_interval,
                 "channel_log_time":  req.app.locals.settings.channel_log_time,
-                "activity_timeout":  req.app.locals.settings.activity_timeout,
+                "activity_timeout":  Math.min(req.app.locals.settings.activity_timeout, login_data.activity_timeout),
                 "player": login_data.player,
                 "pin": login_data.pin,
                 "showadult": login_data.show_adult,
@@ -265,7 +270,7 @@ exports.settings = function(req, res) {
             res.send(settings_response);
         }
     ], function (err) {
-        res.send(response.DATABASE_ERROR);
+        res.send(database_error);
     });
 
 };

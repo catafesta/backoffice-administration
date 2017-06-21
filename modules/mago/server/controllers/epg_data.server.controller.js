@@ -19,17 +19,17 @@ var path = require('path'),
  */
 exports.create = function(req, res) {
 
-  DBModel.create(req.body).then(function(result) {
-    if (!result) {
-      return res.status(400).send({message: 'fail create data'});
-    } else {
-      return res.jsonp(result);
-    }
-  }).catch(function(err) {
-    return res.status(400).send({
-      message: errorHandler.getErrorMessage(err)
+    DBModel.create(req.body).then(function(result) {
+        if (!result) {
+            return res.status(400).send({message: 'fail create data'});
+        } else {
+            return res.jsonp(result);
+        }
+    }).catch(function(err) {
+        return res.status(400).send({
+            message: errorHandler.getErrorMessage(err)
+        });
     });
-  });
 };
 
 exports.save_epg_records = function(req, res){
@@ -60,7 +60,7 @@ exports.save_epg_records = function(req, res){
             return res.status(400).send({message: 'Incorrect file type'}); //serverside filetype validation
         }
     }
-    
+
 }
 
 /**
@@ -68,48 +68,48 @@ exports.save_epg_records = function(req, res){
  */
 exports.epg_import = function(req, res) {
 
-  var qwhere = {},
-      final_where = {},
-      query = req.query;
+    var qwhere = {},
+        final_where = {},
+        query = req.query;
 
-  if(query.q) {
-    qwhere.$or = {};
-    qwhere.$or.channel_number = {};
-    qwhere.$or.channel_number.$like = '%'+query.q+'%';
-    qwhere.$or.title = {};
-    qwhere.$or.title.$like = '%'+query.q+'%';
-    qwhere.$or.short_name = {};
-    qwhere.$or.short_name.$like = '%'+query.q+'%';
-    qwhere.$or.short_description = {};
-    qwhere.$or.short_description.$like = '%'+query.q+'%';
-    qwhere.$or.long_description = {};
-    qwhere.$or.long_description.$like = '%'+query.q+'%';
-  }
-
-
-  //start building where
-  final_where.where = qwhere;
-  if(parseInt(query._start)) final_where.offset = parseInt(query._start);
-  if(parseInt(query._end)) final_where.limit = parseInt(query._end)-parseInt(query._start);
-  if(query._orderBy) final_where.order = query._orderBy + ' ' + query._orderDir;
-  final_where.include = [];
-  //end build final where
-
-
-  DBModel.findAndCountAll(
-      final_where
-  ).then(function(results) {
-    if (!results) {
-      return res.status(404).send({
-        message: 'No data found'
-      });
-    } else {
-      res.setHeader("X-Total-Count", results.count);
-      res.json(results.rows);
+    if(query.q) {
+        qwhere.$or = {};
+        qwhere.$or.channel_number = {};
+        qwhere.$or.channel_number.$like = '%'+query.q+'%';
+        qwhere.$or.title = {};
+        qwhere.$or.title.$like = '%'+query.q+'%';
+        qwhere.$or.short_name = {};
+        qwhere.$or.short_name.$like = '%'+query.q+'%';
+        qwhere.$or.short_description = {};
+        qwhere.$or.short_description.$like = '%'+query.q+'%';
+        qwhere.$or.long_description = {};
+        qwhere.$or.long_description.$like = '%'+query.q+'%';
     }
-  }).catch(function(err) {
-    res.jsonp(err);
-  });
+
+
+    //start building where
+    final_where.where = qwhere;
+    if(parseInt(query._start)) final_where.offset = parseInt(query._start);
+    if(parseInt(query._end)) final_where.limit = parseInt(query._end)-parseInt(query._start);
+    if(query._orderBy) final_where.order = query._orderBy + ' ' + query._orderDir;
+    final_where.include = [];
+    //end build final where
+
+
+    DBModel.findAndCountAll(
+        final_where
+    ).then(function(results) {
+        if (!results) {
+            return res.status(404).send({
+                message: 'No data found'
+            });
+        } else {
+            res.setHeader("X-Total-Count", results.count);
+            res.json(results.rows);
+        }
+    }).catch(function(err) {
+        res.jsonp(err);
+    });
 };
 
 
@@ -118,50 +118,50 @@ exports.epg_import = function(req, res) {
  * Show current
  */
 exports.read = function(req, res) {
-  res.json(req.epgData);
+    res.json(req.epgData);
 };
 
 /**
  * Update
  */
 exports.update = function(req, res) {
-  var updateData = req.epgData;
+    var updateData = req.epgData;
 
-  updateData.updateAttributes(req.body).then(function(result) {
-    res.json(result);
-  }).catch(function(err) {
-    return res.status(400).send({
-      message: errorHandler.getErrorMessage(err)
+    updateData.updateAttributes(req.body).then(function(result) {
+        res.json(result);
+    }).catch(function(err) {
+        return res.status(400).send({
+            message: errorHandler.getErrorMessage(err)
+        });
     });
-  });
 };
 
 /**
  * Delete
  */
 exports.delete = function(req, res) {
-  var deleteData = req.epgData;
+    var deleteData = req.epgData;
 
-  DBModel.findById(deleteData.id).then(function(result) {
-    if (result) {
-      result.destroy().then(function() {
-        return res.json(result);
-      }).catch(function(err) {
+    DBModel.findById(deleteData.id).then(function(result) {
+        if (result) {
+            result.destroy().then(function() {
+                return res.json(result);
+            }).catch(function(err) {
+                return res.status(400).send({
+                    message: errorHandler.getErrorMessage(err)
+                });
+            });
+        } else {
+            return res.status(400).send({
+                message: 'Unable to find the Data'
+            });
+        }
+        return null;
+    }).catch(function(err) {
         return res.status(400).send({
-          message: errorHandler.getErrorMessage(err)
+            message: errorHandler.getErrorMessage(err)
         });
-      });
-    } else {
-      return res.status(400).send({
-        message: 'Unable to find the Data'
-      });
-    }
-    return null;
-  }).catch(function(err) {
-    return res.status(400).send({
-      message: errorHandler.getErrorMessage(err)
     });
-  });
 
 };
 
@@ -169,48 +169,48 @@ exports.delete = function(req, res) {
  * List
  */
 exports.list = function(req, res) {
-    
+
     var qwhere = {},
-      final_where = {},
-      query = req.query;
+        final_where = {},
+        query = req.query;
 
-  if(query.q) {
-    qwhere.$or = {};
-    qwhere.$or.channel_number = {};
-    qwhere.$or.channel_number.$like = '%'+query.q+'%';
-    qwhere.$or.title = {};
-    qwhere.$or.title.$like = '%'+query.q+'%';
-    qwhere.$or.short_name = {};
-    qwhere.$or.short_name.$like = '%'+query.q+'%';
-    qwhere.$or.short_description = {};
-    qwhere.$or.short_description.$like = '%'+query.q+'%';
-    qwhere.$or.long_description = {};
-    qwhere.$or.long_description.$like = '%'+query.q+'%';
-  }
-
-
-  //start building where
-  final_where.where = qwhere;
-  if(parseInt(query._start)) final_where.offset = parseInt(query._start);
-  if(parseInt(query._end)) final_where.limit = parseInt(query._end)-parseInt(query._start);
-  if(query._orderBy) final_where.order = query._orderBy + ' ' + query._orderDir;
-  final_where.include = [];
-  //end build final where
-
-  DBModel.findAndCountAll(
-      final_where
-  ).then(function(results) {
-    if (!results) {
-      return res.status(404).send({
-        message: 'No data found'
-      });
-    } else {
-      res.setHeader("X-Total-Count", results.count);      
-      res.json(results.rows);
+    if(query.q) {
+        qwhere.$or = {};
+        qwhere.$or.channel_number = {};
+        qwhere.$or.channel_number.$like = '%'+query.q+'%';
+        qwhere.$or.title = {};
+        qwhere.$or.title.$like = '%'+query.q+'%';
+        qwhere.$or.short_name = {};
+        qwhere.$or.short_name.$like = '%'+query.q+'%';
+        qwhere.$or.short_description = {};
+        qwhere.$or.short_description.$like = '%'+query.q+'%';
+        qwhere.$or.long_description = {};
+        qwhere.$or.long_description.$like = '%'+query.q+'%';
     }
-  }).catch(function(err) {
-    res.jsonp(err);
-  });
+
+
+    //start building where
+    final_where.where = qwhere;
+    if(parseInt(query._start)) final_where.offset = parseInt(query._start);
+    if(parseInt(query._end)) final_where.limit = parseInt(query._end)-parseInt(query._start);
+    if(query._orderBy) final_where.order = query._orderBy + ' ' + query._orderDir;
+    final_where.include = [];
+    //end build final where
+
+    DBModel.findAndCountAll(
+        final_where
+    ).then(function(results) {
+        if (!results) {
+            return res.status(404).send({
+                message: 'No data found'
+            });
+        } else {
+            res.setHeader("X-Total-Count", results.count);
+            res.json(results.rows);
+        }
+    }).catch(function(err) {
+        res.jsonp(err);
+    });
 };
 
 /**
@@ -218,91 +218,103 @@ exports.list = function(req, res) {
  */
 exports.dataByID = function(req, res, next, id) {
 
-  if ((id % 1 === 0) === false) { //check if it's integer
-    return res.status(404).send({
-      message: 'Data is invalid'
-    });
-  }
-
-  DBModel.find({
-    where: {
-      id: id
-    },
-    include: []
-  }).then(function(result) {
-    if (!result) {
-      return res.send({
-        message: 'No data with that identifier has been found'
-      });
-    } else {
-      req.epgData = result;
-      next();
-      return null;
+    if ((id % 1 === 0) === false) { //check if it's integer
+        return res.status(404).send({
+            message: 'Data is invalid'
+        });
     }
-  }).catch(function(err) {
-    return next(err);
-  });
+
+    DBModel.find({
+        where: {
+            id: id
+        },
+        include: []
+    }).then(function(result) {
+        if (!result) {
+            return res.send({
+                message: 'No data with that identifier has been found'
+            });
+        } else {
+            req.epgData = result;
+            next();
+            return null;
+        }
+    }).catch(function(err) {
+        return next(err);
+    });
 
 };
 
 function import_xml_standard(req, res){
+    var message = '';
     try{
         var parser = new xml2js.Parser();
         fs.readFile(path.resolve('./public')+req.body.epg_file, function(err, data) {
             parser.parseString(data, function (err, result) {
                 var channel_list = new Array(); //associative array to contain title, with id as identifier for the channels
-                var channels = result.tv.channel; //all channel records
-                var programs = result.tv.programme; //all programs of all channels
-
-                async.waterfall([
-                    //save channel title in an associative array, so that we refer the title by channel id
-                    function(callback) {
-                        channels.forEach(function(array){
-                            channel_list[''+array.$.id+''] = ({title: array["display-name"][0]});
+                try{
+                    var channels = result.tv.channel; //all channel records
+                    var programs = result.tv.programme; //all programs of all channels
+                    if(result.tv.channel != undefined && result.tv.programme != undefined){
+                        async.waterfall([
+                            //save channel title in an associative array, so that we refer the title by channel id
+                            function(callback) {
+                                channels.forEach(function(array){
+                                    channel_list[''+array.$.id+''] = ({title: (array["display-name"][0]._) ? array["display-name"][0]._ : array["display-name"][0]  });
+                                });
+                                callback(null, channel_list);
+                            },
+                            //find channel id and number for each program, then save it
+                            function(channel_list, callback) {
+                                programs.forEach(function(program){
+                                    if(program.$ != undefined){
+                                        db.channels.findOne({
+                                            attributes: ['id', 'channel_number', 'title'],
+                                            where: {title: channel_list[''+program.$.channel+''].title}
+                                        }).then(function (result) {
+                                            //if channel info found, let's save the epg record
+                                            if(result && ((req.body.channel_number === null) || (req.body.channel_number == result.channel_number))){
+                                                db.epg_data.create({
+                                                    channels_id: result.id,
+                                                    channel_number: result.channel_number,
+                                                    title: (program.title[0]._) ? program.title[0]._ : program.title[0],
+                                                    short_name: (program.title[0]._) ? program.title[0]._ : program.title[0],
+                                                    short_description: (program.desc[0]._) ? program.desc[0]._ : program.desc[0],
+                                                    program_start: stringtodate(program.$.start),
+                                                    program_end: stringtodate(program.$.stop),
+                                                    long_description: (program.desc[0]._) ? program.desc[0]._ : program.desc[0],
+                                                    duration_seconds: datetimediff_seconds(stringtodate(program.$.start), stringtodate(program.$.stop)) //is in seconds
+                                                }).then(function (result) {
+                                                    //on each write, do nothing. we wait for the saving proccess to finish
+                                                }).catch(function(error) {
+                                                    //error while saving records
+                                                });
+                                            }
+                                            return null;
+                                        }).catch(function(error) {
+                                            //error while saving records
+                                        });
+                                    }
+                                });
+                            }
+                        ], function (err) {
+                            //error while trying to read / write data in the async model
                         });
-                        callback(null, channel_list);
-                    },
-                    //find channel id and number for each program, then save it
-                    function(channel_list, callback) {
-                        programs.forEach(function(program){
-                            db.channels.findOne({
-                                attributes: ['id', 'channel_number', 'title'],
-                                where: {title: channel_list[''+program.$.channel+''].title}
-                            }).then(function (result) {
-                                //if channel info found, let's save the epg record
-                                if(result && ((req.body.channel_number === null) || (req.body.channel_number == result.channel_number))){
-                                    db.epg_data.create({
-                                        channels_id: result.id,
-                                        channel_number: result.channel_number,
-                                        title: (program.title[0]._) ? program.title[0]._ : program.title[0],
-                                        short_name: (program.title[0]._) ? program.title[0]._ : program.title[0],
-                                        short_description: (program.desc[0]._) ? program.desc[0]._ : program.desc[0],
-                                        program_start: stringtodate(program.$.start),
-                                        program_end: stringtodate(program.$.stop),
-                                        long_description: (program.desc[0]._) ? program.desc[0]._ : program.desc[0],
-                                        duration_seconds: datetimediff_seconds(stringtodate(program.$.start), stringtodate(program.$.stop)) //is in seconds
-                                    }).then(function (result) {
-                                        //
-                                    }).catch(function(error) {
-                                        //
-                                    });
-                                }
-                                return null;
-                            }).catch(function(error) {
-                                //
-                            });
-                        });
-                    }
-                ], function (err) {
 
-                });
-
+                    } //file records successfully read, and attempted to save them
+                }
+                catch(error){
+                    //error while trying to read the file. Probably it is empty or is missing the tv tags
+                    message = 'Malformed file';
+                }
             });
         });
-        return res.status(200).send({message: 'Epg records were saved'});
+        message = 'Epg records were saved';
+        return res.status(200).send({message: message});
     }
     catch(error){
-        return res.status(400).send({message: 'Unable to save the epg records'});
+        message = 'Unable to save the epg records';
+        return res.status(400).send({message: message});
     }
 }
 
@@ -333,7 +345,6 @@ function import_csv(req, res){
         }).then(function (result) {
             //todo: return some response?
         }).catch(function(error) {
-            console.log(error)
             return res.status(400).send({message: 'Unable to save the epg records'}); //serverside filetype validation
         });
 
@@ -344,7 +355,6 @@ function import_csv(req, res){
 
 function import_xml_dga(req, res){
     try{
-        console.log("@te importimi")
         var parser = new xml2js.Parser();
         fs.readFile(path.resolve('./public'+req.body.epg_file), function(err, data) {
             parser.parseString(data, function (err, result) {

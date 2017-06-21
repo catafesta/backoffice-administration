@@ -4,7 +4,8 @@ module.exports = {
   secure: {
     ssl: Boolean(process.env.ssl) || true,
     privateKey: './config/sslcertificate/key.txt',
-    certificate: './config/sslcertificate/certificate.txt'
+    certificate: './config/sslcertificate/certificate.txt',
+    ca: './config/sslcertificate/magoware.ca-bundle.txt'
   },
   port: process.env.PORT || 443,
   db: require('./db.connection.js'),

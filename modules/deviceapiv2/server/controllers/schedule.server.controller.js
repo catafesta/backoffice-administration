@@ -3,7 +3,7 @@ var path = require('path'),
     db = require(path.resolve('./config/lib/sequelize')),
     response = require(path.resolve("./config/responses.js")),
     models = db.models,
-    dateFormat = require('dateFormat'),
+    dateFormat = require('dateformat'),
     gcm = require('node-gcm'), //for android push messages
     apn = require('apn'), //for ios push messages
     scheduled_tasks = [];
@@ -53,9 +53,6 @@ function send_notification(event_time, login_data_id, channel_number, program_id
             //
         } else {
             for (var j = 0; j < result.length; j++) {
-                console.log("@ ----------------- android -----------------")
-                console.log(result[j].appid)
-                console.log(result[j].googleappid)
                 //start dergimi
                 if(result[j].appid == 1 || result[j].appid == 2 || result[j].appid == 4) {
                     try{
@@ -73,7 +70,7 @@ function send_notification(event_time, login_data_id, channel_number, program_id
                     }
                 }
                 if(result[j].appid == 3) {
-                    send_ios_notifications(result[j].googleappid,data)
+                    send_ios_notifications(result[j].googleappid,data, channel_number)
                 }
                 //mbaron dergimi
             }
@@ -105,7 +102,7 @@ function send_android_notifications(google_app_id, data){
 
 }
 
-function send_ios_notifications(google_app_id, data){
+function send_ios_notifications(google_app_id, data, channel_number){
     console.log("@ios function")
     // Set up apn with the APNs Auth Key
     var apnProvider = new apn.Provider({
@@ -124,15 +121,16 @@ function send_ios_notifications(google_app_id, data){
     notification.badge = 1; // Set app badge indicator
     notification.sound = 'ping.aiff'; // Play ping.aiff sound when the notification is received
     notification.alert = data; // Display the following message (the actual notification text, supports emoji)
-    notification.payload = {details: {'action': 'scheduled', 'channel_number': 255}}; // Send any extra payload data with the notification which will be accessible to your app in didReceiveRemoteNotification
+    notification.payload = {details: {'action': 'scheduled', 'channel_number': channel_number}}; // Send any extra payload data with the notification which will be accessible to your app in didReceiveRemoteNotification
 
+    console.log(notification)
     // Actually send the notification
     apnProvider.send(notification, deviceToken).then(function(err, result) {
         // Check the result for any failed devices
         if(result) console.log(result);
         if(err) {
             console.log("@ios error")
-            console.log(err.failed)
+            console.log(err)
         }
     });
 

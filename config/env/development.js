@@ -5,8 +5,9 @@ var defaultEnvConfig = require('./default');
 module.exports = {
   secure: {
     ssl: Boolean(process.env.ssl) || false,
-    privateKey: './config/sslcertificate/key.txt',  //replace with ssl key file path
-    certificate: './config/sslcertificate/certificate.txt'  //replace with ssl certificate file path
+    privateKey: './config/sslcertificate/key.txt',
+    certificate: './config/sslcertificate/certificate.txt',
+    ca: './config/sslcertificate/magoware.ca-bundle.txt'
   },
 
   db: require('./db.connection.js'),

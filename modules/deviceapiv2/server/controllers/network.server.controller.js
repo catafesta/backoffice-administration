@@ -16,6 +16,7 @@ var path = require('path'),
 
 exports.dbtest = function(req, res) {
     var clear_response = new response.OK();
+	var database_error = new response.DATABASE_ERROR();
     models.genre.findAll({
         attributes: ['id'],
         limit: 1
@@ -23,7 +24,7 @@ exports.dbtest = function(req, res) {
         clear_response.response_object = result;
         res.send(clear_response);
     }).catch(function(error) {
-        res.send(response.DATABASE_ERROR);
+        res.send(database_error);
     });
 };
 
@@ -68,6 +69,7 @@ exports.gcm = function(req, res) {
 
 	if(req.auth_obj.boxid == undefined){
 		var clear_response = new response.OK();
+		var database_error = new response.DATABASE_ERROR();
 		var auth_obj = querystring.parse(req.body.auth,";","=");
 
 		models.devices.upsert({
@@ -91,7 +93,7 @@ exports.gcm = function(req, res) {
 			res.send(clear_response);
 			return null;
 		}).catch(function(error) {
-			res.send(response.DATABASE_ERROR);
+			res.send(database_error);
 		});
 
 	}
@@ -118,7 +120,7 @@ exports.gcm = function(req, res) {
 			res.send(clear_response);
 			return null;
 		}).catch(function(error) {
-			res.send(response.DATABASE_ERROR);
+			res.send(database_error);
 		});
 	}
 };

@@ -107,88 +107,39 @@ db.connect = function(database, username, password, options) {
                                 callback(null);
                             });
                         },
-                        //create deafult package types
                         function(callback){
-                            db.models['package_type'].findOrCreate({
+                            db.models['activity'].findOrCreate({
                                 where: {id: 1},
-                                defaults: {id:1,description: 'Live TV STB Package'}
+                                defaults: {id:1,description:'livetv'}
                             }).then(function(done) {
-                                winston.info('Live TV STB Package created successfuly.');
+                                winston.info('Activity livetv created successfuly.');
                                 callback(null);
                             }).catch(function(err) {
-                                winston.info('Error creating Live TV STB Package');
+                                winston.info('Error creating activity livetv');
                                 callback(null);
                             });
                         },
                         function(callback){
-                            db.models['package_type'].findOrCreate({
+                            db.models['activity'].findOrCreate({
                                 where: {id: 2},
-                                defaults: {id:2,description: 'Live TV Mobile Package'}
+                                defaults: {id:2,description:'vod'}
                             }).then(function(done) {
-                                winston.info('Live TV Mobile Package created successfuly.');
+                                winston.info('Activity vod created successfuly.');
                                 callback(null);
                             }).catch(function(err) {
-                                winston.info('Error creating Live TV Mobile Package');
+                                winston.info('Error creating activity vod');
                                 callback(null);
                             });
                         },
                         function(callback){
-                            db.models['package_type'].findOrCreate({
+                            db.models['activity'].findOrCreate({
                                 where: {id: 3},
-                                defaults: {id:3,description: 'VOD STB Package'}
+                                defaults: {id:3,description:'catchup'}
                             }).then(function(done) {
-                                winston.info('VOD STB Package created successfuly.');
+                                winston.info('Activity catchup created successfuly.');
                                 callback(null);
                             }).catch(function(err) {
-                                winston.info('Error creating VOD STB Package');
-                                callback(null);
-                            });
-                        },
-                        function(callback){
-                            db.models['package_type'].findOrCreate({
-                                where: {id: 4},
-                                defaults: {id:4,description: 'VOD Mobile Package'}
-                            }).then(function(done) {
-                                winston.info('VOD Mobile Package created successfuly.');
-                                callback(null);
-                            }).catch(function(err) {
-                                winston.info('Error creating VOD Mobile Package');
-                                callback(null);
-                            });
-                        },
-                        function(callback){
-                            db.models['genre'].findOrCreate({
-                                where: {id: 666},
-                                defaults: {id:666,description: 'Favorites'}
-                            }).then(function(done) {
-                                winston.info('Genre Favorites created successfuly.');
-                                callback(null);
-                            }).catch(function(err) {
-                                winston.info('Error creating Genre Favorites');
-                                callback(null);
-                            });
-                        },
-                        function(callback){
-                            db.models['vod_stream_source'].findOrCreate({
-                                where: {id: 1},
-                                defaults: {id:1,description: 'VOD Streams Primary CDN'}
-                            }).then(function(done) {
-                                winston.info('VOD stream source created successfuly.');
-                                callback(null);
-                            }).catch(function(err) {
-                                winston.info('Error creating VOD stream source');
-                                callback(null);
-                            });
-                        },
-                        function(callback){
-                            db.models['channel_stream_source'].findOrCreate({
-                                where: {id: 1},
-                                defaults: {id:1,stream_source: 'Live Streams Primary CDN'}
-                            }).then(function(done) {
-                                winston.info('Live TV stream source created successfuly.');
-                                callback(null);
-                            }).catch(function(err) {
-                                winston.info('Error creating Live TV stream source');
+                                winston.info('Error creating activity catchup');
                                 callback(null);
                             });
                         },
@@ -253,6 +204,91 @@ db.connect = function(database, username, password, options) {
                                 callback(null);
                             });
                         },
+                        //create deafult package types
+                        function(callback){
+                            db.models['package_type'].findOrCreate({
+                                where: {id: 1},
+                                defaults: {id:1,description: 'Live TV STB Package', activity_id: 1, app_group_id: 1}
+                            }).then(function(done) {
+                                winston.info('Live TV STB Package created successfuly.');
+                                callback(null);
+                            }).catch(function(err) {
+                                winston.info('Error creating Live TV STB Package');
+                                callback(null);
+                            });
+                        },
+                        function(callback){
+                            db.models['package_type'].findOrCreate({
+                                where: {id: 2},
+                                defaults: {id:2,description: 'Live TV Mobile Package', activity_id: 1, app_group_id: 2}
+                            }).then(function(done) {
+                                winston.info('Live TV Mobile Package created successfuly.');
+                                callback(null);
+                            }).catch(function(err) {
+                                winston.info('Error creating Live TV Mobile Package');
+                                callback(null);
+                            });
+                        },
+                        function(callback){
+                            db.models['package_type'].findOrCreate({
+                                where: {id: 3},
+                                defaults: {id:3,description: 'VOD STB Package', activity_id: 2, app_group_id: 1}
+                            }).then(function(done) {
+                                winston.info('VOD STB Package created successfuly.');
+                                callback(null);
+                            }).catch(function(err) {
+                                winston.info('Error creating VOD STB Package');
+                                callback(null);
+                            });
+                        },
+                        function(callback){
+                            db.models['package_type'].findOrCreate({
+                                where: {id: 4},
+                                defaults: {id:4,description: 'VOD Mobile Package', activity_id: 2, app_group_id: 2}
+                            }).then(function(done) {
+                                winston.info('VOD Mobile Package created successfuly.');
+                                callback(null);
+                            }).catch(function(err) {
+                                winston.info('Error creating VOD Mobile Package');
+                                callback(null);
+                            });
+                        },
+                        function(callback){
+                            db.models['genre'].findOrCreate({
+                                where: {id: 666},
+                                defaults: {id:666,description: 'Favorites', is_available: true, icon_url: 'favoritesicon'}
+                            }).then(function(done) {
+                                winston.info('Genre Favorites created successfuly.');
+                                callback(null);
+                            }).catch(function(err) {
+                                winston.info('Error creating Genre Favorites');
+                                callback(null);
+                            });
+                        },
+                        function(callback){
+                            db.models['vod_stream_source'].findOrCreate({
+                                where: {id: 1},
+                                defaults: {id:1,description: 'VOD Streams Primary CDN'}
+                            }).then(function(done) {
+                                winston.info('VOD stream source created successfuly.');
+                                callback(null);
+                            }).catch(function(err) {
+                                winston.info('Error creating VOD stream source');
+                                callback(null);
+                            });
+                        },
+                        function(callback){
+                            db.models['channel_stream_source'].findOrCreate({
+                                where: {id: 1},
+                                defaults: {id:1,stream_source: 'Live Streams Primary CDN'}
+                            }).then(function(done) {
+                                winston.info('Live TV stream source created successfuly.');
+                                callback(null);
+                            }).catch(function(err) {
+                                winston.info('Error creating Live TV stream source');
+                                callback(null);
+                            });
+                        },
                         function(callback){
                             var protocol = (config.port === 443) ? 'https://' : 'http://'; //port 443 means we are running https, otherwise we are running http (preferably on port 80)
                             var baseurl = process.env.NODE_HOST || 'localhost' + ":" + config.port;
@@ -262,7 +298,7 @@ db.connect = function(database, username, password, options) {
 
                             try {
                                 if(config.port === 443){
-                                    process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"; //bad fix, see for alternatives
+                                    process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"; //invalid ssl certificate ignored
                                     https.get(apiurl, function(resp){
                                         callback(null);
                                     }).on("error", function(e){

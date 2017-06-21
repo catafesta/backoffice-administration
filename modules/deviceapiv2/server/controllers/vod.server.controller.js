@@ -18,6 +18,7 @@ var path = require('path'),
 exports.list = function(req, res) {
 
     var clear_response = new response.OK();
+    var database_error = new response.DATABASE_ERROR();
     var allowed_content = (req.thisuser.show_adult === true) ? [0, 1] : [0];
     var offset = (req.body.subset_number) ? ((parseInt(req.body.subset_number)-1)*200) : 0; //for older versions of vod, start query at first record
     var limit = (req.body.subset_number) ? 200 : 99999999999; //for older versions of vod, set limit to 99999999999
@@ -64,7 +65,7 @@ exports.list = function(req, res) {
         clear_response.response_object = raw_result;
         res.send(clear_response);
     }).catch(function(error) {
-        res.send(response.DATABASE_ERROR);
+        res.send(database_error);
     });
 
 };
@@ -83,6 +84,7 @@ exports.categories = function(req, res) {
 
     var allowed_content = (req.thisuser.show_adult === true) ? [0, 1] : [0];
     var clear_response = new response.OK();
+    var database_error = new response.DATABASE_ERROR();
 
     models.vod_category.findAll({
         attributes: [ 'id', 'name', 'password', 'sorting', [db.sequelize.fn("concat", req.app.locals.settings.assets_url, db.sequelize.col('icon_url')), 'IconUrl'],
@@ -98,7 +100,7 @@ exports.categories = function(req, res) {
         clear_response.response_object = result;
         res.send(clear_response);
     }).catch(function(error) {
-        res.send(response.DATABASE_ERROR);
+        res.send(database_error);
     });
 };
 
@@ -116,6 +118,7 @@ exports.subtitles = function(req, res) {
 
     var allowed_content = (req.thisuser.show_adult === true) ? [0, 1] : [0];
     var clear_response = new response.OK();
+    var database_error = new response.DATABASE_ERROR();
 
     models.vod_subtitles.findAll({
         attributes: [ ['vod_id', 'vodid'], 'title', [db.sequelize.fn("concat", req.app.locals.settings.assets_url, db.sequelize.col('subtitle_url')), 'url'] ],
@@ -135,7 +138,7 @@ exports.subtitles = function(req, res) {
         clear_response.response_object = result;
         res.send(clear_response);
     }).catch(function(error) {
-        res.send(response.DATABASE_ERROR);
+        res.send(database_error);
     });
 };
 
@@ -157,6 +160,7 @@ exports.totalhits = function(req, res) {
 
     var allowed_content = (req.thisuser.show_adult === true) ? [0, 1] : [0];
     var clear_response = new response.OK();
+    var database_error = new response.DATABASE_ERROR();
 
      //if hits for a specific movie are requested
     if(req.body.id_vod != "all"){
@@ -172,7 +176,7 @@ exports.totalhits = function(req, res) {
             else{clear_response.response_object = result;}
             res.send(clear_response);
         }).catch(function(error) {
-            res.send(response.DATABASE_ERROR);
+            res.send(database_error);
         });
     }
     //return hits for each vod movie
@@ -188,7 +192,7 @@ exports.totalhits = function(req, res) {
             clear_response.response_object = result;
             res.send(clear_response);
         }).catch(function(error) {
-            res.send(response.DATABASE_ERROR);
+            res.send(database_error);
         });
     }
 
@@ -198,6 +202,7 @@ exports.mostwatched = function(req, res) {
 
     var allowed_content = (req.thisuser.show_adult === true) ? [0, 1] : [0];
     var clear_response = new response.OK();
+    var database_error = new response.DATABASE_ERROR();
 
     //if hits for a specific movie are requested
     models.vod.findAll({
@@ -216,7 +221,7 @@ exports.mostwatched = function(req, res) {
         clear_response.response_object = result;
         res.send(clear_response);
     }).catch(function(error) {
-        res.send(response.DATABASE_ERROR);
+        res.send(database_error);
     });
 
 };
@@ -225,6 +230,7 @@ exports.mostrated = function(req, res) {
 
     var allowed_content = (req.thisuser.show_adult === true) ? [0, 1] : [0];
     var clear_response = new response.OK();
+    var database_error = new response.DATABASE_ERROR();
 
     //if most rated movies are requested
     models.vod.findAll({
@@ -247,7 +253,7 @@ exports.mostrated = function(req, res) {
         clear_response.response_object = mostrated;
         res.send(clear_response);
     }).catch(function(error) {
-        res.send(response.DATABASE_ERROR);
+        res.send(database_error);
     });
 
 };
@@ -256,6 +262,7 @@ exports.related = function(req, res) {
 
     var allowed_content = (req.thisuser.show_adult === true) ? [0, 1] : [0];
     var clear_response = new response.OK();
+    var database_error = new response.DATABASE_ERROR();
 
     models.vod.findAll({
         attributes: ['id'],
@@ -272,7 +279,7 @@ exports.related = function(req, res) {
         clear_response.response_object = result;
         res.send(clear_response);
     }).catch(function(error) {
-        res.send(response.DATABASE_ERROR);
+        res.send(database_error);
     });
 
 };
@@ -281,6 +288,7 @@ exports.suggestions = function(req, res) {
 
     var allowed_content = (req.thisuser.show_adult === true) ? [0, 1] : [0];
     var clear_response = new response.OK();
+    var database_error = new response.DATABASE_ERROR();
 
     models.vod.findAll({
         attributes: ['id'],
@@ -294,7 +302,7 @@ exports.suggestions = function(req, res) {
         clear_response.response_object = result;
         res.send(clear_response);
     }).catch(function(error) {
-        res.send(response.DATABASE_ERROR);
+        res.send(database_error);
     });
 
 };
@@ -303,6 +311,7 @@ exports.categoryfilms = function(req, res) {
 
     var allowed_content = (req.thisuser.show_adult === true) ? [0, 1] : [0];
     var clear_response = new response.OK();
+    var database_error = new response.DATABASE_ERROR();
 
     models.vod.findAll({
         attributes: ['id'],
@@ -322,7 +331,7 @@ exports.categoryfilms = function(req, res) {
         clear_response.response_object = raw_result;
         res.send(clear_response);
     }).catch(function(error) {
-        res.send(response.DATABASE_ERROR);
+        res.send(database_error);
     });
 
 };
@@ -330,6 +339,7 @@ exports.categoryfilms = function(req, res) {
 exports.searchvod = function(req, res) {
 
     var clear_response = new response.OK();
+    var database_error = new response.DATABASE_ERROR();
     var allowed_content = (req.thisuser.show_adult === true) ? [0, 1] : [0];
 
     models.vod.findAll({
@@ -357,7 +367,7 @@ exports.searchvod = function(req, res) {
         clear_response.response_object = raw_result;
         res.send(clear_response);
     }).catch(function(error) {
-        res.send(response.DATABASE_ERROR);
+        res.send(database_error);
     });
 
 };

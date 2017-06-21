@@ -16,18 +16,32 @@ var path = require('path'),
  * Create
  */
 exports.create = function(req, res) {
-    DBModel.create(req.body).then(function(result) {
-        if (!result) {
-            return res.status(400).send({message: 'fail create data'});
-        } else {
-            logHandler.add_log(req.token.uid, req.ip.replace('::ffff:', ''), 'created', JSON.stringify(req.body));
-            return res.jsonp(result);
-        }
+
+    DBModel.findOne({
+        attributes: ['channel_number'],
+        order: [['channel_number', 'DESC']]
+    }).then(function(result) {
+        req.body.channel_number = (result.channel_number) ? parseInt(result.channel_number) + 1 : 1;
+        DBModel.create(req.body).then(function(result) {
+            if (!result) {
+                return res.status(400).send({message: 'fail create data'});
+            } else {
+                logHandler.add_log(req.token.uid, req.ip.replace('::ffff:', ''), 'created', JSON.stringify(req.body));
+                return res.jsonp(result);
+            }
+        }).catch(function(err) {
+            return res.status(400).send({
+                message: errorHandler.getErrorMessage(err)
+            });
+        });
+        return null;
     }).catch(function(err) {
         return res.status(400).send({
-            message: errorHandler.getErrorMessage(err)
+            message: 'Could not create channel!'
         });
     });
+
+
 };
 
 /**

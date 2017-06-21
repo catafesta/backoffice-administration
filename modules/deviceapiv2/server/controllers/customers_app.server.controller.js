@@ -17,6 +17,7 @@ var path = require('path'),
 exports.user_settings = function(req, res) {
 
     var clear_response = new response.OK();
+    var database_error = new response.DATABASE_ERROR();
     models.login_data.findOne({
         attributes:['id', 'customer_id', 'pin', 'show_adult', 'auto_timezone', 'timezone', 'player', 'get_messages'],
         where: {username: req.auth_obj.username}
@@ -25,14 +26,14 @@ exports.user_settings = function(req, res) {
         clear_response.response_object[0] = result;
         res.send(clear_response);
     }).catch(function(error) {
-        res.send(response.DATABASE_ERROR); //request not executed
+        res.send(database_error); //request not executed
     });
 
 };
 
 exports.user_data = function(req, res) {
     var clear_response = new response.OK();
-
+    var database_error = new response.DATABASE_ERROR();
     models.login_data.findOne({
         attributes:['customer_id'],
         where: {username: req.auth_obj.username}
@@ -44,11 +45,11 @@ exports.user_data = function(req, res) {
             clear_response.response_object[0] = result;
             res.send(clear_response);
         }).catch(function(error) {
-            res.send(response.DATABASE_ERROR); //request not executed
+            res.send(database_error); //request not executed
         });
         return null;
     }).catch(function(error) {
-        res.send(response.DATABASE_ERROR); //request not executed
+        res.send(database_error); //request not executed
     });
 };
 
@@ -56,7 +57,7 @@ exports.user_data = function(req, res) {
 exports.update_user_data = function(req, res) {
 
     var clear_response = new response.OK();
-
+    var database_error = new response.DATABASE_ERROR();
     models.customer_data.findOne({
         attributes:['firstname', 'lastname', 'email'],
         where: {id: req.thisuser.customer_id}
@@ -100,11 +101,11 @@ exports.update_user_data = function(req, res) {
             }
             res.send(clear_response);
         }).catch(function(error) {
-            res.send(response.DATABASE_ERROR); //request not executed
+            res.send(database_error); //request not executed
         });
         return null;
     }).catch(function(error) {
-        res.send(response.DATABASE_ERROR); //request not executed
+        res.send(database_error); //request not executed
     });
 
 };
@@ -113,6 +114,7 @@ exports.update_user_data = function(req, res) {
 exports.update_user_settings = function(req, res) {
 
     var clear_response = new response.OK();
+    var database_error = new response.DATABASE_ERROR();
     var salt = authentication.makesalt();
     var encrypted_password = authentication.encryptPassword(decodeURIComponent(req.auth_obj.password), salt);
 
@@ -131,13 +133,14 @@ exports.update_user_settings = function(req, res) {
     ).then(function (result) {
         res.send(clear_response);
     }).catch(function(error) {
-        res.send(response.DATABASE_ERROR); //request not executed
+        res.send(database_error); //request not executed
     });
 
 };
 
 exports.change_password = function(req, res) {
     var clear_response = new response.OK();
+    var database_error = new response.DATABASE_ERROR();
     var key = req.app.locals.settings.new_encryption_key;
     var plaintext_password = (req.auth_obj.appid === '3') ? authentication.decryptPassword(decodeURIComponent(req.body.password), key) : decodeURIComponent(req.body.password);
     var salt = authentication.makesalt();
@@ -152,7 +155,7 @@ exports.change_password = function(req, res) {
     ).then(function (result) {
         res.send(clear_response); //ok response, channel edited
     }).catch(function(error) {
-        res.send(response.DATABASE_ERROR); //request not executed
+        res.send(database_error); //request not executed
     });
 
 };
@@ -160,6 +163,7 @@ exports.change_password = function(req, res) {
 exports.reset_pin = function(req, res) {
     var clear_response = new response.OK();
     clear_response.extra_data = "Your pin will be emailed in the address attached to this account!";
+    var database_error = new response.DATABASE_ERROR();
 
     models.customer_data.findOne({
         attributes:['firstname', 'lastname', 'email'],
@@ -188,13 +192,14 @@ exports.reset_pin = function(req, res) {
         });
         res.send(clear_response);
     }).catch(function(error) {
-        res.send(response.DATABASE_ERROR); //error in reading the user info
+        res.send(database_error); //error in reading the user info
     });
 };
 
 //API GETS SUBSCRIPTION DATA
 exports.subscription = function(req, res) {
     var clear_response = new response.OK();
+    var database_error = new response.DATABASE_ERROR();
 
     models.subscription.findAll({
         attributes: ['id', [db.sequelize.fn('date_format', db.sequelize.col('start_date'), '%Y-%m-%d %H:%m:%s'), 'start_date'],
@@ -223,7 +228,7 @@ exports.subscription = function(req, res) {
         }
 
     }).catch(function(error) {
-        res.send(response.DATABASE_ERROR); //request not executed
+        res.send(database_error); //request not executed
     });
 
 };
@@ -233,6 +238,7 @@ exports.subscription = function(req, res) {
 exports.salereport = function(req, res) {
 
     var clear_response = new response.OK();
+    var database_error = new response.DATABASE_ERROR();
 
     models.salesreport.findAll({
         attributes: ['user_username', 'distributorname', [db.sequelize.fn('date_format', db.sequelize.col('saledate'), '%Y-%m-%d %H:%m:%s'), 'saledate']],
@@ -242,7 +248,7 @@ exports.salereport = function(req, res) {
         //the following loop avoids nested response
         var salereport = []; //temp array where we store the values of the query
         for(var i = 0; i < result.length; i++){
-            //for each objevt we store its values in a temp variable
+            //for each object we store its values in a temp variable
             var temp_salereport_record = {
                 "user_username": result[i].user_username,
                 "distributorname": result[i].distributorname,
@@ -255,7 +261,7 @@ exports.salereport = function(req, res) {
         clear_response.response_object = salereport;
         res.send(clear_response);
     }).catch(function(error) {
-        res.send(response.DATABASE_ERROR); //request not executed
+        res.send(database_error); //request not executed
     });
 
 };
@@ -268,6 +274,7 @@ exports.salereport = function(req, res) {
 exports.add_channel = function(req, res) {
 
     var clear_response = new response.OK();
+    var database_error = new response.DATABASE_ERROR();
     models.login_data.findOne({
         attributes:['id'],
         where: {username: req.auth_obj.username}
@@ -293,15 +300,15 @@ exports.add_channel = function(req, res) {
             ).then(function (result) {
                 res.send(clear_response);
             }).catch(function(error) {
-                res.send(response.DATABASE_ERROR); //request not executed
+                res.send(database_error); //request not executed
             });
             return null;
         }).catch(function(error) {
-            res.send(response.DATABASE_ERROR); //request not executed
+            res.send(database_error); //request not executed
         });
         return null;
     }).catch(function(error) {
-        res.send(response.DATABASE_ERROR); //request not executed
+        res.send(database_error); //request not executed
     });
 };
 
@@ -309,6 +316,7 @@ exports.add_channel = function(req, res) {
 exports.channel_list = function(req, res) {
 
     var clear_response = new response.OK();
+    var database_error = new response.DATABASE_ERROR();
 
     models.login_data.findOne({
         attributes:['id'],
@@ -327,11 +335,11 @@ exports.channel_list = function(req, res) {
             clear_response.response_object = result;
             res.send(clear_response);
         }).catch(function(error) {
-            res.send(response.DATABASE_ERROR); //request not executed
+            res.send(database_error); //request not executed
         });
         return null;
     }).catch(function(error) {
-        res.send(response.DATABASE_ERROR); //request not executed
+        res.send(database_error); //request not executed
     });
 
 };
@@ -340,12 +348,13 @@ exports.channel_list = function(req, res) {
 exports.delete_channel = function(req, res) {
 
     var clear_response = new response.OK();
+    var database_error = new response.DATABASE_ERROR();
     models.my_channels.destroy({
         where: {channel_number: req.body.channel_number}
     }).then(function (result) {
         res.send(clear_response); //ok response, channel deleted
     }).catch(function(error) {
-        res.send(response.DATABASE_ERROR); //request not executed
+        res.send(database_error); //request not executed
     });
 
 };
@@ -353,6 +362,7 @@ exports.delete_channel = function(req, res) {
 exports.edit_channel = function(req, res) {
 
     var clear_response = new response.OK();
+    var database_error = new response.DATABASE_ERROR();
     models.my_channels.update(
         {
             title: req.body.title,
@@ -364,7 +374,7 @@ exports.edit_channel = function(req, res) {
     ).then(function (result) {
         res.send(clear_response); //ok response, channel edited
     }).catch(function(error) {
-        res.send(response.DATABASE_ERROR); //request not executed
+        res.send(database_error); //request not executed
     });
 
 };
