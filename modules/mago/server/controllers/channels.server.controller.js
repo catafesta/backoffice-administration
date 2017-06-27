@@ -21,7 +21,8 @@ exports.create = function(req, res) {
         attributes: ['channel_number'],
         order: [['channel_number', 'DESC']]
     }).then(function(result) {
-        req.body.channel_number = (result.channel_number) ? parseInt(result.channel_number) + 1 : 1;
+        if(result) req.body.channel_number = parseInt(result.channel_number) + 1;
+        else req.body.channel_number = 1; //when first channel is added
         DBModel.create(req.body).then(function(result) {
             if (!result) {
                 return res.status(400).send({message: 'fail create data'});
