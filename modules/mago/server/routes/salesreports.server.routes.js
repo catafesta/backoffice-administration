@@ -10,8 +10,10 @@ module.exports = function(app) {
 
     /* ===== salesreports the table ===== */
     app.route('/api/salesreports')
+        .get(salesReports.list);
+
+    app.route('/api/salesreports')
         .all(policy.isAllowed)
-        .get(salesReports.list)
         .post(salesReports.create);
 
     app.route('/api/salesreports/:salesReportId')

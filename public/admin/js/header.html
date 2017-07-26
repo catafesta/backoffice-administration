@@ -19,3 +19,15 @@
         </ul>
     </li>
 </ul>
+
+<ul class="nav navbar-top-links navbar-right hidden-xs">
+    <li uib-dropdown ng-controller="languageCtrl">
+        <a uib-dropdown-toggle href="#" aria-expanded="true">
+            <i class="fa fa-user fa-lg"></i>&nbsp; Language&nbsp;<i class="fa fa-caret-down"></i>
+        </a>
+        <ul class="dropdown-menu dropdown-user" role="menu">
+            <li><a ng-click="serve_language('en')"><i class="fa fa-sign-out fa-fw"></i> English</a></li>
+            <li><a ng-click="serve_language('fr')"><i class="fa fa-sign-out fa-fw"></i> French</a></li>
+        </ul>
+    </li>
+</ul>

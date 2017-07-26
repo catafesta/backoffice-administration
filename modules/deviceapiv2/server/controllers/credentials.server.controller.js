@@ -28,8 +28,8 @@ var path = require('path'),
  * @apiDescription If token is not present, plain text values are used to login
  */
 exports.login = function(req, res) {
-    var clear_response = new response.OK();
-    var database_error = new response.DATABASE_ERROR();
+    var clear_response = new response.APPLICATION_RESPONSE(req.body.language, 200, 1, 'OK_DESCRIPTION', 'OK_DATA');
+    var database_error = new response.APPLICATION_RESPONSE(req.body.language, 706, -1, 'DATABASE_ERROR_DESCRIPTION', 'DATABASE_ERROR_DATA');
     var appids = [];
 
     models.app_group.findOne({
@@ -49,13 +49,18 @@ exports.login = function(req, res) {
                 attributes: [ 'id','username', 'password', 'account_lock', 'salt']
             }).then(function(users) {
                 if (!users) {
-                    res.send(response.USER_NOT_FOUND);
+                    //todo: this should be handled @token validation. for now it generates an empty response
+                    var user_not_found = new response.APPLICATION_RESPONSE(req.body.language, 702, -1, 'USER_NOT_FOUND_DESCRIPTION', 'USER_NOT_FOUND_DATA');
+                    res.send(user_not_found);
                 }
                 else if (users.account_lock) {
-                    res.send(response.ACCOUNT_LOCK);
+                    //todo: this should be handled @token validation, though it does return a response
+                    var account_locked = new response.APPLICATION_RESPONSE(req.body.language, 703, -1, 'ACCOUNT_LOCK_DESCRIPTION', 'ACCOUNT_LOCK_DATA');
+                    res.send(account_locked);
                 }
                 else if(password_encryption.authenticate(req.auth_obj.password, req.thisuser.salt, req.thisuser.password) === false) {
-                    res.send(response.WRONG_PASSWORD);
+                    var wrong_pass = new response.APPLICATION_RESPONSE(req.body.language, 704, -1, 'WRONG_PASSWORD_DESCRIPTION', 'WRONG_PASSWORD_DATA');
+                    res.send(wrong_pass);
                 }
                 else  {
                     models.devices.findOne({
@@ -94,7 +99,8 @@ exports.login = function(req, res) {
                             }
                             else {
                                 //same user try to login on another device
-                                res.send(response.DUAL_LOGIN_ATTEMPT);
+                                var dual_login_attempt = new response.APPLICATION_RESPONSE(req.body.language, 705, -1, 'DUAL_LOGIN_ATTEMPT_DESCRIPTION', 'DUAL_LOGIN_ATTEMPT_DATA');
+                                res.send(dual_login_attempt);
                                 return null;
                             }
                         }
@@ -161,8 +167,6 @@ exports.login = function(req, res) {
  * @apiDescription Removes check box from device so user can login on another device
  */
 exports.logout = function(req, res) {
-    var clear_response = new response.OK();
-    var database_error = new response.DATABASE_ERROR();
     models.devices.update(
         {
             device_active: false
@@ -170,15 +174,15 @@ exports.logout = function(req, res) {
         {
             where: { username : req.auth_obj.username, appid : req.auth_obj.appid}
         }).then(function (result) {
+        var clear_response = new response.APPLICATION_RESPONSE(req.body.language, 200, 1, 'OK_DESCRIPTION', 'OK_DATA');
         res.send(clear_response);
     }).catch(function(error) {
+        var database_error = new response.APPLICATION_RESPONSE(req.body.language, 706, -1, 'DATABASE_ERROR_DESCRIPTION', 'DATABASE_ERROR_DATA');
         res.send(database_error);
     });
 };
 
 exports.logout_user = function(req, res) {
-    var clear_response = new response.OK();
-    var database_error = new response.DATABASE_ERROR();
     var appids = []; //will store appids of devices of the same type
 
     //find type of device
@@ -202,17 +206,20 @@ exports.logout_user = function(req, res) {
                 {
                     where: { username : req.auth_obj.username, appid : {in: appids}}
                 }).then(function (result) {
-                clear_response.extra_data = "You have been logged out of other devices";
+                var clear_response = new response.APPLICATION_RESPONSE(req.body.language, 200, 1, 'OK_DESCRIPTION', 'LOGOUT_OTHER_DEVICES');
                 res.send(clear_response);
             }).catch(function(error) {
+                var database_error = new response.APPLICATION_RESPONSE(req.body.language, 706, -1, 'DATABASE_ERROR_DESCRIPTION', 'DATABASE_ERROR_DATA');
                 res.send(database_error);
             });
             return null;
         }).catch(function(error) {
+            var database_error = new response.APPLICATION_RESPONSE(req.body.language, 706, -1, 'DATABASE_ERROR_DESCRIPTION', 'DATABASE_ERROR_DATA');
             res.send(database_error);
         });
         return null;
     }).catch(function(error) {
+        var database_error = new response.APPLICATION_RESPONSE(req.body.language, 706, -1, 'DATABASE_ERROR_DESCRIPTION', 'DATABASE_ERROR_DATA');
         res.send(database_error);
     });
 

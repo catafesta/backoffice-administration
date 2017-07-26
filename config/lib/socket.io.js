@@ -53,11 +53,11 @@ module.exports = function(app, db) {
 
     // Create new HTTPS Server
     server = https.createServer(options, app);
-    console.log('running HTTPS server');
+    console.log('Running HTTPS server');
 
   } else {
     // Create a new HTTP server
-    console.log('running http server');
+    console.log('Running HTTP server');
     server = http.createServer(app);
   }
   // Create a new Socket.io server
@@ -103,7 +103,7 @@ module.exports = function(app, db) {
 
   // Add an event listener to the 'connection' event
   io.on('connection', function(socket) {
-    console.log('start socket emit');
+    console.log('Start socket emit');
     socket.emit('news', { hello: 'world' });
 
     config.files.server.sockets.forEach(function(socketConfiguration) {

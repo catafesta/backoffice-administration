@@ -22,9 +22,6 @@ export default function (nga, admin) {
             nga.field('program_end', 'datetime')
                 .cssClasses('hidden-xs')
                 .label('Program End'),
-            nga.field('startutctime', 'datetime')
-                .cssClasses('hidden-xs')
-                .label('Start Utc Time'),
             nga.field('duration_seconds', 'number')
                 .cssClasses('hidden-xs')
                 .label('Duration'),

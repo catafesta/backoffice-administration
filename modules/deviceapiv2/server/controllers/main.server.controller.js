@@ -14,9 +14,6 @@ var path = require('path'),
  * @apiDescription Removes check box from device so user can login on another device
  */
 exports.device_menu = function(req, res) {
-
-    var clear_response = new response.OK();
-    var database_error = new response.DATABASE_ERROR();
     models.device_menu.findAll({
         attributes: ['id', 'title', 'url', 'icon_url', [db.sequelize.fn('concat', req.app.locals.settings.assets_url, db.sequelize.col('icon_url')), 'icon'], 'menu_code', 'position', ['menu_code','menucode']],
         where: {appid: req.auth_obj.appid, isavailable:true},
@@ -25,9 +22,11 @@ exports.device_menu = function(req, res) {
         for(var i=0; i<result.length; i++){
             result[i].icon_url = req.app.locals.settings.assets_url+result[i].icon_url;
         }
+        var clear_response = new response.APPLICATION_RESPONSE(req.body.language, 200, 1, 'OK_DESCRIPTION', 'OK_DATA');
         clear_response.response_object = result;
         res.send(clear_response);
     }).catch(function(error) {
+        var database_error = new response.APPLICATION_RESPONSE(req.body.language, 706, -1, 'DATABASE_ERROR_DESCRIPTION', 'DATABASE_ERROR_DATA');
         res.send(database_error);
     });
 };

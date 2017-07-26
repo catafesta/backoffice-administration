@@ -19,8 +19,10 @@ module.exports = function(app) {
 
     /* ===== login data ===== */
     app.route('/api/logindata')
+        .get(loginData.list);
+
+    app.route('/api/logindata')
         .all(policy.isAllowed)
-        .get(loginData.list)
         .post(loginData.create);
 
     app.route('/api/logindata/:loginDataId')
@@ -32,4 +34,3 @@ module.exports = function(app) {
     app.param('loginDataId', loginData.dataByID);
 
 };
-

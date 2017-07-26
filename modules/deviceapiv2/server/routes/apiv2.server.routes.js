@@ -7,6 +7,7 @@ var path = require('path'),
     authpolicy = require('../auth/apiv2.server.auth.js'),
     credentialsController = require(path.resolve('./modules/deviceapiv2/server/controllers/credentials.server.controller')),
     channelsController = require(path.resolve('./modules/deviceapiv2/server/controllers/channels.server.controller')),
+    catchupController = require(path.resolve('./modules/deviceapiv2/server/controllers/catchup.server.controller')),
     vodController = require(path.resolve('./modules/deviceapiv2/server/controllers/vod.server.controller')),
     settingsController = require(path.resolve('./modules/deviceapiv2/server/controllers/settings.server.controller')),
     networkController = require(path.resolve('./modules/deviceapiv2/server/controllers/network.server.controller')),
@@ -30,22 +31,22 @@ module.exports = function(app) {
 
     /* ===== login data credentials===== */
     app.route('/apiv2/credentials/login')
+        .all(authpolicy.plainAuth)
         .all(authpolicy.isAllowed)
-        .all(authpolicy.getthisuserdetails)
         .post(credentialsController.login);
 
     app.route('/apiv2/credentials/logout')
         .all(authpolicy.isAllowed)
         .post(credentialsController.logout);
     app.route('/apiv2/credentials/logout_user')
+        .all(authpolicy.plainAuth)
         .all(authpolicy.isAllowed)
         .post(credentialsController.logout_user);
 
     //channels
     app.route('/apiv2/channels/list')
-       .all(authpolicy.isAllowed)
-       .all(authpolicy.getthisuserdetails)
-       .post(channelsController.list);
+        .all(authpolicy.isAllowed)
+        .post(channelsController.list);
 
     app.route('/apiv2/channels/genre')
         .all(authpolicy.isAllowed)
@@ -53,79 +54,70 @@ module.exports = function(app) {
 
     app.route('/apiv2/channels/epg')
         .all(authpolicy.isAllowed)
-        .all(authpolicy.getthisuserdetails)
         .post(channelsController.epg);
 
     app.route('/apiv2/channels/event')
         .all(authpolicy.isAllowed)
-        .all(authpolicy.getthisuserdetails)
         .post(channelsController.event);
 
     app.route('/apiv2/channels/favorites')
         .all(authpolicy.isAllowed)
-        .all(authpolicy.getthisuserdetails)
         .post(channelsController.favorites);
     app.route('/apiv2/channels/program_info')
         .all(authpolicy.isAllowed)
-        .all(authpolicy.getthisuserdetails)
         .post(channelsController.program_info);
     app.route('/apiv2/channels/schedule')
         .all(authpolicy.isAllowed)
-        .all(authpolicy.getthisuserdetails)
         .post(channelsController.schedule);
 
+    //Catchup
+    app.route('/apiv2/channels/catchup_events')
+        .all(authpolicy.isAllowed)
+        .post(catchupController.catchup_events);
+
+    app.route('/apiv2/channels/catchup_stream')
+        .all(authpolicy.isAllowed)
+        .post(catchupController.catchup_stream);
 
     //vod set top box
     app.route('/apiv2/vod/list')
         .all(authpolicy.isAllowed)
-        .all(authpolicy.getthisuserdetails)
-        .post(authpolicy.isAllowed,vodController.list);
+        .post(vodController.list);
     app.route('/apiv2/vod/categories')
         .all(authpolicy.isAllowed)
-        .all(authpolicy.getthisuserdetails)
-        .post(authpolicy.isAllowed,vodController.categories);
+        .post(vodController.categories);
     app.route('/apiv2/vod/subtitles')
         .all(authpolicy.isAllowed)
-        .all(authpolicy.getthisuserdetails)
-        .post(authpolicy.isAllowed,vodController.subtitles);
-	app.route('/apiv2/vod/totalhits')
+        .post(vodController.subtitles);
+    app.route('/apiv2/vod/totalhits')
         .all(authpolicy.isAllowed)
-        .all(authpolicy.getthisuserdetails)
-        .post(authpolicy.isAllowed,vodController.totalhits);
+        .post(vodController.totalhits);
 
     app.route('/apiv2/vod/mostwatched')
         .all(authpolicy.isAllowed)
-        .all(authpolicy.getthisuserdetails)
-        .post(authpolicy.isAllowed,vodController.mostwatched);
+        .post(vodController.mostwatched);
     app.route('/apiv2/vod/mostrated')
         .all(authpolicy.isAllowed)
-        .all(authpolicy.getthisuserdetails)
-        .post(authpolicy.isAllowed,vodController.mostrated);
+        .post(vodController.mostrated);
     app.route('/apiv2/vod/related')
         .all(authpolicy.isAllowed)
-        .all(authpolicy.getthisuserdetails)
-        .post(authpolicy.isAllowed,vodController.related);
+        .post(vodController.related);
     app.route('/apiv2/vod/suggestions')
         .all(authpolicy.isAllowed)
-        .all(authpolicy.getthisuserdetails)
-        .post(authpolicy.isAllowed,vodController.suggestions);
+        .post(vodController.suggestions);
     app.route('/apiv2/vod/categoryfilms')
         .all(authpolicy.isAllowed)
-        .all(authpolicy.getthisuserdetails)
-        .post(authpolicy.isAllowed,vodController.categoryfilms);
+        .post(vodController.categoryfilms);
     app.route('/apiv2/vod/searchvod')
         .all(authpolicy.isAllowed)
-        .all(authpolicy.getthisuserdetails)
-        .post(authpolicy.isAllowed,vodController.searchvod);
+        .post(vodController.searchvod);
     app.route('/apiv2/vod/resume_movie')
         .all(authpolicy.isAllowed)
-        .all(authpolicy.getthisuserdetails)
-        .post(authpolicy.isAllowed,vodController.resume_movie);
+        .post(vodController.resume_movie);
 
     //settings
     app.route('/apiv2/settings/settings')
         .all(authpolicy.isAllowed)
-        .all(authpolicy.getthisuserdetails)
         .post(settingsController.settings);
 
     app.route('/apiv2/settings/upgrade')
@@ -145,13 +137,14 @@ module.exports = function(app) {
         .post(networkController.dbtest);
 
     app.route('/apiv2/network/gcm')
+        .all(authpolicy.plainAuth) //gcm request may not contain username and password, when called before login
+        .all(authpolicy.emptyCredentials) //gcm request may be plaintext, when called before login
         .all(authpolicy.isAllowed)
         .post(networkController.gcm);
 
     //event logs
     app.route('/apiv2/events/event')
         .all(authpolicy.isAllowed)
-        .all(authpolicy.getthisuserdetails)
         .post(eventlogsController.event);
 
     app.route('/apiv2/events/screen')
@@ -175,7 +168,6 @@ module.exports = function(app) {
 
     app.route('/apiv2/customer_app/update_user_data')
         .all(authpolicy.isAllowed)
-        .all(authpolicy.getthisuserdetails)
         .post(customersAppController.update_user_data);
     app.route('/apiv2/customer_app/update_user_settings')
         .all(authpolicy.isAllowed)
@@ -185,7 +177,6 @@ module.exports = function(app) {
         .post(customersAppController.change_password);
     app.route('/apiv2/customer_app/reset_pin')
         .all(authpolicy.isAllowed)
-        .all(authpolicy.getthisuserdetails)
         .post(customersAppController.reset_pin);
 
     app.route('/apiv2/customer_app/salereport')
@@ -210,11 +201,15 @@ module.exports = function(app) {
         .post(customersAppController.edit_channel);
 
 
-	/* ===== websites ===== */
+    /* ===== websites ===== */
     //todo: only one of the paths is in use
     app.route('/apiv2/sites_web/registration')
+        .all(authpolicy.plainAuth)
+        .all(authpolicy.emptyCredentials)
         .post(sitesController.createaccount);
     app.route('/apiv2/sites/registration')
+        .all(authpolicy.plainAuth)
+        .all(authpolicy.emptyCredentials)
         .post(sitesController.createaccount);
 
 
@@ -229,7 +224,7 @@ module.exports = function(app) {
 
     /* ===== login data reset password ===== */
     app.route('/apiv2/password/forgot')
-          .post(passwordController.forgot);
+        .post(passwordController.forgot);
 
     app.route('/apiv2/password/reset/:token')
         .get(passwordController.validateResetToken);

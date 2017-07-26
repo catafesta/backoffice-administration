@@ -14,8 +14,10 @@ module.exports = function(app) {
 
     /* ===== channels ===== */
     app.route('/api/channels')
+        .get(channels.list);
+
+    app.route('/api/channels')
         .all(policy.isAllowed)
-        .get(channels.list)
         .post(channels.create);
 
     app.route('/api/channels/:channelId')

@@ -40,6 +40,13 @@ body{
 	padding:100px 0px 50px 0px;
 
 }
+
+.btn span.glyphicon {
+    opacity: 0;
+}
+.btn.active span.glyphicon {
+    opacity: 1;
+}
 .login-form h1{
 	font-size:2em;
 	color:#fff;

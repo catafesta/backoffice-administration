@@ -23,14 +23,14 @@ function getipaddress(theip){
 function trackobject(object_data,req, cb) {
 
     object_data.v = 1;
-    object_data.tid = req.app.locals.settings.analytics_id;
-    object_data.ua = req.headers["user-agent"];
-    object_data.cid = req.auth_obj.username;
-    object_data.uip = req.ip.replace('::ffff:', '');
-    object_data.sr = '568x320'; //screen resolution
+    object_data.tid = req.app.locals.settings.analytics_id; //analytics ID
+    object_data.ua  = req.headers["user-agent"];    //user agent
+    object_data.cid = req.auth_obj.username;        //user ID
+    object_data.uip = req.ip.replace('::ffff:', '');    // user ip
+    object_data.sr  = req.screensize || null; //screen resolution
 
     therequest.post(
-        'http://www.google-analytics.com/collect', {
+        'https://www.google-analytics.com/collect', {
             form: object_data
         },
         function(err, response) {
@@ -53,31 +53,31 @@ exports.event = function(req, res) {
         ev: parseInt(req.body.event_value) || 1, //req.body.value
 
         //app values
-        an:req.body.app_name, //application name
-        av:req.body.appversion, //application version
-        aid:req.body.appid, //application id
-        cd:req.body.screen_name || null //screen name
+        an: req.body.app_name,      //application name
+        av: req.body.appversion,    //application version
+        aid:req.body.appid,         //application id
+        cd: req.body.screen_name || null //screen name
     };
 
     trackobject(object_data, req, function (err) {
         if (err) {console.log(err)}
     });
-    res.send('ok');
+    res.send(languages[req.body.language].language_variables['OK']);
 };
 
 exports.screen = function(req, res) {
     var object_data = {
-        t:'screen',
-        an:req.body.app_name, //application name
-        av:req.body.appversion, //application version
-        aid:req.body.appid, //application id
-        cd:req.body.screen_name || null //screen name
+        t:'screenview',
+        an:  req.body.app_name, //application name
+        av:  req.body.appversion, //application version
+        aid: req.body.appid, //application id
+        cd:  req.body.screen_name || null //screen name
     };
 
     trackobject(object_data, req, function (err) {
         if (err) {winston.info(err)}
     });
-    res.send('ok');
+    res.send(languages[req.body.language].language_variables['OK']);
 };
 
 exports.timing = function(req, res) {
@@ -94,5 +94,5 @@ exports.timing = function(req, res) {
         if (err) {console.log(err)}
     });
 
-    res.send('ok');
+    res.send(languages[req.body.language].language_variables['OK']);
 };

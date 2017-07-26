@@ -21,7 +21,7 @@ module.exports = function(sequelize, DataTypes) {
         },
         isavailable: {
             type: DataTypes.BOOLEAN,
-            defaultValue: 0,
+            defaultValue: false,
             allowNull: false
         }
     }, {
@@ -29,6 +29,9 @@ module.exports = function(sequelize, DataTypes) {
         associate: function(models) {
             if (models.users) {
                 Groups.hasMany(models.users, {foreignKey: 'group_id'})
+            }
+            if (models.grouprights) {
+                Groups.hasMany(models.grouprights, {foreignKey: 'group_id'})
             }
         }
     });

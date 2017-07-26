@@ -137,7 +137,6 @@ function send_ios_notifications(google_app_id, data, channel_number){
 }
 
 exports.reload_scheduled_programs = function(req, res) {
-//function reload_scheduled_programs(){
     var now = new Date();
     var current_time = dateFormat(now.setMinutes(now.getMinutes() + 5), "yyyy-mm-dd HH:MM:ss");
 

@@ -98,6 +98,30 @@ exports.chartsgraph1 = function(req, res) {
         });
 };
 
+exports.chart_vis_sales = function(req, res) {
+
+    var sampledata = [];
+    var d = new Date(); // Today!
+    d.setDate(d.getDate() - 90); // last 30 days.
+
+    var thequery = "select DATE_FORMAT(saledate,'%Y-%m-%d') as x, count(id) as y from salesreport WHERE saledate > '" + moment(d).format('YYYY-MM-DD hh:mm:ss') + "' group by x order by y asc ";
+    db.sequelize.query(
+        thequery,
+        { type: db.sequelize.QueryTypes.SELECT})
+        .then(function(result){
+            if (!result) {
+                return res.status(400).send({message: 'fail get data'});
+            } else {
+                var alldata = [];
+                alldata[0] = {};
+                alldata[0].key = 'sales';
+                alldata[0].values = result;
+                console.log(result);
+                return res.send({results: result});
+            }
+        });
+};
+
 exports.chartsgraph2 = function(req, res) {
     db.sequelize.query(
             "SELECT  Count(salesreport.id), salesreport.combo_id, salesreport.saledate FROM salesreport GROUP BY " +

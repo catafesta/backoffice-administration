@@ -155,9 +155,11 @@ exports.forgot = function(req, res, next) {
             };
             smtpTransport.sendMail(mailOptions, function(err) {
                 if (!err) {
-                    res.send(response.EMAIL_SENT);
+                    var email_sent = new response.APPLICATION_RESPONSE(req.body.language, 200, 1, 'EMAIL_SENT_DESCRIPTION', 'EMAIL_SENT_DATA');
+                    res.send(email_sent);
                 } else {
-                    return res.status(801).send(response.EMAIL_NOT_SENT);
+                    var email_not_sent = new response.APPLICATION_RESPONSE(req.body.language, 801, -1, 'EMAIL_NOT_SENT_DESCRIPTION', 'EMAIL_NOT_SENT_DATA');
+                    return res.status(801).send(email_not_sent);
                 }
                 done(err);
             });

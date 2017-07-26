@@ -41,8 +41,7 @@ exports.createaccount = function(req,res) {
 				where: {username: req.body.username.toLowerCase()}
 			}).then(function (login_record) {
 				if (login_record) {
-					var myUserRes = response.REGISTRATION_ERROR;
-					myUserRes.extra_data ='Username already exists';
+					var myUserRes = new response.APPLICATION_RESPONSE(req.body.language, 803, -1, 'REGISTRATION_ERROR_DESCRIPTION', 'USERNAME_TAKEN');
 					res.send(myUserRes);
 					done(null, 1);
 					return null;
@@ -61,8 +60,7 @@ exports.createaccount = function(req,res) {
 				where: {email: req.body.email.toLowerCase()}
 			}).then(function (customer_record) {
 				if (customer_record) {
-					var myEmailRes=response.REGISTRATION_ERROR;
-					myEmailRes.extra_data='Email already exists';
+					var myEmailRes = new response.APPLICATION_RESPONSE(req.body.language, 803, -1, 'REGISTRATION_ERROR_DESCRIPTION', 'EMAIL_ALREADY_EXISTS');
 					res.send(myEmailRes);
 					done(null, 1);
 					return null;
@@ -141,11 +139,11 @@ exports.createaccount = function(req,res) {
 			smtpTransport.sendMail(mailOptions, function(err) {
 				var myEmail;
 				if (!err) {
-					myEmail=response.EMAIL_SENT;
+					myEmail = new response.APPLICATION_RESPONSE(req.body.language, 200, 1, 'EMAIL_SENT_DESCRIPTION', 'EMAIL_SENT_DATA');
 					res.send(myEmail);
 
 				} else {
-					myEmail=response.EMAIL_NOT_SENT;
+					myEmail = new response.APPLICATION_RESPONSE(req.body.language, 200, 1, 'EMAIL_NOT_SENT_DESCRIPTION', 'EMAIL_NOT_SENT_DATA');
 					res.send(myEmail);
 				}
 				done(err);
@@ -168,13 +166,13 @@ exports.confirmNewAccountToken = function(req, res) {
 		}
 	}).then(function(user) {
 		if (!user) {
-			return res.send('invalid');
+			return res.send(languages[req.body.language].language_variables['ACCOUNT_NOT_CREATED']);
 		}
 		user.resetPasswordExpires = 0;
 		user.account_lock = 0;
 		user.save().then(function (result) {
             add_default_subscription(result.id);
-			res.send('Account confirmed, you can now login');
+			res.send(languages[req.body.language].language_variables['ACCOUNT_CREATED']);
 		});
 	});
 

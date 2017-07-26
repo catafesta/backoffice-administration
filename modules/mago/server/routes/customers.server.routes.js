@@ -13,15 +13,19 @@ var path = require('path'),
 module.exports = function(app) {
     /* ===== customer data ===== */
     app.route('/api/customerdata')
+        .get(customerData.list);
+		
+    app.route('/api/customerdata')
         .all(policy.isAllowed)
-        .get(customerData.list)
-        .post(customerData.create);
+        .post(customerData.create);		
 
     app.route('/api/customerdata/:customerDataId')
+        .get(customerData.read);
+		
+app.route('/api/customerdata/:customerDataId')
         .all(policy.isAllowed)
-        .get(customerData.read)
         .put(customerData.update)
-        .delete(customerData.delete);
+        .delete(customerData.delete);		
 
     app.param('customerDataId', customerData.dataByID);
 };

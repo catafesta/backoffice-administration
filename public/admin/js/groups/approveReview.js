@@ -21,7 +21,7 @@ function approveReview(Restangular, $state, notification) {
                 var theobj = {};
                     //todo: user better method
                     theobj.group_id = scope.$parent.datastore._entries.Groups_22["0"]._identifierValue;
-                    theobj.api_id = scope.review.values.id;
+                    theobj.api_group_id = scope.review.values.id;
 
                 if(method == 'read') theobj.read = value;
                 if(method == 'edit') theobj.edit = value;
@@ -32,19 +32,10 @@ function approveReview(Restangular, $state, notification) {
 
                     .then(function successCallback(response) {
                         console.log(scope);
-                        notification.log(response.message, { addnCls: 'humane-flatty-success' });
+                        notification.log('Updated successfully', { addnCls: 'humane-flatty-success' });
                         }, function errorCallback(response) {
+                        notification.log('Could not save changes', { addnCls: 'humane-flatty-error' });
                     });
-
-                //Restangular
-                //    .one('reviews', scope.review.values.id).get()
-                //    .then(review => {
-                //    review.data.status = status;
-                //return review.data.put();
-                //})
-                //.then(() => $state.reload())
-                //.then(() => notification.log('Review ' + status, { addnCls: 'humane-flatty-success' }) )
-                //.catch(e => notification.log('A problem occurred, please try again', { addnCls: 'humane-flatty-error' }) && console.error(e) )
             }
         },
         template:

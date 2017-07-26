@@ -18,6 +18,10 @@ module.exports = function(app) {
         .get(epgData.list)
         .post(epgData.create);
 
+    app.route('/api/epgdata_chart')
+        //.all(policy.isAllowed)
+        .get(epgData.list_chart_epg);
+
     app.route('/api/epgimport')
         .get(epgData.epg_import)
         .post(epgData.save_epg_records);

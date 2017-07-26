@@ -21,14 +21,6 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.STRING(45),
             allowNull: true
         },
-        startutctime: {
-            type: DataTypes.DATE,
-            allowNull: true
-        },
-        stoputctime: {
-            type: DataTypes.DATE,
-            allowNull: true
-        },
         short_name: {
             type: DataTypes.STRING(45),
             allowNull: true
@@ -60,7 +52,7 @@ module.exports = function(sequelize, DataTypes) {
             if(models.packages_channels){
                 epgData.belongsTo(models.channels, {foreignKey: 'channels_id'})
             }
-			epgData.hasMany(models.program_schedule, {foreignKey: 'program_id'})
+            epgData.hasMany(models.program_schedule, {foreignKey: 'program_id'})
         }
     });
     return epgData;

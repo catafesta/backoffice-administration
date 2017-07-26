@@ -15,25 +15,21 @@ var path = require('path'),
  */
 
 exports.user_settings = function(req, res) {
-
-    var clear_response = new response.OK();
-    var database_error = new response.DATABASE_ERROR();
     models.login_data.findOne({
         attributes:['id', 'customer_id', 'pin', 'show_adult', 'auto_timezone', 'timezone', 'player', 'get_messages'],
         where: {username: req.auth_obj.username}
     }).then(function (result) {
+        var clear_response = new response.APPLICATION_RESPONSE(req.body.language, 200, 1, 'OK_DESCRIPTION', 'OK_DATA');
         result.timezone = (result.timezone<1) ? result.timezone : "+"+result.timezone;
         clear_response.response_object[0] = result;
         res.send(clear_response);
     }).catch(function(error) {
+        var database_error = new response.APPLICATION_RESPONSE(req.body.language, 706, -1, 'DATABASE_ERROR_DESCRIPTION', 'DATABASE_ERROR_DATA');
         res.send(database_error); //request not executed
     });
-
 };
 
 exports.user_data = function(req, res) {
-    var clear_response = new response.OK();
-    var database_error = new response.DATABASE_ERROR();
     models.login_data.findOne({
         attributes:['customer_id'],
         where: {username: req.auth_obj.username}
@@ -42,22 +38,22 @@ exports.user_data = function(req, res) {
             attributes: ['firstname', 'lastname', 'email', 'address', 'city', 'country', 'telephone' ],
             where: {id: result.customer_id}
         }).then(function (result) {
+            var clear_response = new response.APPLICATION_RESPONSE(req.body.language, 200, 1, 'OK_DESCRIPTION', 'OK_DATA');
             clear_response.response_object[0] = result;
             res.send(clear_response);
         }).catch(function(error) {
+            var database_error = new response.APPLICATION_RESPONSE(req.body.language, 706, -1, 'DATABASE_ERROR_DESCRIPTION', 'DATABASE_ERROR_DATA');
             res.send(database_error); //request not executed
         });
         return null;
     }).catch(function(error) {
+        var database_error = new response.APPLICATION_RESPONSE(req.body.language, 706, -1, 'DATABASE_ERROR_DESCRIPTION', 'DATABASE_ERROR_DATA');
         res.send(database_error); //request not executed
     });
 };
 
 //API UPDATES DATA FOR THIS USER, RETURNS STATUS
 exports.update_user_data = function(req, res) {
-
-    var clear_response = new response.OK();
-    var database_error = new response.DATABASE_ERROR();
     models.customer_data.findOne({
         attributes:['firstname', 'lastname', 'email'],
         where: {id: req.thisuser.customer_id}
@@ -99,12 +95,15 @@ exports.update_user_data = function(req, res) {
                     if(error) console.log(error);
                 });
             }
+            var clear_response = new response.APPLICATION_RESPONSE(req.body.language, 200, 1, 'OK_DESCRIPTION', 'OK_DATA');
             res.send(clear_response);
         }).catch(function(error) {
+            var database_error = new response.APPLICATION_RESPONSE(req.body.language, 706, -1, 'DATABASE_ERROR_DESCRIPTION', 'DATABASE_ERROR_DATA');
             res.send(database_error); //request not executed
         });
         return null;
     }).catch(function(error) {
+        var database_error = new response.APPLICATION_RESPONSE(req.body.language, 706, -1, 'DATABASE_ERROR_DESCRIPTION', 'DATABASE_ERROR_DATA');
         res.send(database_error); //request not executed
     });
 
@@ -112,9 +111,6 @@ exports.update_user_data = function(req, res) {
 
 //API UPDATES SETTINGS FOR THIS USER, RETURNS STATUS
 exports.update_user_settings = function(req, res) {
-
-    var clear_response = new response.OK();
-    var database_error = new response.DATABASE_ERROR();
     var salt = authentication.makesalt();
     var encrypted_password = authentication.encryptPassword(decodeURIComponent(req.auth_obj.password), salt);
 
@@ -131,16 +127,16 @@ exports.update_user_settings = function(req, res) {
         },
         {where: {username: req.auth_obj.username}}
     ).then(function (result) {
+        var clear_response = new response.APPLICATION_RESPONSE(req.body.language, 200, 1, 'OK_DESCRIPTION', 'OK_DATA');
         res.send(clear_response);
     }).catch(function(error) {
+        var database_error = new response.APPLICATION_RESPONSE(req.body.language, 706, -1, 'DATABASE_ERROR_DESCRIPTION', 'DATABASE_ERROR_DATA');
         res.send(database_error); //request not executed
     });
 
 };
 
 exports.change_password = function(req, res) {
-    var clear_response = new response.OK();
-    var database_error = new response.DATABASE_ERROR();
     var key = req.app.locals.settings.new_encryption_key;
     var plaintext_password = (req.auth_obj.appid === '3') ? authentication.decryptPassword(decodeURIComponent(req.body.password), key) : decodeURIComponent(req.body.password);
     var salt = authentication.makesalt();
@@ -153,18 +149,16 @@ exports.change_password = function(req, res) {
         },
         {where: {username: req.auth_obj.username}}
     ).then(function (result) {
+        var clear_response = new response.APPLICATION_RESPONSE(req.body.language, 200, 1, 'OK_DESCRIPTION', 'OK_DATA');
         res.send(clear_response); //ok response, channel edited
     }).catch(function(error) {
+        var database_error = new response.APPLICATION_RESPONSE(req.body.language, 706, -1, 'DATABASE_ERROR_DESCRIPTION', 'DATABASE_ERROR_DATA');
         res.send(database_error); //request not executed
     });
 
 };
 
 exports.reset_pin = function(req, res) {
-    var clear_response = new response.OK();
-    clear_response.extra_data = "Your pin will be emailed in the address attached to this account!";
-    var database_error = new response.DATABASE_ERROR();
-
     models.customer_data.findOne({
         attributes:['firstname', 'lastname', 'email'],
         where: {id: req.thisuser.customer_id}
@@ -190,16 +184,16 @@ exports.reset_pin = function(req, res) {
         smtpTransport.sendMail(mailOptions, function(error, info){
             if(error) console.log(error);
         });
+        var clear_response = new response.APPLICATION_RESPONSE(req.body.language, 200, 1, 'OK_DESCRIPTION', 'RESET_PIN_DATA');
         res.send(clear_response);
     }).catch(function(error) {
+        var database_error = new response.APPLICATION_RESPONSE(req.body.language, 706, -1, 'DATABASE_ERROR_DESCRIPTION', 'DATABASE_ERROR_DATA');
         res.send(database_error); //error in reading the user info
     });
 };
 
 //API GETS SUBSCRIPTION DATA
 exports.subscription = function(req, res) {
-    var clear_response = new response.OK();
-    var database_error = new response.DATABASE_ERROR();
 
     models.subscription.findAll({
         attributes: ['id', [db.sequelize.fn('date_format', db.sequelize.col('start_date'), '%Y-%m-%d %H:%m:%s'), 'start_date'],
@@ -208,7 +202,7 @@ exports.subscription = function(req, res) {
         include: [{model: models.package, required: true, attributes:['package_name']}]
     }).then(function (result) {
         if(result[0].length == 0){
-            clear_response.extra_data = "No subscriptions for this user";
+            var clear_response = new response.APPLICATION_RESPONSE(req.body.language, 200, 1, 'OK_DESCRIPTION', 'NO_SUBSCRIPTION');
             res.send(clear_response);
         }
         else{
@@ -223,11 +217,13 @@ exports.subscription = function(req, res) {
                 };
                 subscription.push(temp_subscription_record); //the object is pushed to the temp array
             }
+            var clear_response = new response.APPLICATION_RESPONSE(req.body.language, 200, 1, 'OK_DESCRIPTION', 'OK_DATA');
             clear_response.response_object = subscription;
             res.send(clear_response);
         }
 
     }).catch(function(error) {
+        var database_error = new response.APPLICATION_RESPONSE(req.body.language, 706, -1, 'DATABASE_ERROR_DESCRIPTION', 'DATABASE_ERROR_DATA');
         res.send(database_error); //request not executed
     });
 
@@ -236,10 +232,6 @@ exports.subscription = function(req, res) {
 
 //API GETS SALEREPORT DATA
 exports.salereport = function(req, res) {
-
-    var clear_response = new response.OK();
-    var database_error = new response.DATABASE_ERROR();
-
     models.salesreport.findAll({
         attributes: ['user_username', 'distributorname', [db.sequelize.fn('date_format', db.sequelize.col('saledate'), '%Y-%m-%d %H:%m:%s'), 'saledate']],
         where: {user_username: req.auth_obj.username},
@@ -258,9 +250,11 @@ exports.salereport = function(req, res) {
             };
             salereport.push(temp_salereport_record); //the object is pushed to the temp array
         }
+        var clear_response = new response.APPLICATION_RESPONSE(req.body.language, 200, 1, 'OK_DESCRIPTION', 'OK_DATA');
         clear_response.response_object = salereport;
         res.send(clear_response);
     }).catch(function(error) {
+        var database_error = new response.APPLICATION_RESPONSE(req.body.language, 706, -1, 'DATABASE_ERROR_DESCRIPTION', 'DATABASE_ERROR_DATA');
         res.send(database_error); //request not executed
     });
 
@@ -272,9 +266,6 @@ exports.salereport = function(req, res) {
  Listing, adding, editing and deleting user channels
  *******************************************************************/
 exports.add_channel = function(req, res) {
-
-    var clear_response = new response.OK();
-    var database_error = new response.DATABASE_ERROR();
     models.login_data.findOne({
         attributes:['id'],
         where: {username: req.auth_obj.username}
@@ -298,26 +289,26 @@ exports.add_channel = function(req, res) {
                     where: {id: result.id} //for the recently added channel
                 }
             ).then(function (result) {
+                var clear_response = new response.APPLICATION_RESPONSE(req.body.language, 200, 1, 'OK_DESCRIPTION', 'OK_DATA');
                 res.send(clear_response);
             }).catch(function(error) {
+                var database_error = new response.APPLICATION_RESPONSE(req.body.language, 706, -1, 'DATABASE_ERROR_DESCRIPTION', 'DATABASE_ERROR_DATA');
                 res.send(database_error); //request not executed
             });
             return null;
         }).catch(function(error) {
+            var database_error = new response.APPLICATION_RESPONSE(req.body.language, 706, -1, 'DATABASE_ERROR_DESCRIPTION', 'DATABASE_ERROR_DATA');
             res.send(database_error); //request not executed
         });
         return null;
     }).catch(function(error) {
+        var database_error = new response.APPLICATION_RESPONSE(req.body.language, 706, -1, 'DATABASE_ERROR_DESCRIPTION', 'DATABASE_ERROR_DATA');
         res.send(database_error); //request not executed
     });
 };
 
 //LIST QUERY. GET METHOD. No explicit parameter
 exports.channel_list = function(req, res) {
-
-    var clear_response = new response.OK();
-    var database_error = new response.DATABASE_ERROR();
-
     models.login_data.findOne({
         attributes:['id'],
         where: {username: req.auth_obj.username}
@@ -332,37 +323,34 @@ exports.channel_list = function(req, res) {
                 result[i].icon_url = req.app.locals.settings.assets_url + result[i]["genre.icon_url"];
                 delete result[i]["genre.icon_url"];
             }
+            var clear_response = new response.APPLICATION_RESPONSE(req.body.language, 200, 1, 'OK_DESCRIPTION', 'OK_DATA');
             clear_response.response_object = result;
             res.send(clear_response);
         }).catch(function(error) {
+            var database_error = new response.APPLICATION_RESPONSE(req.body.language, 706, -1, 'DATABASE_ERROR_DESCRIPTION', 'DATABASE_ERROR_DATA');
             res.send(database_error); //request not executed
         });
         return null;
     }).catch(function(error) {
+        var database_error = new response.APPLICATION_RESPONSE(req.body.language, 706, -1, 'DATABASE_ERROR_DESCRIPTION', 'DATABASE_ERROR_DATA');
         res.send(database_error); //request not executed
     });
-
 };
 
 //DELETE QUERY. PUT METHOD. channel_number as parameter
 exports.delete_channel = function(req, res) {
-
-    var clear_response = new response.OK();
-    var database_error = new response.DATABASE_ERROR();
     models.my_channels.destroy({
         where: {channel_number: req.body.channel_number}
     }).then(function (result) {
+        var clear_response = new response.APPLICATION_RESPONSE(req.body.language, 200, 1, 'OK_DESCRIPTION', 'OK_DATA');
         res.send(clear_response); //ok response, channel deleted
     }).catch(function(error) {
+        var database_error = new response.APPLICATION_RESPONSE(req.body.language, 706, -1, 'DATABASE_ERROR_DESCRIPTION', 'DATABASE_ERROR_DATA');
         res.send(database_error); //request not executed
     });
-
 };
 
 exports.edit_channel = function(req, res) {
-
-    var clear_response = new response.OK();
-    var database_error = new response.DATABASE_ERROR();
     models.my_channels.update(
         {
             title: req.body.title,
@@ -372,10 +360,11 @@ exports.edit_channel = function(req, res) {
         },
         {where: {channel_number: req.body.channel_number}}
     ).then(function (result) {
+        var clear_response = new response.APPLICATION_RESPONSE(req.body.language, 200, 1, 'OK_DESCRIPTION', 'OK_DATA');
         res.send(clear_response); //ok response, channel edited
     }).catch(function(error) {
+        var clear_response = new response.APPLICATION_RESPONSE(req.body.language, 200, 1, 'OK_DESCRIPTION', 'OK_DATA');
         res.send(database_error); //request not executed
     });
-
 };
 

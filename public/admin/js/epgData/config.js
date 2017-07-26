@@ -31,12 +31,6 @@ export default function (nga, admin) {
 			nga.field('program_end', 'datetime')
 				.cssClasses('hidden-xs')
 				.label('Program End'),
-			nga.field('startutctime', 'datetime')
-				.cssClasses('hidden-xs')
-				.label('Start Utc Time'),
-			nga.field('stoputctime', 'datetime')
-				.cssClasses('hidden-xs')
-				.label('Stop Utc Time'),
 			nga.field('duration_seconds', 'number')
 				.cssClasses('hidden-xs')
 				.label('Duration'),
@@ -117,14 +111,6 @@ export default function (nga, admin) {
 				.attributes({ placeholder: 'Long Description' })
 				.validation({ required: true })
 				.label('Long Description'),
-			nga.field('startutctime', 'datetime')
-				.attributes({ placeholder: 'Start Utc Time' })
-				.validation({ required: true })
-				.label('Start Utc Time'),
-			nga.field('stoputctime', 'datetime')
-				.attributes({ placeholder: 'Stop Utc Time' })
-				.validation({ required: true })
-				.label('Stop Utc Time'),
 			nga.field('program_start', 'datetime')
 				.attributes({ placeholder: 'Program Start' })
 				.validation({ required: true })

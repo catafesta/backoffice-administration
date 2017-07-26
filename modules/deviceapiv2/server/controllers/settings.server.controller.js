@@ -33,8 +33,8 @@ var activated = 0;
 
 exports.settings = function(req, res) {
 
-    var settings_response = new response.OK();
-    var database_error = new response.DATABASE_ERROR();
+    var okresponse = new response.APPLICATION_RESPONSE(req.body.language, 200, 1, 'OK_DESCRIPTION', 'OK_DATA');
+
 
     var current_timestamp = Date.now(); //server timestamp in milliseconds
     var client_timestamp = req.auth_obj.timestamp; //request timestamp in milliseconds
@@ -59,7 +59,7 @@ exports.settings = function(req, res) {
                     callback(null, login_data, false);
                 }
                 else{
-                    settings_response.timestamp = req.app.locals.settings.livetvlastchange;
+                    okresponse.timestamp = req.app.locals.settings.livetvlastchange;
                     callback(null, login_data, true);
                 }
             }
@@ -239,9 +239,9 @@ exports.settings = function(req, res) {
             var vod_background_url = (req.auth_obj.appid == 1) ?  req.app.locals.settings.vod_background_url :  req.app.locals.settings.vod_background_url;
 
             //days_left message is empty if user still has subscription
-            var days_left_message = (daysleft > 0) ? "" : "No subscription";
+            var days_left_message = (daysleft > 0) ? "" : languages[req.body.language].language_variables['NO_SUBSCRIPTION'];
 
-            settings_response.response_object = [{
+            okresponse.response_object = [{
                 "logo_url": req.app.locals.settings.assets_url+""+logo_url,
                 "background_url": req.app.locals.settings.assets_url+""+background_url,
                 "vod_background_url": req.app.locals.settings.assets_url+""+vod_background_url,
@@ -267,9 +267,10 @@ exports.settings = function(req, res) {
                 "available_upgrade": available_upgrade
             }];
 
-            res.send(settings_response);
+            res.send(okresponse);
         }
     ], function (err) {
+        var database_error = new response.APPLICATION_RESPONSE(req.body.language, 706, -1, 'DATABASE_ERROR_DESCRIPTION', 'DATABASE_ERROR_DATA');
         res.send(database_error);
     });
 
@@ -277,8 +278,8 @@ exports.settings = function(req, res) {
 
 //API GETS APPID, APP VERSION AND API VERSION OF THE DEVICE AND DECIDES IF THERE ARE ANY UPGRADES WHOSE REQUIREMENTS ARE FULLFILL BY THIS DEVICE
 exports.upgrade = function(req, res) {
-    var upgrade_response = new response.OK();
     if(id >= 0){
+        var upgrade_response = new response.APPLICATION_RESPONSE(req.body.language, 200, 1, 'OK_DESCRIPTION', 'OK_DATA');
         upgrade_response.response_object = upgrade_response.response_object = [{
             "id": id,
             "upgradetype": upgradetype,
@@ -290,7 +291,7 @@ exports.upgrade = function(req, res) {
         }];
     }
     else{
-        upgrade_response.extra_data = "No available upgrades";
+        var upgrade_response = new response.APPLICATION_RESPONSE(req.body.language, 200, 1, 'OK_DESCRIPTION', 'NO_UPGRADES');
     }
     res.send(upgrade_response);
 };

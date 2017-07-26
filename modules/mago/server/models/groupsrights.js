@@ -13,27 +13,30 @@ module.exports = function(sequelize, DataTypes) {
             allowNull: false,
             unique: 'compositeIndex'
         },
-        api_id: {
+        api_group_id: {
             type: DataTypes.INTEGER(11),
             allowNull: false,
             unique: 'compositeIndex'
         },
         read: {
             type: DataTypes.BOOLEAN,
-            allowNull: true
+            allowNull: false,
+            defaultValue: false
         },
         edit: {
             type: DataTypes.BOOLEAN,
-            allowNull: true
+            allowNull: false,
+            defaultValue: false
         },
         create: {
             type: DataTypes.BOOLEAN,
-            allowNull: true
+            allowNull: false,
+            defaultValue: false
         },
     }, {
         tableName: 'grouprights',
         associate: function(models) {
-            Grouprights.belongsTo(models.apiurl, {foreignKey: 'api_id'});
+            Grouprights.belongsTo(models.api_group, {foreignKey: 'api_group_id'});
             Grouprights.belongsTo(models.groups, {foreignKey: 'group_id'});
         }
     });

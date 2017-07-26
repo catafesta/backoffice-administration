@@ -263,9 +263,7 @@ module.exports.init = function(db) {
 
   // Configure Socket.io
   this.configureSocketIO(app, db);
-  //app =  http.createServer(app);
-
-
+  
   if (config.secure && config.secure.ssl === true) {
     var options = {
       key:    fs.readFileSync(path.resolve(config.secure.privateKey)), //read certificate key file

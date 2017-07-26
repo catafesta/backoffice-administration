@@ -17,8 +17,6 @@ var path = require('path'),
  */
 exports.list = function(req, res) {
 
-    var clear_response = new response.OK();
-    var database_error = new response.DATABASE_ERROR();
     var allowed_content = (req.thisuser.show_adult === true) ? [0, 1] : [0];
     var offset = (req.body.subset_number) ? ((parseInt(req.body.subset_number)-1)*200) : 0; //for older versions of vod, start query at first record
     var limit = (req.body.subset_number) ? 200 : 99999999999; //for older versions of vod, set limit to 99999999999
@@ -61,10 +59,11 @@ exports.list = function(req, res) {
             });
             raw_result.push(raw_obj);
         });
-
+        var clear_response = new response.APPLICATION_RESPONSE(req.body.language, 200, 1, 'OK_DESCRIPTION', 'OK_DATA');
         clear_response.response_object = raw_result;
         res.send(clear_response);
     }).catch(function(error) {
+        var database_error = new response.APPLICATION_RESPONSE(req.body.language, 706, -1, 'DATABASE_ERROR_DESCRIPTION', 'DATABASE_ERROR_DATA');
         res.send(database_error);
     });
 
@@ -83,8 +82,6 @@ exports.list = function(req, res) {
 exports.categories = function(req, res) {
 
     var allowed_content = (req.thisuser.show_adult === true) ? [0, 1] : [0];
-    var clear_response = new response.OK();
-    var database_error = new response.DATABASE_ERROR();
 
     models.vod_category.findAll({
         attributes: [ 'id', 'name', 'password', 'sorting', [db.sequelize.fn("concat", req.app.locals.settings.assets_url, db.sequelize.col('icon_url')), 'IconUrl'],
@@ -97,9 +94,11 @@ exports.categories = function(req, res) {
             result[i].toJSON().password = "False";
             result[i].toJSON().pay = "False";
         }
+        var clear_response = new response.APPLICATION_RESPONSE(req.body.language, 200, 1, 'OK_DESCRIPTION', 'OK_DATA');
         clear_response.response_object = result;
         res.send(clear_response);
     }).catch(function(error) {
+        var database_error = new response.APPLICATION_RESPONSE(req.body.language, 706, -1, 'DATABASE_ERROR_DESCRIPTION', 'DATABASE_ERROR_DATA');
         res.send(database_error);
     });
 };
@@ -117,8 +116,6 @@ exports.categories = function(req, res) {
 exports.subtitles = function(req, res) {
 
     var allowed_content = (req.thisuser.show_adult === true) ? [0, 1] : [0];
-    var clear_response = new response.OK();
-    var database_error = new response.DATABASE_ERROR();
 
     models.vod_subtitles.findAll({
         attributes: [ ['vod_id', 'vodid'], 'title', [db.sequelize.fn("concat", req.app.locals.settings.assets_url, db.sequelize.col('subtitle_url')), 'url'] ],
@@ -135,9 +132,11 @@ exports.subtitles = function(req, res) {
         for(var i=0; i< result.length; i++){
             result[i].toJSON().vodid = String(result[i].toJSON().vodid);
         }
+        var clear_response = new response.APPLICATION_RESPONSE(req.body.language, 200, 1, 'OK_DESCRIPTION', 'OK_DATA');
         clear_response.response_object = result;
         res.send(clear_response);
     }).catch(function(error) {
+        var database_error = new response.APPLICATION_RESPONSE(req.body.language, 706, -1, 'DATABASE_ERROR_DESCRIPTION', 'DATABASE_ERROR_DATA');
         res.send(database_error);
     });
 };
@@ -159,8 +158,6 @@ exports.subtitles = function(req, res) {
 exports.totalhits = function(req, res) {
 
     var allowed_content = (req.thisuser.show_adult === true) ? [0, 1] : [0];
-    var clear_response = new response.OK();
-    var database_error = new response.DATABASE_ERROR();
 
      //if hits for a specific movie are requested
     if(req.body.id_vod != "all"){
@@ -172,10 +169,11 @@ exports.totalhits = function(req, res) {
                 {model: models.vod_category, required: true, attributes: [], where:{password:{in: allowed_content}, isavailable: true}}
             ]
         }).then(function (result) {
-            if(req.body.id_vod === "all"){clear_response.response_object = result;}
-            else{clear_response.response_object = result;}
+            var clear_response = new response.APPLICATION_RESPONSE(req.body.language, 200, 1, 'OK_DESCRIPTION', 'OK_DATA');
+            clear_response.response_object = result;
             res.send(clear_response);
         }).catch(function(error) {
+            var database_error = new response.APPLICATION_RESPONSE(req.body.language, 706, -1, 'DATABASE_ERROR_DESCRIPTION', 'DATABASE_ERROR_DATA');
             res.send(database_error);
         });
     }
@@ -189,9 +187,11 @@ exports.totalhits = function(req, res) {
                 {model: models.vod_category, required: true, attributes: [], where:{password:{in: allowed_content}, isavailable: true}}
             ]
         }).then(function (result) {
+            var clear_response = new response.APPLICATION_RESPONSE(req.body.language, 200, 1, 'OK_DESCRIPTION', 'OK_DATA');
             clear_response.response_object = result;
             res.send(clear_response);
         }).catch(function(error) {
+            var database_error = new response.APPLICATION_RESPONSE(req.body.language, 706, -1, 'DATABASE_ERROR_DESCRIPTION', 'DATABASE_ERROR_DATA');
             res.send(database_error);
         });
     }
@@ -201,8 +201,6 @@ exports.totalhits = function(req, res) {
 exports.mostwatched = function(req, res) {
 
     var allowed_content = (req.thisuser.show_adult === true) ? [0, 1] : [0];
-    var clear_response = new response.OK();
-    var database_error = new response.DATABASE_ERROR();
 
     //if hits for a specific movie are requested
     models.vod.findAll({
@@ -218,9 +216,11 @@ exports.mostwatched = function(req, res) {
         for(var i=0; i< result.length; i++){
             result[i].toJSON().id = String(result[i].toJSON().id);
         }
+        var clear_response = new response.APPLICATION_RESPONSE(req.body.language, 200, 1, 'OK_DESCRIPTION', 'OK_DATA');
         clear_response.response_object = result;
         res.send(clear_response);
     }).catch(function(error) {
+        var database_error = new response.APPLICATION_RESPONSE(req.body.language, 706, -1, 'DATABASE_ERROR_DESCRIPTION', 'DATABASE_ERROR_DATA');
         res.send(database_error);
     });
 
@@ -229,8 +229,6 @@ exports.mostwatched = function(req, res) {
 exports.mostrated = function(req, res) {
 
     var allowed_content = (req.thisuser.show_adult === true) ? [0, 1] : [0];
-    var clear_response = new response.OK();
-    var database_error = new response.DATABASE_ERROR();
 
     //if most rated movies are requested
     models.vod.findAll({
@@ -250,9 +248,11 @@ exports.mostrated = function(req, res) {
             mostrated_object.rate = parseInt(result[i].rate);
             mostrated.push(mostrated_object);
         }
+        var clear_response = new response.APPLICATION_RESPONSE(req.body.language, 200, 1, 'OK_DESCRIPTION', 'OK_DATA');
         clear_response.response_object = mostrated;
         res.send(clear_response);
     }).catch(function(error) {
+        var database_error = new response.APPLICATION_RESPONSE(req.body.language, 706, -1, 'DATABASE_ERROR_DESCRIPTION', 'DATABASE_ERROR_DATA');
         res.send(database_error);
     });
 
@@ -261,8 +261,6 @@ exports.mostrated = function(req, res) {
 exports.related = function(req, res) {
 
     var allowed_content = (req.thisuser.show_adult === true) ? [0, 1] : [0];
-    var clear_response = new response.OK();
-    var database_error = new response.DATABASE_ERROR();
 
     models.vod.findAll({
         attributes: ['id'],
@@ -276,9 +274,11 @@ exports.related = function(req, res) {
         for(var i=0; i< result.length; i++){
             result[i].toJSON().id = String(result[i].toJSON().id);
         }
+        var clear_response = new response.APPLICATION_RESPONSE(req.body.language, 200, 1, 'OK_DESCRIPTION', 'OK_DATA');
         clear_response.response_object = result;
         res.send(clear_response);
     }).catch(function(error) {
+        var database_error = new response.APPLICATION_RESPONSE(req.body.language, 706, -1, 'DATABASE_ERROR_DESCRIPTION', 'DATABASE_ERROR_DATA');
         res.send(database_error);
     });
 
@@ -287,8 +287,6 @@ exports.related = function(req, res) {
 exports.suggestions = function(req, res) {
 
     var allowed_content = (req.thisuser.show_adult === true) ? [0, 1] : [0];
-    var clear_response = new response.OK();
-    var database_error = new response.DATABASE_ERROR();
 
     models.vod.findAll({
         attributes: ['id'],
@@ -299,9 +297,11 @@ exports.suggestions = function(req, res) {
         ],
         limit: 10
     }).then(function (result) {
+        var clear_response = new response.APPLICATION_RESPONSE(req.body.language, 200, 1, 'OK_DESCRIPTION', 'OK_DATA');
         clear_response.response_object = result;
         res.send(clear_response);
     }).catch(function(error) {
+        var database_error = new response.APPLICATION_RESPONSE(req.body.language, 706, -1, 'DATABASE_ERROR_DESCRIPTION', 'DATABASE_ERROR_DATA');
         res.send(database_error);
     });
 
@@ -310,8 +310,6 @@ exports.suggestions = function(req, res) {
 exports.categoryfilms = function(req, res) {
 
     var allowed_content = (req.thisuser.show_adult === true) ? [0, 1] : [0];
-    var clear_response = new response.OK();
-    var database_error = new response.DATABASE_ERROR();
 
     models.vod.findAll({
         attributes: ['id'],
@@ -328,9 +326,11 @@ exports.categoryfilms = function(req, res) {
             raw_obj.id = String(obj.id);
             raw_result.push(raw_obj);
         });
+        var clear_response = new response.APPLICATION_RESPONSE(req.body.language, 200, 1, 'OK_DESCRIPTION', 'OK_DATA');
         clear_response.response_object = raw_result;
         res.send(clear_response);
     }).catch(function(error) {
+        var database_error = new response.APPLICATION_RESPONSE(req.body.language, 706, -1, 'DATABASE_ERROR_DESCRIPTION', 'DATABASE_ERROR_DATA');
         res.send(database_error);
     });
 
@@ -338,8 +338,6 @@ exports.categoryfilms = function(req, res) {
 
 exports.searchvod = function(req, res) {
 
-    var clear_response = new response.OK();
-    var database_error = new response.DATABASE_ERROR();
     var allowed_content = (req.thisuser.show_adult === true) ? [0, 1] : [0];
 
     models.vod.findAll({
@@ -364,9 +362,11 @@ exports.searchvod = function(req, res) {
             });
             raw_result.push(raw_obj);
         });
+        var clear_response = new response.APPLICATION_RESPONSE(req.body.language, 200, 1, 'OK_DESCRIPTION', 'OK_DATA');
         clear_response.response_object = raw_result;
         res.send(clear_response);
     }).catch(function(error) {
+        var database_error = new response.APPLICATION_RESPONSE(req.body.language, 706, -1, 'DATABASE_ERROR_DESCRIPTION', 'DATABASE_ERROR_DATA');
         res.send(database_error);
     });
 
@@ -383,14 +383,14 @@ exports.resume_movie = function(req, res) {
             device_id: req.auth_obj.boxid
         }
     ).then(function (result) {
-        var clear_response = new response.OK();
-        res.send(new response.OK());
+        var clear_response = new response.APPLICATION_RESPONSE(req.body.language, 200, 1, 'OK_DESCRIPTION', 'OK_DATA');
+        res.send(clear_response);
     }).catch(function(error) {
-        var error_executing = new response.DATABASE_ERROR();
         if (error.message.split(': ')[0] === 'ER_NO_REFERENCED_ROW_2'){
-            error_executing.extra_data = 'Invalid input';
+            var database_error = new response.APPLICATION_RESPONSE(req.body.language, 706, -1, 'DATABASE_ERROR_DESCRIPTION', 'INVALID_INPUT');
         }
-        res.send(error_executing);
+        else var database_error = new response.APPLICATION_RESPONSE(req.body.language, 706, -1, 'DATABASE_ERROR_DESCRIPTION', 'DATABASE_ERROR_DATA');
+        res.send(database_error);
     });
 
 };

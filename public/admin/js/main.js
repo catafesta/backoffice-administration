@@ -1,5 +1,5 @@
 'use strict'
-var myApp = angular.module('myApp', ['ng-admin','ng-admin.jwt-auth', 'nvd3']);
+var myApp = angular.module('myApp', ['ng-admin','ng-admin.jwt-auth', 'nvd3','ngVis', 'pascalprecht.translate', 'ngCookies']);
 
 
 myApp.controller('main', function ($scope, $rootScope, $location, notification) {
@@ -13,8 +13,47 @@ var apiFlavor = require('./api_flavor');
 myApp.config(['RestangularProvider', apiFlavor.requestInterceptor]);
 
 myApp.controller('username', ['$scope', '$window', function($scope, $window) {
+    console.log('somewhere in hte controller -+++++++++++++++++++++++++++++----------');
+
     $scope.username =  $window.localStorage.userName.toUpperCase();
-}])
+}]);
+
+
+var preferred_language = 'en';
+
+myApp.controller('main', function ($scope, $rootScope, $location, notification) {
+    $rootScope.$on('$stateChangeSuccess', function () {
+        $scope.displayBanner = $location.$$path === '/dashboard';
+    });
+});
+
+myApp.controller('languageCtrl', ['$translate', '$scope', function ($translate, $scope) {
+    $scope.serve_language = function (langKey) {
+        console.log("preferred language "+preferred_language);
+        $translate.use(langKey);
+        preferred_language = langKey;
+    };
+    $translate('HEADLINE').then(function (headline) {
+        $scope.headline = headline;
+    }, function (translationId) {
+        $scope.headline = translationId;
+    });
+}]);
+myApp.config(['$translateProvider', function ($translateProvider) {
+    $translateProvider.useStaticFilesLoader({
+        files: [
+            {
+                prefix: '../admin/languages/',
+                suffix: '.json'
+            }, {
+                prefix: '../admin/languages/',
+                suffix: '.json'
+            }
+        ]
+    });
+    $translateProvider.preferredLanguage(preferred_language);
+    $translateProvider.useCookieStorage(); //remember chosen language
+}]);
 
 // Forgot Password Controller
 
@@ -23,7 +62,7 @@ myApp.controller('main', ['Restangular', '$scope', '$uibModal','notification', f
         $scope.modal = function () {
             var modalInstance = $uibModal.open({
                 template: '<div class="modal-header">'+
-                                '<h5 class="modal-title">Forgot Password</h5>'+
+                           '<h5 class="modal-title">Forgot Password</h5>'+
                             '</div>'+
                                 '<div class="container modal-body">'+
                                     '<form>'+
@@ -127,9 +166,14 @@ myApp.directive('graph', require('./dashboard/graphs'));
 myApp.directive('sendpush', require('./smsbatch/sendpush'));
 myApp.directive('approveReview', require('./groups/approveReview'));
 
+//myApp.directive('roles', require('./grouprights/radioRoles'));
+
+
 // personal config
 myApp.config(['$stateProvider', require('./personal-details/user-details')]);
 myApp.config(['$stateProvider', require('./change-pass/change-password')]);
+myApp.config(['$stateProvider', require('./epgData/epgchart')]);
+
 
 myApp.config(['NgAdminConfigurationProvider', function (nga) {
   

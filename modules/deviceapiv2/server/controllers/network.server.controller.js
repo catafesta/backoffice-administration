@@ -15,15 +15,15 @@ var path = require('path'),
 //makes a database call. returns database_error if connection failed, one genre_id otherwise
 
 exports.dbtest = function(req, res) {
-    var clear_response = new response.OK();
-	var database_error = new response.DATABASE_ERROR();
     models.genre.findAll({
         attributes: ['id'],
         limit: 1
     }).then(function (result) {
+		var clear_response = new response.APPLICATION_RESPONSE(req.body.language, 200, 1, 'OK_DESCRIPTION', 'OK_DATA');
         clear_response.response_object = result;
         res.send(clear_response);
     }).catch(function(error) {
+		var database_error = new response.APPLICATION_RESPONSE(req.body.language, 706, -1, 'DATABASE_ERROR_DESCRIPTION', 'DATABASE_ERROR_DATA');
         res.send(database_error);
     });
 };
@@ -68,8 +68,6 @@ exports.dbtest = function(req, res) {
 exports.gcm = function(req, res) {
 
 	if(req.auth_obj.boxid == undefined){
-		var clear_response = new response.OK();
-		var database_error = new response.DATABASE_ERROR();
 		var auth_obj = querystring.parse(req.body.auth,";","=");
 
 		models.devices.upsert({
@@ -90,15 +88,16 @@ exports.gcm = function(req, res) {
 			firmware              : decodeURIComponent(req.body.firmwareversion),
 			language              : req.body.language
 		}).then(function(result){
+			var clear_response = new response.APPLICATION_RESPONSE(req.body.language, 200, 1, 'OK_DESCRIPTION', 'OK_DATA');
 			res.send(clear_response);
 			return null;
 		}).catch(function(error) {
+			var database_error = new response.APPLICATION_RESPONSE(req.body.language, 706, -1, 'DATABASE_ERROR_DESCRIPTION', 'DATABASE_ERROR_DATA');
 			res.send(database_error);
 		});
 
 	}
 	else {
-		var clear_response = new response.OK();
 		models.devices.upsert({
 			googleappid           : decodeURIComponent(req.body.google_app_id),
 			device_id             : req.auth_obj.boxid,
@@ -117,9 +116,11 @@ exports.gcm = function(req, res) {
 			firmware              : decodeURIComponent(req.body.firmwareversion),
 			language              : req.body.language
 		}).then(function(result){
+			var clear_response = new response.APPLICATION_RESPONSE(req.body.language, 200, 1, 'OK_DESCRIPTION', 'OK_DATA');
 			res.send(clear_response);
 			return null;
 		}).catch(function(error) {
+			var database_error = new response.APPLICATION_RESPONSE(req.body.language, 706, -1, 'DATABASE_ERROR_DESCRIPTION', 'DATABASE_ERROR_DATA');
 			res.send(database_error);
 		});
 	}

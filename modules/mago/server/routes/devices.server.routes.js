@@ -9,8 +9,10 @@ module.exports = function(app) {
 
     /* ===== devices ===== */
     app.route('/api/devices')
+        .get(devices.list);
+
+    app.route('/api/devices')
         .all(policy.isAllowed)
-        .get(devices.list)
         .post(devices.create);
 
     app.route('/api/devices/:deviceId')

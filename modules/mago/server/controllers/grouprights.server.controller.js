@@ -6,8 +6,7 @@
 var path = require('path'),
     errorHandler = require(path.resolve('./modules/core/server/controllers/errors.server.controller')),
     db = require(path.resolve('./config/lib/sequelize')).models,
-    DBModel = db.grouprights,
-    DBapis = db.apiurl;
+    DBModel = db.grouprights;
 
 /**
  * Create
@@ -44,21 +43,21 @@ exports.update = function(req, res) {
         {
             where: {
                 group_id: req.body.group_id,
-                api_id: req.body.api_id
+                api_group_id: req.body.api_group_id
             }
         }
     ).then(function(result){
         if(result) {
             result.update(req.body)
-                    .then(function(result) {
-                        res.json({message: 'update success'});
-                    });
+                .then(function(result) {
+                    res.json({message: 'update success'});
+                });
         }
         else {
             DBModel.create(req.body)
-                    .then(function(result) {
-                        res.json({message: 'Create success'});
-                    });
+                .then(function(result) {
+                    res.json({message: 'Create success'});
+                });
         }
         return null;
         //res.send(result);
@@ -104,12 +103,11 @@ exports.delete = function(req, res) {
  */
 exports.list = function(req, res) {
 
-    DBapis.findAndCountAll({
-        //include: []
-         include: [{model:db.grouprights, where: { group_id: req.query.group_id },required: false, attributes: ['group_id', 'api_id','read','edit','create']}],
-         order: ['id'],
-         raw: true
-
+    db.api_group.findAndCountAll({
+        attributes: ['id', 'api_group_name', 'description'],
+        include: [{model:db.grouprights, where: { group_id: req.query.group_id },required: false, attributes: ['group_id', 'read','edit','create']}],
+        order: ['api_group.id'],
+        raw: true
     }).then(function(results) {
         if (!results) {
             return res.status(404).send({
@@ -117,7 +115,7 @@ exports.list = function(req, res) {
             });
         } else {
 
-      res.setHeader("X-Total-Count", results.count);            
+            res.setHeader("X-Total-Count", results.count);
             res.json(results.rows);
         }
     }).catch(function(err) {

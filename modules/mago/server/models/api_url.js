@@ -1,7 +1,7 @@
 "use strict";
 
 module.exports = function(sequelize, DataTypes) {
-    var Apiurl = sequelize.define('apiurl', {
+    var Apiurl = sequelize.define('api_url', {
         id: {
             type: DataTypes.INTEGER(11),
             allowNull: false,
@@ -11,22 +11,20 @@ module.exports = function(sequelize, DataTypes) {
         },
         api_url: {
             type: DataTypes.STRING(255),
-            unique: true,
-            allowNull: false
+            allowNull: false,
+            unique: 'api_url_api_group'
         },
         description: {
             type: DataTypes.STRING(255),
-            allowNull: true
+            allowNull: false
+        },
+        api_group_id: {
+            type: DataTypes.INTEGER(11),
+            unique: 'api_url_api_group'
         }
     }, {
         tableName: 'api_url',
-        //associate: function(models) {
-        //    Grouprights.belongsTo(models.groups, {foreignKey: 'group_id'});
-        //}
         associate: function(models) {
-            if (models.grouprights){
-                Apiurl.hasMany(models.grouprights, {foreignKey: 'api_id'});
-            }
         }
     });
     return Apiurl;

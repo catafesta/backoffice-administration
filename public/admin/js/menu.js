@@ -8,7 +8,7 @@ export default function (nga, admin) {
             .title('Dashboard')
             .icon('<span class="fa fa-tachometer fa-fw"></span>')
         )
-        
+
         .addChild(nga.menu()
                     .title('Customers')
                     .icon('<span class="fa fa-user fa-fw"></span>')
@@ -77,7 +77,7 @@ export default function (nga, admin) {
             .title('Dashboard')
             .icon('<span class="fa fa-tachometer fa-fw"></span>')
         )
-        
+
         .addChild(nga.menu()
                     .title('Customers')
                     .icon('<span class="fa fa-user fa-fw"></span>')
@@ -201,6 +201,11 @@ export default function (nga, admin) {
             .addChild(nga.menu(admin.getEntity('EpgData'))
                 .title('EPG Data')
                 .icon('<span class="fa fa-folder-open fa-fw"></span>')
+            )
+            .addChild(nga.menu()
+                .title('EPG Graph')
+                .icon('<span class="fa fa-tachometer fa-fw"></span>')
+                .link('/epggraph')
             )
         )
 

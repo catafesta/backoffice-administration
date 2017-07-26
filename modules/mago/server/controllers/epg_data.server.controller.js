@@ -12,6 +12,8 @@ var path = require('path'),
     async = require('async'),
     fs = require('fs'),
     moment = require('moment'),
+    dateFormat = require('dateformat'),
+    DBChannels = db.channels,
     DBModel = db.epg_data;
 
 /**
@@ -34,6 +36,8 @@ exports.create = function(req, res) {
 
 exports.save_epg_records = function(req, res){
 
+    var current_time = dateFormat(Date.now(), "yyyy-mm-dd 00:00:00");
+
     if(req.body.delete_existing === true){
         DBModel.destroy({
             where: {id: {gt: -1}}
@@ -46,7 +50,15 @@ exports.save_epg_records = function(req, res){
         });
     }
     else{
-        read_and_write_epg();
+        DBModel.destroy({
+            where: {program_start: {gte: current_time}}
+        }).then(function (result) {
+            read_and_write_epg();
+            return null;
+        }).catch(function(error) {
+            if(error.message.split(': ')[0] === 'ER_ROW_IS_REFERENCED_2') return res.status(400).send({message: 'Delete failed: At least one of these programs is scheduled'}); //referenced record cannot be deleted
+            else return res.status(400).send({message: 'Unable to proceed with the action'}); //other error occurred
+        });
     }
 
     function read_and_write_epg(){
@@ -213,6 +225,29 @@ exports.list = function(req, res) {
     });
 };
 
+exports.list_chart_epg = function(req, res) {
+
+    DBChannels.findAll({
+        attributes: [['channel_number', 'id'],['title','content']]
+    }).then(function(channels){
+        //res.json(channels);
+        DBModel.findAll({
+                attributes: ['id', ['channel_number', 'group'],['program_start','start'],['program_end','end'],['title','content']]
+            }
+        ).then(function(results) {
+            if (!results) {
+                return res.status(404).send({
+                    message: 'No data found'
+                });
+            } else {
+                res.json({groups:channels, items:results});
+            }
+        }).catch(function(err) {
+            res.jsonp(err);
+        });
+    });
+};
+
 /**
  * middleware
  */
@@ -320,6 +355,7 @@ function import_xml_standard(req, res){
 
 function import_csv(req, res){
     var stream = fs.createReadStream(path.resolve('./public')+req.body.epg_file); //link main url
+    var message = '';
 
     fastcsv.fromStream(stream, {headers : true}, {ignoreEmpty: true}).validate(function(data){
         if(req.body.channel_number){
@@ -343,14 +379,13 @@ function import_csv(req, res){
             long_description: data.long_description,
             duration_seconds: (Date.parse(data.program_end) - Date.parse(data.program_start))/1000 //parse strings as date timestamps, convert difference from milliseconds to seconds
         }).then(function (result) {
-            //todo: return some response?
         }).catch(function(error) {
-            return res.status(400).send({message: 'Unable to save the epg records'}); //serverside filetype validation
+            message = 'Unable to save all epg records';
         });
 
     });
-    //todo: move response to success case?
-    return res.status(200).send({message: 'Epg records were saved'}); //serverside filetype validation
+    message = (message !== '') ? message : 'Epg records were saved';
+    return res.status(200).send({message: message}); //serverside filetype validation
 }
 
 function import_xml_dga(req, res){

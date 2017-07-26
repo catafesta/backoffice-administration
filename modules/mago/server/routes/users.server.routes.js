@@ -11,16 +11,20 @@ module.exports = function(app) {
 
     /* ===== users ===== */
     app.route('/api/users')
+        .get(users.list);
+		
+    app.route('/api/users')
         .all(policy.isAllowed)
-        .get(users.list)
-        .post(users.create);
+        .post(users.create);		
 
     app.route('/api/users/:usersId')
+        .get(users.read);
+
+	app.route('/api/users/:usersId')
         .all(policy.isAllowed)
-        .get(users.read)
         .put(users.update)
         .delete(users.delete);
-
+		
     app.route('/api/change-password')
         .all(policy.isAllowed)
         .post(auth.changepassword1);

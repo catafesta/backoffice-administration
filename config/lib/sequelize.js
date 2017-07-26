@@ -9,9 +9,12 @@ var
     db = {},
     http = require('http'),
     https = require('https'),
-    chalk = require('chalk');
+    chalk = require('chalk'),
+    randomstring = require('randomstring'),
+    authentication = require(path.resolve('./modules/deviceapiv2/server/controllers/authentication.server.controller'));
 
 const os = require('os');
+const api_list = require(path.resolve("./config/api_list.json"));
 
 db.Sequelize = Sequelize;
 db.models = {};
@@ -57,8 +60,9 @@ db.connect = function(database, username, password, options) {
                                     isavailable: 1
                                 }
                             }).then(function(group) {
-                                winston.info('Admin group created successfuly');
+                                winston.info('Admin group created successfully');
                                 callback(null);
+                                return null;
                             }).catch(function(err) {
                                 winston.info('Error creating Admin group');
                                 callback(null);
@@ -66,17 +70,21 @@ db.connect = function(database, username, password, options) {
                         },
                         //create admin user
                         function(callback) {
+                            var salt = randomstring.generate(64);
                             db.models['users'].findOrCreate({
                                 where: {username: 'admin'},
                                 defaults: {
                                     username: 'admin',
                                     password: 'admin',
+                                    hashedpassword: authentication.encryptPassword('admin', salt),
+                                    salt: salt,
                                     isavailable: 1,
                                     group_id: 1
                                 }
                             }).then(function(user) {
-                                winston.info('Admin user created successfuly.');
+                                winston.info('Admin user created successfully.');
                                 callback(null);
+                                return null;
                             }).catch(function(err) {
                                 winston.info('Error creating Admin user');
                                 callback(null);
@@ -100,8 +108,9 @@ db.connect = function(database, username, password, options) {
                                     menulastchange: Date.now()
                                 }
                             }).then(function(settins) {
-                                winston.info('Settings created successfuly.');
+                                winston.info('Settings created successfully.');
                                 callback(null);
+                                return null;
                             }).catch(function(err) {
                                 winston.error("An error occured: %j", err);
                                 callback(null);
@@ -112,8 +121,9 @@ db.connect = function(database, username, password, options) {
                                 where: {id: 1},
                                 defaults: {id:1,description:'livetv'}
                             }).then(function(done) {
-                                winston.info('Activity livetv created successfuly.');
+                                winston.info('Activity livetv created successfully.');
                                 callback(null);
+                                return null;
                             }).catch(function(err) {
                                 winston.info('Error creating activity livetv');
                                 callback(null);
@@ -124,8 +134,9 @@ db.connect = function(database, username, password, options) {
                                 where: {id: 2},
                                 defaults: {id:2,description:'vod'}
                             }).then(function(done) {
-                                winston.info('Activity vod created successfuly.');
+                                winston.info('Activity vod created successfully.');
                                 callback(null);
+                                return null;
                             }).catch(function(err) {
                                 winston.info('Error creating activity vod');
                                 callback(null);
@@ -136,8 +147,9 @@ db.connect = function(database, username, password, options) {
                                 where: {id: 3},
                                 defaults: {id:3,description:'catchup'}
                             }).then(function(done) {
-                                winston.info('Activity catchup created successfuly.');
+                                winston.info('Activity catchup created successfully.');
                                 callback(null);
+                                return null;
                             }).catch(function(err) {
                                 winston.info('Error creating activity catchup');
                                 callback(null);
@@ -149,8 +161,9 @@ db.connect = function(database, username, password, options) {
                                 where: {app_id: 1},
                                 defaults: {id:1,app_group_name:'Large Screen',app_id:1,app_group_id:1}
                             }).then(function(done) {
-                                winston.info('Application ID 1 created successfuly.');
+                                winston.info('Application ID 1 created successfully.');
                                 callback(null);
+                                return null;
                             }).catch(function(err) {
                                 winston.info('Error creating aplication ID 1');
                                 callback(null);
@@ -161,8 +174,9 @@ db.connect = function(database, username, password, options) {
                                 where: {app_id: 2},
                                 defaults: {id:2,app_group_name:'Small Screen',app_id:2,app_group_id:2}
                             }).then(function(done) {
-                                winston.info('Application ID 2 created successfuly.');
+                                winston.info('Application ID 2 created successfully.');
                                 callback(null);
+                                return null;
                             }).catch(function(err) {
                                 winston.info('Error creating aplication ID 2');
                                 callback(null);
@@ -173,8 +187,9 @@ db.connect = function(database, username, password, options) {
                                 where: {app_id: 3},
                                 defaults: {id:3,app_group_name:'Small Screen',app_id:3,app_group_id:2}
                             }).then(function(done) {
-                                winston.info('Application ID 3 created successfuly.');
+                                winston.info('Application ID 3 created successfully.');
                                 callback(null);
+                                return null;
                             }).catch(function(err) {
                                 winston.info('Error creating aplication ID 1');
                                 callback(null);
@@ -185,8 +200,9 @@ db.connect = function(database, username, password, options) {
                                 where: {app_id: 4},
                                 defaults: {id:4,app_group_name:'Large Screen',app_id:4,app_group_id:1}
                             }).then(function(done) {
-                                winston.info('Application ID 4 created successfuly.');
+                                winston.info('Application ID 4 created successfully.');
                                 callback(null);
+                                return null;
                             }).catch(function(err) {
                                 winston.info('Error creating aplication ID 4');
                                 callback(null);
@@ -197,8 +213,9 @@ db.connect = function(database, username, password, options) {
                                 where: {app_id: 5},
                                 defaults: {id:5,app_group_name:'Large Screen',app_id:5,app_group_id:1}
                             }).then(function(done) {
-                                winston.info('Application ID 5 created successfuly.');
+                                winston.info('Application ID 5 created successfully.');
                                 callback(null);
+                                return null;
                             }).catch(function(err) {
                                 winston.info('Error creating aplication ID 5');
                                 callback(null);
@@ -210,8 +227,9 @@ db.connect = function(database, username, password, options) {
                                 where: {id: 1},
                                 defaults: {id:1,description: 'Live TV STB Package', activity_id: 1, app_group_id: 1}
                             }).then(function(done) {
-                                winston.info('Live TV STB Package created successfuly.');
+                                winston.info('Live TV STB Package created successfully.');
                                 callback(null);
+                                return null;
                             }).catch(function(err) {
                                 winston.info('Error creating Live TV STB Package');
                                 callback(null);
@@ -222,8 +240,9 @@ db.connect = function(database, username, password, options) {
                                 where: {id: 2},
                                 defaults: {id:2,description: 'Live TV Mobile Package', activity_id: 1, app_group_id: 2}
                             }).then(function(done) {
-                                winston.info('Live TV Mobile Package created successfuly.');
+                                winston.info('Live TV Mobile Package created successfully.');
                                 callback(null);
+                                return null;
                             }).catch(function(err) {
                                 winston.info('Error creating Live TV Mobile Package');
                                 callback(null);
@@ -234,8 +253,9 @@ db.connect = function(database, username, password, options) {
                                 where: {id: 3},
                                 defaults: {id:3,description: 'VOD STB Package', activity_id: 2, app_group_id: 1}
                             }).then(function(done) {
-                                winston.info('VOD STB Package created successfuly.');
+                                winston.info('VOD STB Package created successfully.');
                                 callback(null);
+                                return null;
                             }).catch(function(err) {
                                 winston.info('Error creating VOD STB Package');
                                 callback(null);
@@ -246,8 +266,9 @@ db.connect = function(database, username, password, options) {
                                 where: {id: 4},
                                 defaults: {id:4,description: 'VOD Mobile Package', activity_id: 2, app_group_id: 2}
                             }).then(function(done) {
-                                winston.info('VOD Mobile Package created successfuly.');
+                                winston.info('VOD Mobile Package created successfully.');
                                 callback(null);
+                                return null;
                             }).catch(function(err) {
                                 winston.info('Error creating VOD Mobile Package');
                                 callback(null);
@@ -258,11 +279,52 @@ db.connect = function(database, username, password, options) {
                                 where: {id: 666},
                                 defaults: {id:666,description: 'Favorites', is_available: true, icon_url: 'favoritesicon'}
                             }).then(function(done) {
-                                winston.info('Genre Favorites created successfuly.');
+                                winston.info('Genre Favorites created successfully.');
                                 callback(null);
+                                return null;
                             }).catch(function(err) {
                                 winston.info('Error creating Genre Favorites');
                                 callback(null);
+                            });
+                        },
+                        function(callback){
+                            async.forEachOf(api_list, function (value, key, callback) {
+                                db.models['api_group'].findOrCreate({
+                                    where: {api_group_name: value.api_group},
+                                    defaults: {api_group_name: value.api_group, description: value.description}
+                                }).then(function(api_group) {
+                                    winston.info('Api group record created successfully');
+                                    async.forEachOf(api_list[key].api_urls, function (apivalue, apikey, callback) {
+                                        db.models['api_url'].findOrCreate({
+                                            where: {api_url: apivalue.api_url, api_group_id: api_group[0].id},
+                                            defaults: {api_url: apivalue.api_url, description: apivalue.description, api_group_id: api_group[0].id}
+                                        }).then(function(done) {
+                                            winston.info('Api record created successfully');
+                                            callback(null);
+                                            return null;
+                                        }).catch(function(err) {
+                                            console.log(err);
+                                            winston.info('Error creating Api record');
+                                            callback(null);
+                                        });
+                                        return null;
+                                    }, function (err) {
+                                        if(err) {
+                                            winston.info('Error creating Api records');
+                                            callback(null);
+                                        }
+                                    });
+                                    return null;
+                                }).catch(function(err) {
+                                    console.log(err);
+                                    winston.info('Error creating Api group record');
+                                    callback(null);
+                                });
+                            }, function (err) {
+                                if(err){
+                                    winston.info('Error creating Api group record');
+                                    callback(null);
+                                }
                             });
                         },
                         function(callback){
@@ -270,8 +332,9 @@ db.connect = function(database, username, password, options) {
                                 where: {id: 1},
                                 defaults: {id:1,description: 'VOD Streams Primary CDN'}
                             }).then(function(done) {
-                                winston.info('VOD stream source created successfuly.');
+                                winston.info('VOD stream source created successfully.');
                                 callback(null);
+                                return null;
                             }).catch(function(err) {
                                 winston.info('Error creating VOD stream source');
                                 callback(null);
@@ -282,7 +345,7 @@ db.connect = function(database, username, password, options) {
                                 where: {id: 1},
                                 defaults: {id:1,stream_source: 'Live Streams Primary CDN'}
                             }).then(function(done) {
-                                winston.info('Live TV stream source created successfuly.');
+                                winston.info('Live TV stream source created successfully.');
                                 callback(null);
                             }).catch(function(err) {
                                 winston.info('Error creating Live TV stream source');
@@ -317,7 +380,6 @@ db.connect = function(database, username, password, options) {
                                     });
                                 }
 
-
                             } catch(e) {
                                 console.log("error2")
                                 console.log(e)
@@ -335,20 +397,24 @@ db.connect = function(database, username, password, options) {
                 winston.error("An error occured: %j", err);
             });
         }
-
-
+        return null;
     }).catch(function(error) {
+        winston.error("Error connecting to database");
+        console.log(error);
+        /*
         if(error.message.split(':', 1)[0] === "ER_BAD_DB_ERROR"){
             //database does not exist
             //todo: create database here
         }
-        else console.log(error)
+        else {
+            winston.error("Error connecting to database");
+            console.log(error)
+        }
+        */
     });
 
     db.sequelize = sequelize;
-
     winston.info("Finished Connecting to Database");
-
     return true;
 };
 
