@@ -18,8 +18,8 @@ var path = require('path'),
 exports.list = function(req, res) {
 
     var allowed_content = (req.thisuser.show_adult === true) ? [0, 1] : [0];
-    var offset = (req.body.subset_number) ? ((parseInt(req.body.subset_number)-1)*200) : 0; //for older versions of vod, start query at first record
-    var limit = (req.body.subset_number) ? 200 : 99999999999; //for older versions of vod, set limit to 99999999999
+    var offset = (!req.body.subset_number || req.body.subset_number === '-1') ? 0 : ((parseInt(req.body.subset_number)-1)*50); //for older versions of vod, start query at first record
+    var limit = (!req.body.subset_number || req.body.subset_number === '-1') ? 99999999999 : 50; //for older versions of vod, set limit to 99999999999
 
     models.vod.findAll({
         attributes: ['id', 'title', 'pin_protected', 'duration', 'description', 'director', 'starring', 'category_id', 'createdAt', 'rate', 'year', 'icon_url', 'image_url'],

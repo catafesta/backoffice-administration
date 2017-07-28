@@ -189,8 +189,8 @@ function valid_appid(auth_obj){
     else return true;
 }
 function set_screensize(auth_obj){
-    if(['1', '4', '5'].indexOf(auth_obj.appid) === -1) auth_obj.screensize = 1;
-    else auth_obj.screensize = 2;
+    if(['1', '4', '5'].indexOf(auth_obj.appid) === -1) auth_obj.screensize = 2;
+    else auth_obj.screensize = 1;
     console.log("screensize "+auth_obj.screensize)
 }
 function isplaintext(auth){
